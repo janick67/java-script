@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Kurs Javascript - zadanie tworzenie elementów</title>
+</head>
+<style>
+    * {
+        box-sizing: border-box;
+    }
+    .list {
+        display:flex;
+        border:2px solid #aaa;
+        padding:20px;
+    }
+    .list .element {
+        height:200px;
+        flex-grow: 1;
+        margin:10px;
+        display: flex;
+        background-image: linear-gradient( 135deg, #2AFADF 10%, #4C83FF 100%);
+        border-radius: 10px;
+        color: #fff;
+        justify-content: center;
+        align-items: center;
+        font-family: sans-serif;
+        text-shadow: 1px 1px 1px rgba(255,255,255,0.5);
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        font-size: 20px;
+        font-weight: bold;
+    }
+    .delete {
+        display: inline-block;
+        padding:15px 30px;
+        background: red;
+        color:#fff;
+        border:0;
+        margin:10px 0;
+    }
+</style>
+<body>
+
+    <div class="list">
+    </div>
+
+    <button id="delete" class="delete" type="button">Usuń elementy</button>
+
+    <button id="add" class="delete" type="button">Dodaj elementy</button>
+
+    <script src = "zadanie-dom-test-tworzenie.js">
+
+        //----------------------------------
+        //tutaj pisz skrypty
+        //----------------------------------
+
+
+    </script>
+</body>
+</html>

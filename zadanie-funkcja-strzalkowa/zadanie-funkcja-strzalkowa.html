@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Kurs Javascript - Zadanie funkcja strzałkowa</title>
+</head>
+<style>
+body {
+    max-width:900px;
+    margin:0 auto;
+    font-size:2rem;
+    font-family: "Source Sans Pro", sans-serif;
+    font-weight: 400;
+    color:#444;
+}
+h1 {
+    color:#F15C5C;
+}
+</style>
+<body>
+    <h1>Zadanie funkcja strzałkowa</h1>
+    <p>Zadanie wykonuj wraz z otwartą konstola debugera</p>
+    <script>
+        fetch('http://kursjs.pl/kurs/es6/zadanie-userzy.json')
+            .then(response => response.json())
+            .then(response => {
+                console.log(response.users);
+                //tutaj zacznij wykonywać zadania
+
+                /* Wypisz w konsoli:
+                -----------------
+                - tekst: "Wszyscy użytkownicy"
+                - tablicę z wszystkimi użytkownikami
+
+                - tekst: "Wszyscy użytkownicy pełnoletni:"
+                - tablicę z wszystkimi użytkownikami pełnoletnimi
+
+                - tekst: "Użytkownicy z tagiem "dolor":
+                - tablicę użytkowników którzy mają tag "dolor"
+
+                - tekst: "Wszyscy użytkownicy są pełnoletni:"
+                - prawda/falsz
+
+                - tekst: "Niektórzy użytkownicy są pełnoletni:"
+                - prawda/falsz
+
+                - tekst: "Użytkownicy pisane dużymi literami:"
+                - tablicę TYLKO z nazwami użytkowników pisanymi dużymi literami
+                */
+            })
+    </script>
+</body>
+</html>

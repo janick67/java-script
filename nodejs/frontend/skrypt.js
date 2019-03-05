@@ -190,6 +190,10 @@ tabelka2.generuj();
 
 tabelka2.pokaz();
 
+tabelka3.generuj();
+
+tabelka3.pokaz();
+
 
 // -------------------------------------------KONIEC MAIN----------------------
 

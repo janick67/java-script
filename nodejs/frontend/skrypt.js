@@ -1,5 +1,7 @@
 const uri = document.location.href;
 
+let aktualna_tabelka = null;
+
 function Filtr(){
 
 }
@@ -23,13 +25,12 @@ function Tabelka(id,nazwa)
   $('div#body').append(this.$div);
   this.$tabela = $(`<table summary="${this.nazwa}"></table>`);
   this.$div.append(this.$tabela);
+  this.$div.hide();
   this.$trHeader = $('<thead class="thead"><tr class="trHeader"></tr></thead>');
   this.$tabela.append(this.$trHeader);
   this.$tbody = $('<tbody class="tbody"></tbody>');
   this.$tabela.append(this.$tbody);
-
-  this.filtr = new Filtr();
-
+  this.filtr = null;
 }
 
 Tabelka.prototype.generujHead = function(resp){
@@ -61,21 +62,22 @@ Tabelka.prototype.generuj = function(){
 this.generuj_obiekt(); // wygenerowanie domyślnego
     $.getJSON(this.adres,this.object)
     .done(resp => {
-      this.generujHead(resp,name);
-      this.generujBody(resp,name);
+      this.generujHead(resp);
+      this.generujBody(resp);
       //this.filtr.dodaj();
     })
     .fail(err => {
       console.log(err)
     });
+    return this;
   };
 
 Tabelka.prototype.generuj_obiekt = function(obj){
   //  console.log("obj: ",obj,'g_obj: ',global_object)
     const obj2 ={
       table: "wydatki",
-      limit: 5,
-      offset: 0
+      limit: this.na_strone,
+      offset: (this.strona-1)*this.na_strone
     }
     const obj_target = Object.assign({},obj2, this.object, obj);
     this.object = obj_target;
@@ -84,21 +86,37 @@ Tabelka.prototype.generuj_obiekt = function(obj){
       //console.log("element: ",obj_target[el]);
     };
    //console.log('obj_target: ', obj_target);
+   console.log('obj',obj,'obj2', obj2,'object', this.object,'target',obj_target);
     return obj_target;
   }
 
 //------------------------------------------------------------------------------------------
 Tabelka.prototype.pokaz = function(){
-  this.$div.hide();
-  console.log("prototype pokaz: ",this.$div.siblings(),this.$div);
+  //console.log("prototype pokaz: ",this.$div.siblings(),this.$div);
     this.$div.siblings().siblings().each((index,el) => {
-      console.log('petla',$(el));
-      tabelka.$div.hide();
+      //console.log('petla',$(el));
       $(el).hide();
     });
     this.$div.show();
-    console.log(this.$div);
+    aktualna_tabelka = this;
+    //console.log(this.$div);
   }
+//-------------------------------------------------------------------------------------------
+
+Tabelka.prototype.odswiez = function(){
+  //console.log("Odswiezam: ",obj);
+  this.generuj_obiekt();
+  //console.log(this.adres, this.object);
+  $.getJSON(this.adres,this.object)
+  .done(resp => {
+    this.$tbody.children().remove();
+    //console.log(resp);
+    this.generujBody(resp);
+  })
+  .fail(err => {
+    console.log(err)
+  });
+}
 
 
 //---------------------------------------------EVENTY------------------------------
@@ -111,21 +129,24 @@ const $btn_filter = $('#btn_filter');
 const $div_body = $('#body');
 
 $btn_next.on('click', function(){
-  strona++;
-  const obj = generuj_obiekt({offset: na_strone*(strona-1)});
-  odswiez_tabelke((obj));
+  const it = aktualna_tabelka;
+  it.strona++;
+  it.object.offset = it.na_strone*(it.strona-1);
+  it.odswiez();
 });
 
 $btn_prev.on('click', function(){
-  strona--;
-  const obj = generuj_obiekt({offset: na_strone*(strona-1)});
-  odswiez_tabelke((obj));
+  const it = aktualna_tabelka;
+  it.strona--;
+  it.object.offset = it.na_strone*(it.strona-1);
+  it.odswiez();
 });
 
 $select_na_strone.on('change', function() {
-  na_strone = this.value;
-  const obj = generuj_obiekt({limit: na_strone});
-  odswiez_tabelke((obj));
+  const it = aktualna_tabelka;
+  it.na_strone = this.value;
+  it.object.limit = it.na_strone;
+  it.odswiez();
 });
 
 $btn_filter.click(function(){
@@ -157,10 +178,10 @@ $div_body.click( e => {
     $(`.trFilter`).show();
     let $input = $(`.trFilter .${target.classList[0]} input`);
     if(target.classList[0] === 'Powiązane'){
-      console.log("jestem tu jednak ale tylko tu");
+    //  console.log("jestem tu jednak ale tylko tu");
       if (target.innerText.length > 0){
        $input = $(`.trFilter .ID input`);
-       console.log("jestem tu jednak");
+  //     console.log("jestem tu jednak");
       }else{
        ukryj_filtr();
        return;
@@ -180,19 +201,9 @@ $div_body.click( e => {
 //-----------------------------------------MAIN----------------------------------
 const tabelka = new Tabelka("wydatki","wydatki");
 tabelka.adres += 'api/'+tabelka.sql_table+"/query";
-tabelka.generuj();
+tabelka.generuj().pokaz();
 
 
-const tabelka2 = new Tabelka("wydatki2","wydatki2");
-tabelka2.adres += 'api/'+tabelka.sql_table+"/query";
-tabelka2.generuj_obiekt({offset:5});
-tabelka2.generuj();
-
-tabelka2.pokaz();
-
-tabelka3.generuj();
-
-tabelka3.pokaz();
 
 
 // -------------------------------------------KONIEC MAIN----------------------

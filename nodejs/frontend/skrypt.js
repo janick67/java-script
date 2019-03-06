@@ -73,7 +73,7 @@ this.generuj_obiekt(); // wygenerowanie domyślnego
   };
 
 Tabelka.prototype.generuj_obiekt = function(obj){
-  // console.log("obj: ",obj,'g_obj: ',global_object)
+  //  console.log("obj: ",obj,'g_obj: ',global_object)
     const obj2 ={
       table: "wydatki",
       limit: this.na_strone,

@@ -37,7 +37,7 @@ app.get('/api/wydatki/query',(req,res) => {
     }else if(el === 'offset'){
       limit += ' offset '+param[el];
     }else if(el === 'data' || el === 'kwota'){
-      where += ' and ' + el + ' ' + param[el] + ' ';
+      where += ' and ' + el + ' = "' + param[el] + '" ';
     }else{
       if(param[el].indexOf(";") > -1) param[el] = param[el].replace(/;/g,'","');
       where += ' and ' + el+' in ("'+param[el]+'") ';

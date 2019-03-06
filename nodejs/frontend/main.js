@@ -5,9 +5,7 @@ let aktualna_tabelka = null;
 //-----------------------------------------MAIN----------------------------------
 const tabelka = new Tabelka("wydatki","wydatki");
 tabelka.adres += 'api/'+tabelka.sql_table+"/query";
-tabelka.generuj().pokaz();
-tabelka.dodaj_filtr();
-
+tabelka.init();
 
 
 // -------------------------------------------KONIEC MAIN----------------------
@@ -20,15 +18,6 @@ return $.ajax({
   contentType : 'application/json'
 });}
 
-function formatujDate(date){
-const data = new Date(date);
-//return leadingZero(data.getDate())+"."+leadingZero(data.getMonth())+"."+leadingZero(data.getFullYear());
-return leadingZero(data.getFullYear()) + "-" + leadingZero(data.getMonth()+1) + "-" + leadingZero(data.getDate());
-}
-
-function leadingZero(i) {
-  return (i < 10)? '0'+i : i;
-}
 
 /*
 

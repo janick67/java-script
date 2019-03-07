@@ -25,9 +25,8 @@ db.connect((err) => {
 app.get('/api/wydatki/query',(req,res) => {
   if (req.query.table !== "wydatki") return res.send("wybrano zła tabele");
   delete req.query.table;
-  let sql = 'Select * from wydatki';
-  let where = ' where 1';
   let limit = ' Limit';
+  let where = '';
   const param = req.query;
   const name = Object.getOwnPropertyNames(param);
   //console.log( name,param[name[0]]);
@@ -43,8 +42,28 @@ app.get('/api/wydatki/query',(req,res) => {
       where += ' and ' + el+' in ("'+param[el]+'") ';
     }
     };
-  sql += where; // dopisane cos wiecej niz samo where więc dodajemy do sql
-  if (limit.length > 6) sql += limit; //jw
+  if (limit.length <= 6) limit = ''; // nie ma nic dopisanego wiec usuwam
+  let sql = `Select * from wydatki where 1 ${where} ${limit}`;
+  console.log(sql);
+  const query = db.query(sql, (err, result) => {
+    if (err){console.error(err);  return res.send(err)};
+    res.send(result);
+  });
+});
+
+//------------------------------------------------------------------------------------------------
+//SELECT sum(kwota) FROM `wydatki` WHERE bank = 'PKO' or bank = 'BGZ' or bank = 'OPT' or bank = 'GOT' or bank = 'MBA' or bank = 'DOM' or bank = 'inne'
+app.get('/api/wydatki/saldo/query',(req,res) => {
+  let sql = `SELECT sum(kwota) as Saldo FROM wydatki`;
+  console.log(sql);
+  const query = db.query(sql, (err, result) => {
+    if (err){console.error(err);  return res.send(err)};
+    res.send(result);
+  });
+});
+
+app.get('/api/wydatki/saldo_na_miesiac/query',(req,res) => {
+  let sql = `SELECT Year(data), MONTH(data), sum(kwota) FROM wydatki WHERE kogo = 'moje' GROUP BY Year(data), MONTH(data) order by Year(data), MONTH(data)`;
   console.log(sql);
   const query = db.query(sql, (err, result) => {
     if (err){console.error(err);  return res.send(err)};

@@ -176,12 +176,14 @@ Filtr.prototype.zastosuj = function(){// pobiera nowe dane stosownie do ustawion
 Filtr.prototype.ustaw = function(target){ // ustawia filtr na podstawie kliknietego przez uzytkownika elementu
   if (this.wygenerowane === 0) this.generuj();  // generuje filtr jesli jeszcze go nie ma
   if (target.tagName === 'TH'){ // jesli bylo klikniete w naglowek to wyczysc filtr z tego naglowka
-    this.object[target.classList[0]] = "";
+    this.object[target.classList[0]] = '';
   }
   if (target.tagName === 'TD'){ // klikniete na konkretne dane z tabelki
     if(target.classList[0] === 'Powiązane'){  // jesli to powiazane to odnosi sie do wpisow o id do ktorch jest powiazane
       if (target.innerText.length > 0){ //jesli sa wieksze od zera to sie odwoluje
        this.object['ID'] = target.innerText;
+       this.zastosuj();
+       return;
      }else{  // w przeciwnym razie czysci i ukrywa caly filtr
        this.ukryj();
        return;

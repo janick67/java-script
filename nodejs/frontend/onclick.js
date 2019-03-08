@@ -33,6 +33,8 @@ $btn_filter.click(function(){
   aktualna_tabelka.filtr.toggle();
   });
 
+
+
 $div_body.on('mouseout', e => {
     $(e.target).closest('tr').removeClass("red");
     $(e.target).closest('td').removeClass("blue");
@@ -47,7 +49,11 @@ $div_body.on('mouseover', e => {
 
 $div_body.click( e => {
   const kliknieta_tabelka = $(e.target).closest('.divTable').data('obj');
-  kliknieta_tabelka.filtr.ustaw(e.target);
+  kliknieta_tabelka.filtr.ustaw(e.target);// do filtrowania według kliknietego
+
+  if (e.target.tagName === 'SPAN' && e.target.parentElement.tagName === 'TH'  && e.offsetX > e.target.offsetWidth) {  //sprawdza klikniete bylo na obiekcie czy na prawo od niego jesli na prawo to znaczy ze to byl pseudo element bo jego nie ma w strukturze DOM
+          kliknieta_tabelka.sortuj(e.target) //do sortowania według kliknietego
+    }
 });
 
 

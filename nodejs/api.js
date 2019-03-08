@@ -28,6 +28,7 @@ app.get('/api/wydatki/query',(req,res) => {
   let sql = 'Select * from wydatki';
   let where = ' where 1';
   let limit = ' Limit';
+  let orderby = ' order by ';
   const param = req.query;
   const name = Object.getOwnPropertyNames(param);
   //console.log( name,param[name[0]]);
@@ -36,6 +37,15 @@ app.get('/api/wydatki/query',(req,res) => {
       limit += ' '+param[el];
     }else if(el === 'offset'){
       limit += ' offset '+param[el];
+    }else if(el === 'orderby'){
+      let order = param[el];
+      console.log(order);
+      order.forEach((element,i) =>{
+        console.log("el",element, i);
+        if (element[0] === '!') element = element.slice(1) + ' desc';
+        if (i > 0) element = ', '+element;
+        orderby += element;
+      });
     }else if(el === 'data' || el === 'kwota'){
       where += ' and ' + el + ' = "' + param[el] + '" ';
     }else{
@@ -44,6 +54,7 @@ app.get('/api/wydatki/query',(req,res) => {
     }
     };
   sql += where; // dopisane cos wiecej niz samo where więc dodajemy do sql
+  if (orderby.length > 10) sql += orderby;
   if (limit.length > 6) sql += limit; //jw
   console.log(sql);
   const query = db.query(sql, (err, result) => {

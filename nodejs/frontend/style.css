@@ -19,6 +19,23 @@ button.filter{
   margin: 1%;
 }
 
+tr.trHeader span::after {
+  font-family: FontAwesome;
+  content: "";
+  margin: 5px;
+  right: 8px;
+  color: grey;
+}
+
+tr.trHeader span.up::after {
+  content: "";
+}
+
+tr.trHeader span.down::after {
+  content: "";
+}
+
+
 table {
   width: 96%;
     font-family:Arial, Helvetica, sans-serif;

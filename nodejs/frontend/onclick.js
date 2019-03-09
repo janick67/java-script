@@ -1,38 +1,44 @@
 
 //---------------------------------------------EVENTY------------------------------
 
-
-const $btn_next = $('#next');
-const $btn_prev = $('#prev');
-const $select_na_strone = $('#na_strone');
-const $btn_filter = $('#btn_filter');
-const $div_body = $('#body');
-
-$btn_next.on('click', function(){
+$('#next').on('click', function(){
   const it = aktualna_tabelka;
   it.strona++;
   it.object.offset = it.na_strone*(it.strona-1);
   it.odswiez();
 });
 
-$btn_prev.on('click', function(){
+$('#prev').on('click', function(){
   const it = aktualna_tabelka;
   it.strona--;
   it.object.offset = it.na_strone*(it.strona-1);
   it.odswiez();
 });
 
-$select_na_strone.on('change', function() {
+$('#na_strone').on('change', function() {
   const it = aktualna_tabelka;
   it.na_strone = this.value;
   it.object.limit = it.na_strone;
   it.odswiez();
 });
 
-$btn_filter.click(function(){
+$('#saldo').click(function(){
+  const tab_saldo = new Tabelka("wydatki","wydatki");
+  tab_saldo.adres += 'api/wydatki/saldo/query';
+  tab_saldo.init();
+  });
+
+$('#saldo_na_miesiac').click(function(){
+    const tab_saldo = new Tabelka("wydatki","wydatki");
+    tab_saldo.adres += 'api/wydatki/saldo_na_miesiac/query';
+    tab_saldo.init();
+    });
+
+$('#btn_filter').click(function(){
   aktualna_tabelka.filtr.toggle();
   });
 
+const $div_body = $('#body');
 
 
 $div_body.on('mouseout', e => {

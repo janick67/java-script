@@ -43,6 +43,7 @@ Tabelka.prototype.generujHead = function(resp){   // generuje tylko częśc nag�
 
 // --------------------------------------------------------------------------------------generujBody-------------------------------
 Tabelka.prototype.generujBody = function(resp){
+  console.log(this.object);
   resp.forEach(row =>{
     const $tr = $('<tr class=trBody></tr>');
     for (const el in row){
@@ -84,8 +85,8 @@ Tabelka.prototype.generujObiekt = function(obj){ // służy do wygenerowania obj
       offset: (this.strona-1)*this.na_strone,
     }
     const obj_target = Object.assign({},obj2, this.object, obj); // łączy 3 obiekty, najważniejszy jest podany objekt, później globalny obiekt tabelki i na końcu domyslnie zaszyty w tej funkcji
-    for (const el in obj_target){
-      if (obj_target[el] === "") delete obj_target[el]; // jeśli jest jakiś pusty element w obiekcie to jest usuwany bo sql później źle filtrował
+    for (const el in obj_target.where){
+      if (obj_target.where[el] === "") delete obj_target.where[el]; // jeśli jest jakiś pusty element w obiekcie to jest usuwany bo sql później źle filtrował
     };
     this.object = obj_target;   //przypisuje nowo utworzony obiekt do globalnego obiektu
     return obj_target;
@@ -173,7 +174,7 @@ function Filtr(tabelka){      // konstruktor Filtra
     this.tabelka = tabelka;
     this.$tr = $(`<tr class="trFilter"></tr>`);
     this.wygenerowane = 0;
-    this.object = {}; // w tym obiekcie są wartości wszystkich kolumn wraz z ustawionymi obecnie filtrami
+    this.object = {where:{}}; // w tym obiekcie są wartości wszystkich kolumn wraz z ustawionymi obecnie filtrami
 }
 //-----------------------------------------------------------------------------------Koniec konstruktora Filtr ----------------------------
 
@@ -184,7 +185,7 @@ Filtr.prototype.generuj = function(){   // generuje html filtra
   .each((i,el) => { // i robi po nich petle
     const $th = $(`<th class="${el.className}"></th>`);
     const $input = $(`<input type="text" class="${el.className}"></input>`);
-    this.object[el.className] = ''; // towrzy obiekt ktory bedzie odpowaidal zawartoscia inputa czyli na poczatku kazdy input bedzie pusty
+    this.object.where[el.className] = ''; // towrzy obiekt ktory bedzie odpowaidal zawartoscia inputa czyli na poczatku kazdy input bedzie pusty
     $th.append($input);
     this.$tr.append($th);
   });
@@ -192,7 +193,7 @@ Filtr.prototype.generuj = function(){   // generuje html filtra
   this.$tr.hide();
   this.wygenerowane = 1;
   this.$tr.on('change', e => {
-    this.object[e.target.parentElement.className] = e.target.value;  // pobiera rodzica(td) danego inputa i pobiera z niego klase, przypisuje jej w obiekcie wartosc pobrana z inputa
+    this.object.where[e.target.parentElement.className] = e.target.value;  // pobiera rodzica(td) danego inputa i pobiera z niego klase, przypisuje jej w obiekcie wartosc pobrana z inputa
     this.zastosuj(); // stosuje zmiany, co pobiera dane stosowne do nowego filtra
   });
 }
@@ -236,6 +237,7 @@ Filtr.prototype.wyczysc = function(){ //czysci wszystkie elementy w obiekcie a n
 Filtr.prototype.zastosuj = function(){// pobiera nowe dane stosownie do ustawionych filtrow w obiekcie
   this.odswiez(); // przepisuje obiekt do inputow
   const obj = Object.assign({},this.object,{offset: 0});  // tworzy nowy obiekt i wraca na pierwsza strone skoro zmieniło się filtrowanie
+  this.tabelka.generujObiekt(obj); // generuje obiekt ktory bedzie pozniej przekazany do sql
   this.tabelka.odswiez()  // pobiera nowe dane z serwera stosujac nowy filtr
 }
 //----------------------------------------------------------------------------------------Koniec zastosuj-------------------------------------
@@ -244,7 +246,7 @@ Filtr.prototype.zastosuj = function(){// pobiera nowe dane stosownie do ustawion
 Filtr.prototype.ustaw = function(target){ // ustawia filtr na podstawie kliknietego przez uzytkownika elementu
   if (this.wygenerowane === 0) this.generuj();  // generuje filtr jesli jeszcze go nie ma
   if (target.tagName === 'TH'){ // jesli bylo klikniete w naglowek to wyczysc filtr z tego naglowka
-    this.object[target.classList[0]] = '';
+    this.object.where[target.classList[0]] = '';
   }
   if (target.tagName === 'TD'){ // klikniete na konkretne dane z tabelki
     if(target.classList[0] === 'Powiązane'){  // jesli to powiazane to odnosi sie do wpisow o id do ktorch jest powiazane
@@ -258,7 +260,7 @@ Filtr.prototype.ustaw = function(target){ // ustawia filtr na podstawie klikniet
      }
     }
     this.pokaz(); // jak cos bylo klikniete to zostal ustawiony filtr wiec musi zostac pokazany
-    this.object[target.classList[0]] = target.innerText;  //wpisuje do obiektu zawartosc kliknietego elementu
+    this.object.where[target.classList[0]] = target.innerText;  //wpisuje do obiektu zawartosc kliknietego elementu
   }
   this.zastosuj(); //stosuje filtr i pobiera według niego nowe dane
 }
@@ -267,7 +269,9 @@ Filtr.prototype.ustaw = function(target){ // ustawia filtr na podstawie klikniet
 //-------------------------------------------------------------------------------------------odswiez---------------------------------------
 Filtr.prototype.odswiez = function(){ //przepisuje wszystkie filtry z obiektu do inputow
 $(this.$tr.children()).each((i,el) =>{  //petla po wszystkich td w tr z heada tabelki
-  el.querySelector('input').value = this.object[el.className];  // wyszukuje inputa w td
+  val = this.object.where[el.className];
+  if (typeof val === 'undefined') val = '';
+  el.querySelector('input').value = val;  // wyszukuje inputa w td
 });
 }
 //----------------------------------------------------------------------------------------Koniec odswiez----------------------------------

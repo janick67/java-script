@@ -22,66 +22,118 @@ db.connect((err) => {
   console.log('MySql Connected...');
 });
 
-app.get('/api/wydatki/query',(req,res) => {
+function response(req,res,func)
+{
   if (req.query.table !== "wydatki") return res.send("wybrano zła tabele");
   delete req.query.table;
-  let limit = ' Limit';
-  let where = '';
-  let orderby = ' order by ';
   const param = req.query;
-  const name = Object.getOwnPropertyNames(param);
-  //console.log( name,param[name[0]]);
- for (const el of name){
-    if (el === 'limit'){
-      limit += ' '+param[el];
-    }else if(el === 'offset'){
-      limit += ' offset '+param[el];
-    }else if(el === 'orderby'){
-      let order = param[el];
-      console.log(order);
-      order.forEach((element,i) =>{
-        console.log("el",element, i);
-        if (element[0] === '!') element = element.slice(1) + ' desc';
-        if (i > 0) element = ', '+element;
-        orderby += element;
-      });
-    }else if(el === 'data' || el === 'kwota'){
-      where += ' and ' + el + ' = "' + param[el] + '" ';
-    }else{
-      if(param[el].indexOf(";") > -1) param[el] = param[el].replace(/;/g,'","');
-      where += ' and ' + el+' in ("'+param[el]+'") ';
-    }
-    };
-  if (limit.length <= 6) limit = ''; // nie ma nic dopisanego wiec usuwam
-  if (orderby.length <= 10) limit = ''; // nie ma nic dopisanego wiec usuwam
-  let sql = `Select * from wydatki where 1 ${where} ${orderby} ${limit}`;
-  console.log(sql);
+  const obj = param;
+
+  if (typeof obj.orderby !== 'undefined'){
+    obj.orderby = decodeOrderby(obj.orderby);
+  }
+
+  if (typeof obj.where !== 'undefined'){
+    obj.where = decodeWhere(obj.where);
+  }
+
+  if (typeof func !== undefined) func(obj);
+
+  let sql = generujSql(obj);
   const query = db.query(sql, (err, result) => {
     if (err){console.error(err);  return res.send(err)};
     res.send(result);
   });
+}
+
+function decodeOrderby(obj)
+{
+  let order = obj;
+  gotowy_obj = '';
+  order.forEach((element,i) =>{
+    if (element[0] === '!') element = element.slice(1) + ' desc';
+    if (i > 0) element = ', '+element;
+    gotowy_obj += element;
+  });
+  return gotowy_obj;
+}
+
+function decodeWhere(obj)
+{
+  let where = '';
+    const name = Object.getOwnPropertyNames(obj);
+    for (const el of name){
+      if(obj[el].indexOf(";") > -1) obj[el] = obj[el].replace(/;/g,'","');
+      where += ' and ' + el+' in ("'+obj[el]+'") ';
+    }
+  return where;
+}
+
+
+app.get('/api/wydatki/query',(req,res) => {
+  response(req,res, obj => {});
 });
 
 //------------------------------------------------------------------------------------------------
 //SELECT sum(kwota) FROM `wydatki` WHERE bank = 'PKO' or bank = 'BGZ' or bank = 'OPT' or bank = 'GOT' or bank = 'MBA' or bank = 'DOM' or bank = 'inne'
 app.get('/api/wydatki/saldo/query',(req,res) => {
-  let sql = `SELECT sum(kwota) as Saldo FROM wydatki`;
-  console.log(sql);
-  const query = db.query(sql, (err, result) => {
-    if (err){console.error(err);  return res.send(err)};
-    res.send(result);
+  response(req,res, obj => {
+    obj.select = 'sum(kwota)';
   });
 });
 
 app.get('/api/wydatki/saldo_na_miesiac/query',(req,res) => {
-  let sql = `SELECT Year(data), MONTH(data), sum(kwota) FROM wydatki WHERE kogo = 'moje' GROUP BY Year(data), MONTH(data) order by Year(data), MONTH(data)`;
-
-  console.log(sql);
-  const query = db.query(sql, (err, result) => {
-    if (err){console.error(err);  return res.send(err)};
-    res.send(result);
+  // `SELECT Year(data), MONTH(data), sum(kwota) FROM wydatki WHERE kogo = 'moje' GROUP BY Year(data), MONTH(data) order by Year(data), MONTH(data)`;
+  response(req,res, obj => {
+    if (typeof obj.select === 'undefined') obj.select = '';
+    if (typeof obj.where === 'undefined') obj.where = '';
+    if (typeof obj.groupby === 'undefined') obj.groupby = '';
+    if (typeof obj.orderby === 'undefined') obj.orderby = 'Year(data), MONTH(data)';
+    obj.select += 'Year(data), MONTH(data), sum(kwota)';
+    obj.where += 'and kogo = "moje"';
+    obj.groupby += 'Year(data), MONTH(data)';
   });
 });
 
+
+function generujSql(obj){
+  if (typeof obj.select === 'undefined') obj.select = '*';
+
+  if (typeof obj.where === 'undefined') {
+    obj.where = '';
+  }else{
+    obj.where = 'where 1 ' + obj.where;
+  }
+
+  if (typeof obj.orderby === 'undefined' || obj.orderby.length < 2) {
+    obj.orderby = '';
+  }else{
+    obj.orderby = 'order by ' + obj.orderby;
+  }
+
+  if (typeof obj.groupby === 'undefined') {
+    obj.groupby = '';
+  }else{
+    obj.groupby = 'group by ' + obj.groupby;
+  }
+
+  if (typeof obj.limit === 'undefined') {
+    obj.limit = '';
+  }else{
+    obj.limit = 'limit ' + obj.limit;
+  }
+
+  if (typeof obj.offset === 'undefined'){
+    obj.offset = '';
+  }else{
+    obj.offset = 'offset ' + obj.offset;
+  }
+
+  if (typeof obj.from === 'undefined') obj.from = 'wydatki';
+
+  let sql = `SELECT ${obj.select} from ${obj.from} ${obj.where} ${obj.groupby} ${obj.orderby} ${obj.limit} ${obj.offset}`;
+  console.log(sql);
+  return sql;
+}
 
 app.listen(3000, () => console.log('Listen on port 3000...'))

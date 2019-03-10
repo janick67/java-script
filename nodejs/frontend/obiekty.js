@@ -1,6 +1,6 @@
 //=========================================================================================================================================//
 //-----------------------------------------------------------------------------------------------------------------------------------------//
-//--------------------------------------------------------------------Obiekt Tabelka---------------------------------------------------------//
+//--------------------------------------------------------------------Obiekt Tabelka-------------------------------------------------------//
 //-----------------------------------------------------------------------------------------------------------------------------------------//
 //=========================================================================================================================================//
 
@@ -11,7 +11,7 @@ function Tabelka(id,nazwa)
   if (typeof nazwa === 'undefined') nazwa = id;
   this.na_strone = 5; //ile pozycji na strone
   this.strona = 1; //obecna strona
-  this.object = {orderby:[]}; //objekt w którym przechowywane są wszystkie parametry wysyłane później w zapytaniu sql // od początku tworzę tablice na sortowanie
+  this.object = {orderby:[],where:{}}; //objekt w którym przechowywane są wszystkie parametry wysyłane później w zapytaniu sql // od początku tworzę tablice na sortowanie
   this.adres = uri; //adres z którego połączył się ktoś
   this.nazwa = nazwa;
   this.sql_table = 'wydatki';
@@ -84,8 +84,8 @@ Tabelka.prototype.generujObiekt = function(obj){ // służy do wygenerowania obj
       offset: (this.strona-1)*this.na_strone,
     }
     const obj_target = Object.assign({},obj2, this.object, obj); // łączy 3 obiekty, najważniejszy jest podany objekt, później globalny obiekt tabelki i na końcu domyslnie zaszyty w tej funkcji
-    for (const el in obj_target){
-      if (obj_target[el] === "") delete obj_target[el]; // jeśli jest jakiś pusty element w obiekcie to jest usuwany bo sql później źle filtrował
+    for (const el in obj_target.where){
+      if (obj_target.where[el] === "") delete obj_target.where[el]; // jeśli jest jakiś pusty element w obiekcie to jest usuwany bo sql później źle filtrował
     };
     this.object = obj_target;   //przypisuje nowo utworzony obiekt do globalnego obiektu
     return obj_target;
@@ -132,22 +132,23 @@ Tabelka.prototype.init = function(){
 
 //-------------------------------------------------------------------------------------------sortuj-------------------------------------
 Tabelka.prototype.sortuj = function(target){
+  const {orderby} = this.object; //destrukturyzacja obiektu do zwykłej tablicy(pobiera element orderby z obiektu)
   let klasa = target.parentElement.className;               //klasa nadrzędnego elementu(th) np. bank, ID
-  let wystapienie = this.object['orderby'].indexOf(klasa);  //sprawdza czy w tablicy jest już pojedyncze wystapienie
-  let wystapieniedesc = this.object['orderby'].indexOf('!'+klasa);  //sprawdza czy w tablicy jest juz wystapienie desc
+  let wystapienie = orderby.indexOf(klasa);  //sprawdza czy w tablicy jest już pojedyncze wystapienie
+  let wystapieniedesc = orderby.indexOf('!'+klasa);  //sprawdza czy w tablicy jest juz wystapienie desc
   if (wystapienie > -1 || wystapieniedesc >  -1)  //    // jeśli występuje już desc lub normalne  -- z wykrzyknikiem to jest desc
   {
     if ( wystapieniedesc > -1){ // wystapienie z ! czyli desc
-      this.object['orderby'].splice(wystapieniedesc,1); // usuwa element z ! z tablicy z obiektu
+      orderby.splice(wystapieniedesc,1); // usuwa element z ! z tablicy z obiektu
       target.classList.remove('up')   // usuwa pozostałe klasy
       target.classList.remove('down')  // dwie strzalki
     } else{
-      this.object['orderby'][wystapienie] = '!'+klasa;  // jesli juz jest normalne wystapienie to zamienia je na desc
+      orderby[wystapienie] = '!'+klasa;  // jesli juz jest normalne wystapienie to zamienia je na desc
       target.classList.add('down'); // dodaje klase po to zeby byla strzalka w dol
       target.classList.remove('up')
     }
   }else{
-    this.object['orderby'].push(klasa); // dodaje kolumne po której ma byc sortowana tabelka
+    orderby.push(klasa); // dodaje kolumne po której ma byc sortowana tabelka
     target.classList.add('up');// dodaje klase po to zeby byla strzalka w gore
     target.classList.remove('down')
   }
@@ -173,7 +174,7 @@ function Filtr(tabelka){      // konstruktor Filtra
     this.tabelka = tabelka;
     this.$tr = $(`<tr class="trFilter"></tr>`);
     this.wygenerowane = 0;
-    this.object = {}; // w tym obiekcie są wartości wszystkich kolumn wraz z ustawionymi obecnie filtrami
+    this.object = {where:{}}; // w tym obiekcie są wartości wszystkich kolumn wraz z ustawionymi obecnie filtrami
 }
 //-----------------------------------------------------------------------------------Koniec konstruktora Filtr ----------------------------
 
@@ -184,7 +185,7 @@ Filtr.prototype.generuj = function(){   // generuje html filtra
   .each((i,el) => { // i robi po nich petle
     const $th = $(`<th class="${el.className}"></th>`);
     const $input = $(`<input type="text" class="${el.className}"></input>`);
-    this.object[el.className] = ''; // towrzy obiekt ktory bedzie odpowaidal zawartoscia inputa czyli na poczatku kazdy input bedzie pusty
+    this.object.where[el.className] = ''; // towrzy obiekt ktory bedzie odpowaidal zawartoscia inputa czyli na poczatku kazdy input bedzie pusty
     $th.append($input);
     this.$tr.append($th);
   });
@@ -192,7 +193,7 @@ Filtr.prototype.generuj = function(){   // generuje html filtra
   this.$tr.hide();
   this.wygenerowane = 1;
   this.$tr.on('change', e => {
-    this.object[e.target.parentElement.className] = e.target.value;  // pobiera rodzica(td) danego inputa i pobiera z niego klase, przypisuje jej w obiekcie wartosc pobrana z inputa
+    this.object.where[e.target.parentElement.className] = e.target.value;  // pobiera rodzica(td) danego inputa i pobiera z niego klase, przypisuje jej w obiekcie wartosc pobrana z inputa
     this.zastosuj(); // stosuje zmiany, co pobiera dane stosowne do nowego filtra
   });
 }
@@ -224,9 +225,9 @@ Filtr.prototype.ukryj = function(){// ukrywa filtr i dodatkowo czyści go
 
 //----------------------------------------------------------------------------------------wyczysc---------------------------------------------
 Filtr.prototype.wyczysc = function(){ //czysci wszystkie elementy w obiekcie a nastepnie pobiera dane bez filtrow
-  for (el in this.object)
+  for (el in this.object.where)
   {
-    this.object[el] = '';
+    this.object.where[el] = '';
   }
   this.zastosuj(); // sotsuje nowy pusty filtr, czyli pobiera wszystkie dane
 }
@@ -236,6 +237,7 @@ Filtr.prototype.wyczysc = function(){ //czysci wszystkie elementy w obiekcie a n
 Filtr.prototype.zastosuj = function(){// pobiera nowe dane stosownie do ustawionych filtrow w obiekcie
   this.odswiez(); // przepisuje obiekt do inputow
   const obj = Object.assign({},this.object,{offset: 0});  // tworzy nowy obiekt i wraca na pierwsza strone skoro zmieniło się filtrowanie
+  this.tabelka.generujObiekt(obj); // generuje obiekt ktory bedzie pozniej przekazany do sql
   this.tabelka.odswiez()  // pobiera nowe dane z serwera stosujac nowy filtr
 }
 //----------------------------------------------------------------------------------------Koniec zastosuj-------------------------------------
@@ -244,12 +246,12 @@ Filtr.prototype.zastosuj = function(){// pobiera nowe dane stosownie do ustawion
 Filtr.prototype.ustaw = function(target){ // ustawia filtr na podstawie kliknietego przez uzytkownika elementu
   if (this.wygenerowane === 0) this.generuj();  // generuje filtr jesli jeszcze go nie ma
   if (target.tagName === 'TH'){ // jesli bylo klikniete w naglowek to wyczysc filtr z tego naglowka
-    this.object[target.classList[0]] = '';
+    this.object.where[target.classList[0]] = '';
   }
   if (target.tagName === 'TD'){ // klikniete na konkretne dane z tabelki
     if(target.classList[0] === 'Powiązane'){  // jesli to powiazane to odnosi sie do wpisow o id do ktorch jest powiazane
       if (target.innerText.length > 0){ //jesli sa wieksze od zera to sie odwoluje
-       this.object['ID'] = target.innerText;
+       this.object.where['ID'] = target.innerText;
        this.zastosuj();
        return;
      }else{  // w przeciwnym razie czysci i ukrywa caly filtr
@@ -258,7 +260,7 @@ Filtr.prototype.ustaw = function(target){ // ustawia filtr na podstawie klikniet
      }
     }
     this.pokaz(); // jak cos bylo klikniete to zostal ustawiony filtr wiec musi zostac pokazany
-    this.object[target.classList[0]] = target.innerText;  //wpisuje do obiektu zawartosc kliknietego elementu
+    this.object.where[target.classList[0]] = target.innerText;  //wpisuje do obiektu zawartosc kliknietego elementu
   }
   this.zastosuj(); //stosuje filtr i pobiera według niego nowe dane
 }
@@ -267,7 +269,9 @@ Filtr.prototype.ustaw = function(target){ // ustawia filtr na podstawie klikniet
 //-------------------------------------------------------------------------------------------odswiez---------------------------------------
 Filtr.prototype.odswiez = function(){ //przepisuje wszystkie filtry z obiektu do inputow
 $(this.$tr.children()).each((i,el) =>{  //petla po wszystkich td w tr z heada tabelki
-  el.querySelector('input').value = this.object[el.className];  // wyszukuje inputa w td
+  val = this.object.where[el.className];
+  if (typeof val === 'undefined') val = '';
+  el.querySelector('input').value = val;  // wyszukuje inputa w td
 });
 }
 //----------------------------------------------------------------------------------------Koniec odswiez----------------------------------

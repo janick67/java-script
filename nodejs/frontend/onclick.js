@@ -23,16 +23,28 @@ $('#na_strone').on('change', function() {
 });
 
 $('#saldo').click(function(){
-  const tab_saldo = new Tabelka("wydatki","wydatki");
+  const tab_saldo = new Tabelka("saldo","saldo");
   tab_saldo.adres += 'api/wydatki/saldo/query';
   tab_saldo.init();
-  });
+});
 
 $('#saldo_na_miesiac').click(function(){
-    const tab_saldo = new Tabelka("wydatki","wydatki");
+    const tab_saldo = new Tabelka("saldo_na_miesiac","saldo_na_miesiac");
     tab_saldo.adres += 'api/wydatki/saldo_na_miesiac/query';
     tab_saldo.init();
-    });
+});
+
+$('#kto_ma_oddac').click(function(){
+    const tab_kto_ma_oddac = new Tabelka("kto_ma_oddac","kto_ma_oddac");
+    tab_kto_ma_oddac.adres += 'api/wydatki/kto_ma_oddac/query';
+    tab_kto_ma_oddac.init();
+});
+
+$('#kto_ma_oddac_suma').click(function(){
+    const tab_kto_ma_oddac_suma = new Tabelka("kto_ma_oddac_suma","kto_ma_oddac_suma");
+    tab_kto_ma_oddac_suma.adres += 'api/wydatki/kto_ma_oddac_suma/query';
+    tab_kto_ma_oddac_suma.init();
+});
 
 $('#btn_filter').click(function(){
   aktualna_tabelka.filtr.toggle();

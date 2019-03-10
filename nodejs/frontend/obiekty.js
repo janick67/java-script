@@ -11,7 +11,7 @@ function Tabelka(id,nazwa)
   if (typeof nazwa === 'undefined') nazwa = id;
   this.na_strone = 5; //ile pozycji na strone
   this.strona = 1; //obecna strona
-  this.object = {orderby:[]}; //objekt w którym przechowywane są wszystkie parametry wysyłane później w zapytaniu sql // od początku tworzę tablice na sortowanie
+  this.object = {orderby:[],where:{}}; //objekt w którym przechowywane są wszystkie parametry wysyłane później w zapytaniu sql // od początku tworzę tablice na sortowanie
   this.adres = uri; //adres z którego połączył się ktoś
   this.nazwa = nazwa;
   this.sql_table = 'wydatki';
@@ -132,22 +132,23 @@ Tabelka.prototype.init = function(){
 
 //-------------------------------------------------------------------------------------------sortuj-------------------------------------
 Tabelka.prototype.sortuj = function(target){
+  const {orderby} = this.object; //destrukturyzacja obiektu do zwykłej tablicy(pobiera element orderby z obiektu)
   let klasa = target.parentElement.className;               //klasa nadrzędnego elementu(th) np. bank, ID
-  let wystapienie = this.object['orderby'].indexOf(klasa);  //sprawdza czy w tablicy jest już pojedyncze wystapienie
-  let wystapieniedesc = this.object['orderby'].indexOf('!'+klasa);  //sprawdza czy w tablicy jest juz wystapienie desc
+  let wystapienie = orderby.indexOf(klasa);  //sprawdza czy w tablicy jest już pojedyncze wystapienie
+  let wystapieniedesc = orderby.indexOf('!'+klasa);  //sprawdza czy w tablicy jest juz wystapienie desc
   if (wystapienie > -1 || wystapieniedesc >  -1)  //    // jeśli występuje już desc lub normalne  -- z wykrzyknikiem to jest desc
   {
     if ( wystapieniedesc > -1){ // wystapienie z ! czyli desc
-      this.object['orderby'].splice(wystapieniedesc,1); // usuwa element z ! z tablicy z obiektu
+      orderby.splice(wystapieniedesc,1); // usuwa element z ! z tablicy z obiektu
       target.classList.remove('up')   // usuwa pozostałe klasy
       target.classList.remove('down')  // dwie strzalki
     } else{
-      this.object['orderby'][wystapienie] = '!'+klasa;  // jesli juz jest normalne wystapienie to zamienia je na desc
+      orderby[wystapienie] = '!'+klasa;  // jesli juz jest normalne wystapienie to zamienia je na desc
       target.classList.add('down'); // dodaje klase po to zeby byla strzalka w dol
       target.classList.remove('up')
     }
   }else{
-    this.object['orderby'].push(klasa); // dodaje kolumne po której ma byc sortowana tabelka
+    orderby.push(klasa); // dodaje kolumne po której ma byc sortowana tabelka
     target.classList.add('up');// dodaje klase po to zeby byla strzalka w gore
     target.classList.remove('down')
   }
@@ -224,9 +225,9 @@ Filtr.prototype.ukryj = function(){// ukrywa filtr i dodatkowo czyści go
 
 //----------------------------------------------------------------------------------------wyczysc---------------------------------------------
 Filtr.prototype.wyczysc = function(){ //czysci wszystkie elementy w obiekcie a nastepnie pobiera dane bez filtrow
-  for (el in this.object)
+  for (el in this.object.where)
   {
-    this.object[el] = '';
+    this.object.where[el] = '';
   }
   this.zastosuj(); // sotsuje nowy pusty filtr, czyli pobiera wszystkie dane
 }
@@ -250,7 +251,7 @@ Filtr.prototype.ustaw = function(target){ // ustawia filtr na podstawie klikniet
   if (target.tagName === 'TD'){ // klikniete na konkretne dane z tabelki
     if(target.classList[0] === 'Powiązane'){  // jesli to powiazane to odnosi sie do wpisow o id do ktorch jest powiazane
       if (target.innerText.length > 0){ //jesli sa wieksze od zera to sie odwoluje
-       this.object['ID'] = target.innerText;
+       this.object.where['ID'] = target.innerText;
        this.zastosuj();
        return;
      }else{  // w przeciwnym razie czysci i ukrywa caly filtr

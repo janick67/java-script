@@ -9,7 +9,7 @@ div.divTable{
   overflow: auto;
 }
 
-input{
+tr.trFilter input{
   width:100%;
 }
 
@@ -131,7 +131,6 @@ tr:last-child td:last-child{
     border-bottom-right-radius:3px;
 }
 
-
 td, th{
   width: 70px;
 }
@@ -144,4 +143,14 @@ th.ID, td.ID {
 
 th.Opis, td.Opis{
   width: fit-content;
+}
+
+
+
+#dodaj input {
+  margin: 2px;
+}
+
+#dodaj {
+/*  display: none;*/
 }

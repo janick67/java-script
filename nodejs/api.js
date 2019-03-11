@@ -22,142 +22,190 @@ db.connect((err) => {
   console.log('MySql Connected...');
 });
 
-
 app.get('/api/wydatki/query',(req,res) => {
-  response(req,res, obj => {});
-});
-
-//------------------------------------------------------------------------------------------------
-//SELECT sum(kwota) FROM `wydatki` WHERE bank = 'PKO' or bank = 'BGZ' or bank = 'OPT' or bank = 'GOT' or bank = 'MBA' or bank = 'DOM' or bank = 'inne'
-app.get('/api/wydatki/saldo/query',(req,res) => {
-  response(req,res, obj => {
-    obj.select = 'sum(kwota)';
-  });
-});
-
-  // `SELECT Year(data), MONTH(data), sum(kwota) FROM wydatki WHERE kogo = 'moje' GROUP BY Year(data), MONTH(data) order by Year(data), MONTH(data)`;
-app.get('/api/wydatki/saldo_na_miesiac/query',(req,res) => {
-  response(req,res, obj => {
-    if (typeof obj.select === 'undefined') obj.select = '';
-    if (typeof obj.where === 'undefined') obj.where = '';
-    if (typeof obj.groupby === 'undefined') obj.groupby = '';
-    if (typeof obj.orderby === 'undefined') obj.orderby = 'Year(data), MONTH(data)';
-    obj.select += 'Year(data), MONTH(data), sum(kwota)';
-    obj.where += 'and kogo = "moje"';
-    obj.groupby += 'Year(data), MONTH(data)';
-  });
-});
-
-//SELECT * FROM `wydatki` WHERE powiązane = 0 and kogo not like 'inne' and kogo not like 'moje' and data > '2018-09-01'
-app.get('/api/wydatki/kto_ma_oddac/query',(req,res) => {
-  response(req,res, obj => {
-    if (typeof obj.where === 'undefined') obj.where = '';
-    if (typeof obj.orderby === 'undefined') obj.orderby = 'kogo';
-    obj.where += 'and powiązane = 0 and kogo not like "inne" and kogo not like "moje" and data > "2018-09-01"';
-  });
-});
-
-//SELECT kogo, sum(kwota) FROM `wydatki` WHERE powiązane = 0 and kogo not like 'inne' and kogo not like 'moje' and data > '2018-09-01' group by kogo
-app.get('/api/wydatki/kto_ma_oddac_suma/query',(req,res) => {
-  response(req,res, obj => {
-    if (typeof obj.select === 'undefined') obj.select = '';
-    if (typeof obj.where === 'undefined') obj.where = '';
-    if (typeof obj.groupby === 'undefined') obj.groupby = '';
-    if (typeof obj.orderby === 'undefined') obj.orderby = 'Year(data), MONTH(data)';
-    obj.select += 'kogo, sum(kwota)';
-    obj.where += 'and powiązane = 0 and kogo not like "inne" and kogo not like "moje" and data > "2018-09-01"';
-    obj.groupby += 'kogo';
-  });
-});
-
-
-function generujSql(obj){
-  if (typeof obj.select === 'undefined') obj.select = '*';
-
-  if (typeof obj.where === 'undefined') {
-    obj.where = '';
-  }else{
-    obj.where = 'where 1 ' + obj.where;
-  }
-
-  if (typeof obj.orderby === 'undefined' || obj.orderby.length < 2) {
-    obj.orderby = '';
-  }else{
-    obj.orderby = 'order by ' + obj.orderby;
-  }
-
-  if (typeof obj.groupby === 'undefined') {
-    obj.groupby = '';
-  }else{
-    obj.groupby = 'group by ' + obj.groupby;
-  }
-
-  if (typeof obj.limit === 'undefined') {
-    obj.limit = '';
-  }else{
-    obj.limit = 'limit ' + obj.limit;
-  }
-
-  if (typeof obj.offset === 'undefined'){
-    obj.offset = '';
-  }else{
-    obj.offset = 'offset ' + obj.offset;
-  }
-
-  if (typeof obj.from === 'undefined') obj.from = 'wydatki';
-
-  let sql = `SELECT ${obj.select} from ${obj.from} ${obj.where} ${obj.groupby} ${obj.orderby} ${obj.limit} ${obj.offset}`;
-  console.log(sql);
-  return sql;
-}
-
-app.listen(3000, () => console.log('Listen on port 3000...'))
-
-
-
-function response(req,res,func)
-{
   if (req.query.table !== "wydatki") return res.send("wybrano zła tabele");
   delete req.query.table;
+  let sql = 'Select * from wydatki';
+  let where = ' where 1';
+  let limit = ' Limit';
+  let orderby = ' order by ';
   const param = req.query;
-  const obj = param;
-
-  if (typeof obj.orderby !== 'undefined'){
-    obj.orderby = decodeOrderby(obj.orderby);
-  }
-
-  if (typeof obj.where !== 'undefined'){
-    obj.where = decodeWhere(obj.where);
-  }
-
-  if (typeof func !== undefined) func(obj);
-
-  let sql = generujSql(obj);
+  const name = Object.getOwnPropertyNames(param);
+  //console.log( name,param[name[0]]);
+ for (const el of name){
+    if (el === 'limit'){
+      limit += ' '+param[el];
+    }else if(el === 'offset'){
+      limit += ' offset '+param[el];
+    }else if(el === 'orderby'){
+      let order = param[el];
+      console.log(order);
+      order.forEach((element,i) =>{
+        console.log("el",element, i);
+        if (element[0] === '!') element = element.slice(1) + ' desc';
+        if (i > 0) element = ', '+element;
+        orderby += element;
+      });
+    }else if(el === 'data' || el === 'kwota'){
+      where += ' and ' + el + ' = "' + param[el] + '" ';
+    }else{
+      if(param[el].indexOf(";") > -1) param[el] = param[el].replace(/;/g,'","');
+      where += ' and ' + el+' in ("'+param[el]+'") ';
+    }
+    };
+  sql += where; // dopisane cos wiecej niz samo where więc dodajemy do sql
+  if (orderby.length > 10) sql += orderby;
+  if (limit.length > 6) sql += limit; //jw
+  console.log(sql);
   const query = db.query(sql, (err, result) => {
     if (err){console.error(err);  return res.send(err)};
     res.send(result);
   });
-}
+});
 
-function decodeOrderby(obj)
-{
-  let order = obj;
-  gotowy_obj = '';
-  order.forEach((element,i) =>{
-    if (element[0] === '!') element = element.slice(1) + ' desc';
-    if (i > 0) element = ', '+element;
-    gotowy_obj += element;
+
+app.post('/api/wydatki', (req,res) => {
+  console.log("body: ",req.body);
+
+  const sql = 'INSERT INTO wydatki SET ?';
+  const query = db.query(sql,req.body, (err, result) => {
+    if (err) return res.send(err);
+    res.send(result);
+  })
+})
+
+
+app.listen(3000, () => console.log('Listen on port 3000...'))
+
+/*
+app.get('/api/test/:id', (req,res) => {
+  console.log("Jestes tu : :id ");
+ console.log(req.body);
+  const sql = `Select * from test where id = ${req.params.id}`;
+  const query = db.query(sql, (err, result) => {
+    if (err){console.error(err);  return res.send(err)};
+    res.send(result);
   });
-  return gotowy_obj;
-}
+}) ;
 
-function decodeWhere(obj)
-{
-  let where = '';
-    const name = Object.getOwnPropertyNames(obj);
-    for (const el of name){
-      if(obj[el].indexOf(";") > -1) obj[el] = obj[el].replace(/;/g,'","');
-      where += ' and ' + el+' in ("'+obj[el]+'") ';
+app.get('/log/node/:code', (req,res) => {
+  let kod = req.params.code;
+  if (!(kod.length === 8 && kod[0] == '1' && kod[1] == '6')) return;
+
+ const sql = `Select nazwa from kody where code = "${kod}"`;
+ const query = db.query(sql, (err, result) => {
+   if (err) return console.log(err);
+   console.log(result[0].nazwa);
+ });
+}) ;
+
+app.get('/api/test', (req,res) => {
+  const sql = `Select * from test`;
+  const query = db.query(sql, (err, result) => {
+    if (err) return res.send(err);
+    res.send(result);
+  });
+}) ;
+
+app.post('/api/test', (req,res) => {
+  console.log("jeste tu : post json");
+  console.log(req);
+  if (req.body.imie == undefined) return res.send("Pusty JSON");
+  const body = {
+    imie:       req.body.imie,
+    nazwisko:   req.body.nazwisko,
+    pensja:     req.body.pensja
+  };
+
+  console.log(body);
+  const sql = 'INSERT INTO test SET ?';
+  const query = db.query(sql,body, (err, result) => {
+    if (err) return res.send(err);
+    res.send(result);
+  })
+})
+
+app.post('/api/sql', (req,res) => {
+  const query = db.query(req.body.sql, (err, result) => {
+    if (err){console.error(err);  return res.send(err)};
+    res.send(result);
+  })
+});
+
+app.get('/api/wydatki/stan_konta', (req,res) => {
+  const sql = "SELECT sum(kwota) as 'Stan konta' FROM `wydatki` WHERE bank = 'PKO' or bank = 'BGZ' or bank = 'OPT' or bank = 'GOT' or bank = 'MBA' or bank = 'DOM' or bank = 'inne'";
+  const query = db.query(sql, (err, result) => {
+    if (err){console.error(err);  return res.send(err)};
+    res.send(result);
+  });
+});
+
+app.get('/api/wydatki', (req,res) => {
+  console.log(req.query);
+  const sql = "SELECT * from wydatki Limit 10";
+  const query = db.query(sql, (err, result) => {
+    if (err){console.error(err);  return res.send(err)};
+    res.send(result);
+  });
+});
+
+app.get('/api/wydatki/query',(req,res) => {
+  if (req.query.table !== "wydatki") return res.send("wybrano zła tabele");
+  delete req.query.table;
+  let sql = 'Select * from wydatki';
+  let where = ' where 1';
+  let limit = ' Limit';
+  const param = req.query;
+  const name = Object.getOwnPropertyNames(param);
+  //console.log( name,param[name[0]]);
+ for (const el of name){
+    if (el === 'limit'){
+      limit += ' '+param[el];
+    }else if(el === 'offset'){
+      limit += ' offset '+param[el];
+    }else if(el === 'data' || el === 'kwota'){
+      where += ' and ' + el + ' ' + param[el] + ' ';
+    }else{
+      if(param[el].indexOf(";") > -1) param[el] = param[el].replace(/;/g,'","');
+      where += ' and ' + el+' in ("'+param[el]+'") ';
     }
-  return where;
-}
+    };
+  sql += where; // dopisane cos wiecej niz samo where więc dodajemy do sql
+  if (limit.length > 6) sql += limit; //jw
+  console.log(sql);
+  const query = db.query(sql, (err, result) => {
+    if (err){console.error(err);  return res.send(err)};
+    res.send(result);
+  });
+});
+
+app.get('/api/wydatki/limit/:limit/:offset', (req,res) => {
+  const sql = `SELECT * from wydatki Limit ${req.params.limit} offset ${req.params.offset}`;
+  const query = db.query(sql, (err, result) => {
+    if (err){console.error(err);  return res.send(err)};
+    res.send(result);
+  });
+});
+
+app.get('/api/wydatki/saldo_na_miesiac', (req,res) => {
+  const sql = "SELECT Year(data), MONTH(data), sum(kwota) FROM `wydatki` WHERE kogo = 'moje' GROUP BY Year(data), MONTH(data) order by Year(data), MONTH(data)";
+  const query = db.query(sql, (err, result) => {
+    if (err){console.error(err);  return res.send(err)};
+    res.send(result);
+  });
+});
+
+app.get('/api/wydatki/saldo_na_miesiac/:year/:month', (req,res) => {
+  let year = req.params.year;
+  let month = req.params.month;
+  if (year === '0') year = 'YEAR(data)';
+  if (month === '0') month = 'MONTH(data)';
+
+  const sql = `SELECT Year(data), MONTH(data), sum(kwota) FROM wydatki WHERE kogo = 'moje' and Year(data) = ${year} and MONTH(data) = ${month} GROUP BY Year(data), MONTH(data) order by Year(data), MONTH(data)`;
+  console.log(sql);
+  const query = db.query(sql, (err, result) => {
+    if (err){console.error(err);  return res.send(err)};
+    res.send(result);
+  });
+});
+*/

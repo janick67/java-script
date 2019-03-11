@@ -282,6 +282,87 @@ $(this.$tr.children()).each((i,el) =>{  //petla po wszystkich td w tr z heada ta
 //-----------------------------------------------------------------------------------------------------------------------------------------//
 //=========================================================================================================================================//
 
+function Distinct(){
+  this.all = {};
+  this.dist_kolumn = {};
+  this.kolumn = [];
+  this.wygenerowane = 0;
+  this.value = {};
+}
+
+Distinct.prototype.generujObiekt = function(){
+  $.getJSON("/api/wydatki/query",{table: 'wydatki'}) // pobiera dane z serwera
+  .done(resp => {
+    this.all = resp;
+    this.wygenerowane = 1;
+    this.dist();
+    this.ustaw();
+  }).fail(err => console.log(err));
+}
+
+Distinct.prototype.pokaz = function()
+{
+  if (this.wygenerowane === 0) return this.generujObiekt();
+  console.log(this.all);
+}
+
+Distinct.prototype.ustaw = function(){
+  Object.getOwnPropertyNames(this.all[0]).forEach(kol => {
+    const id = 'add_'+kol.toLowerCase();
+    const $input = $(`#${id}`)
+    $input.addClass(kol);
+    $input.attr('list',`${id}_list`);
+    const $datalist = $(`<datalist id="${id}_list">`);
+    this.dist_kolumn[kol].forEach(el => {
+      $option = $(`<option value=${el}>`);
+      $datalist.append($option);
+    });
+    $input.after($datalist);
+  });
+}
+
+Distinct.prototype.dist = function()
+{
+  if (this.wygenerowane === 0) return this.generujObiekt();
+
+  this.kolumn = Object.getOwnPropertyNames(this.all[0]);
+  const kol = this.kolumn;
+  kol.forEach(el => {
+     this.dist_kolumn[el] = [];
+  })
+  kol.splice(kol.indexOf('ID'),1);
+  kol.splice(kol.indexOf('data'),1);
+  kol.splice(kol.indexOf('kwota'),1);
+  kol.splice(kol.indexOf('Powiązane'),1);
+  kol.splice(kol.indexOf('Opis'),1);
+
+
+  this.all.forEach(row => {
+    kol.forEach(el => {
+      if (row[el] !== null && row[el] !== '')
+      {
+        if (this.dist_kolumn[el].indexOf(row[el]) === -1) this.dist_kolumn[el].push(row[el]);
+      }
+    })
+  });
+}
+
+Distinct.prototype.czytajIWyslij = function(){
+  $('#dodaj input').each((i,e) =>{
+    this.value[e.className] = e.value;
+  });
+  insert(uri+"api/wydatki",this.value);
+}
+
+
+function insert(adres,obiekt){
+return $.ajax({
+  method: "POST",
+  url: adres,
+  data: JSON.stringify(obiekt),
+  contentType : 'application/json'
+});}
+
 function formatujDate(date){
 const data = new Date(date);
 return leadingZero(data.getFullYear()) + "-" + leadingZero(data.getMonth()+1) + "-" + leadingZero(data.getDate());

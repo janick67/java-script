@@ -22,6 +22,15 @@ $('#na_strone').on('change', function() {
   it.odswiez();
 });
 
+$('#btn_dodaj').click(e => {
+  if (distinct.wygenerowane === 0) distinct.generujObiekt();
+  $('#dodaj').slideToggle();
+});
+
+$('#add_btn').click(e => {
+  distinct.czytajIWyslij();
+});
+
 $('#saldo').click(function(){
   const tab_saldo = new Tabelka("saldo","saldo");
   tab_saldo.adres += 'api/wydatki/saldo/query';

@@ -148,9 +148,13 @@ th.Opis, td.Opis{
 
 
 #dodaj input {
-  margin: 2px;
+  margin: 4px;
 }
 
 #dodaj {
-/*  display: none;*/
+  display: none;
+  margin-top: -20px;
+  margin-bottom: 10px;
+  padding: 10px;
+  border:#babbbc 5px solid;
 }

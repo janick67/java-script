@@ -170,6 +170,11 @@ th.Opis, td.Opis{
   border-radius: 4px;
 }
 
+#dodaj span.error{
+  color: red;
+  font-style: italic;
+  margin-left: 10px;
+}
 
 #dodaj {
   display: none;

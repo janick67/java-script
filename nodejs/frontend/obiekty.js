@@ -359,9 +359,11 @@ Distinct.prototype.wczytajDoObiektu = function(){
 }
 
 Distinct.prototype.wyczysc = function(){
-  $('#dodaj input').each((i,e) =>{
-    this.kolumn[e.classList[0]].value = '';
-    e.value = '';
+  $('#dodaj input').each((i,el) =>{
+    this.kolumn[el.classList[0]].value = '';
+    el.value = '';
+    this.kolumn[el.classList[0]].inputs.removeClass('bad_value');
+    this.kolumn[el.classList[0]].inputs.removeClass('good_value');
   });
 }
 
@@ -401,44 +403,86 @@ Distinct.prototype.sprawdz = function(){
 
   this.kolumn.bank.rule = {
     title: 'Bank',
-    required: true,
-    min: 3
+    required: {
+      required: true,
+      message: 'Pole {title} jest wymagane.'
+    },
+    min: {
+      min: 3,
+      message: "Wymagane przynajmniej 3 znaki."
+    }
   };
 
   this.kolumn.kwota.rule = {
     title: 'Kwota',
-    required: true,
-    currency: true
+    required: {
+      required: true,
+      message: 'Pole {title} jest wymagane.'
+    },
+    currency:{
+      currency: true,
+      message: 'Podaj prawidłową kwote, użyj ".".'
+    }
   };
 
   this.kolumn.data.rule = {
     title: 'Data',
-    required: true,
-    date: 'ymd'
+    required: {
+      required: true,
+      message: 'Pole {title} jest wymagane.'
+    },
+    date:{
+      format: 'ymd',
+      message: 'Nieprawidłowy format daty.'
+    }
   };
 
   this.kolumn.typ.rule = {
     title: 'Typ',
-    required: true,
-    min: 3
+    required: {
+      required: true,
+      message: 'Pole {title} jest wymagane.'
+    },
+    min: {
+      min: 3,
+      message: "Wymagane przynajmniej 3 znaki."
+    }
   };
 
   this.kolumn.typ2.rule = {
     title: 'Typ2',
-    required: true,
-    min: 3
+    required: {
+      required: true,
+      message: 'Pole {title} jest wymagane.'
+    },
+    min: {
+      min: 3,
+      message: "Wymagane przynajmniej 3 znaki."
+    }
   };
 
   this.kolumn.gdzie.rule = {
     title: 'Gdzie',
-    required: true,
-    min: 3
+    required: {
+      required: true,
+      message: 'Pole {title} jest wymagane.'
+    },
+    min: {
+      min: 3,
+      message: "Wymagane przynajmniej 3 znaki."
+    }
   };
 
   this.kolumn.kogo.rule = {
     title: 'Kogo',
-    required: true,
-    min: 3
+    required: {
+      required: true,
+      message: 'Pole {title} jest wymagane.'
+    },
+    min: {
+      min: 3,
+      message: "Wymagane przynajmniej 3 znaki."
+    }
   };
 
   this.kolumn.osoba.rule = {
@@ -452,6 +496,7 @@ Distinct.prototype.sprawdz = function(){
   this.kolumn.opis.rule = {
     title: 'Opis'
   };
+  $('#dodaj span.error').remove();
 
 let wszystko_ok = 1;
   for (const el in this.kolumn){
@@ -464,6 +509,7 @@ let wszystko_ok = 1;
       this.kolumn[el].inputs.removeClass('bad_value');
     }else{
       wszystko_ok = 0;
+      this.kolumn[el].inputs.after($(`<span class="error">${aprv.errors[0]}</span>`));
       this.kolumn[el].inputs.addClass('bad_value');
       this.kolumn[el].inputs.removeClass('good_value');
     }

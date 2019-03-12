@@ -19,6 +19,7 @@ $('#na_strone').on('change', function() {
   const it = aktualna_tabelka;
   it.na_strone = this.value;
   it.object.limit = it.na_strone;
+  console.log(it);
   it.odswiez();
 });
 
@@ -31,8 +32,7 @@ $('#add_btn').click(e => {
 });
 
 $('#wszystkie').click(function(){
-  tabelka.adres += 'api/'+tabelka.sql_table+"/query";
-  tabelka.init();
+  tabelka.pokaz();
 });
 
 $('#saldo').click(function(){

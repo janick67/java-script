@@ -2,7 +2,6 @@ const uri = document.location.href;
 
 let aktualna_tabelka = null;
 let distinct = new Distinct();
-distinct.toggle();
 
 //-----------------------------------------MAIN----------------------------------
 const tabelka = new Tabelka("wydatki","wydatki");

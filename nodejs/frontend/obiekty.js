@@ -249,9 +249,9 @@ Filtr.prototype.ustaw = function(target){ // ustawia filtr na podstawie klikniet
     this.object.where[target.classList[0]] = '';
   }
   if (target.tagName === 'TD'){ // klikniete na konkretne dane z tabelki
-    if(target.classList[0] === 'Powiązane'){  // jesli to powiazane to odnosi sie do wpisow o id do ktorch jest powiazane
+    if(target.classList[0] === 'powiazane'){  // jesli to powiazane to odnosi sie do wpisow o id do ktorch jest powiazane
       if (target.innerText.length > 0){ //jesli sa wieksze od zera to sie odwoluje
-       this.object.where['ID'] = target.innerText;
+       this.object.where['id'] = target.innerText;
        this.zastosuj();
        return;
      }else{  // w przeciwnym razie czysci i ukrywa caly filtr
@@ -283,9 +283,9 @@ $(this.$tr.children()).each((i,el) =>{  //petla po wszystkich td w tr z heada ta
 //=========================================================================================================================================//
 
 function Distinct(){
-  this.all = {};
-  this.dist_kolumn = {};
-  this.kolumn = [];
+  this.all = {};  //wszystkie rekordy
+  this.kolumn = {};
+  this.inputs = {};
   this.wygenerowane = 0;
   this.value = {};
 }
@@ -297,6 +297,7 @@ Distinct.prototype.generujObiekt = function(){
     this.wygenerowane = 1;
     this.dist();
     this.ustaw();
+
   }).fail(err => console.log(err));
 }
 
@@ -307,51 +308,162 @@ Distinct.prototype.pokaz = function()
 }
 
 Distinct.prototype.ustaw = function(){
-  Object.getOwnPropertyNames(this.all[0]).forEach(kol => {
-    const id = 'add_'+kol.toLowerCase();
+  for (const kol in this.kolumn){
+    const id = 'add_'+kol;
     const $input = $(`#${id}`)
     $input.addClass(kol);
     $input.attr('list',`${id}_list`);
     const $datalist = $(`<datalist id="${id}_list">`);
-    this.dist_kolumn[kol].forEach(el => {
+    this.kolumn[kol].dist.forEach(el => {
       $option = $(`<option value=${el}>`);
       $datalist.append($option);
     });
+    this.kolumn[kol].inputs = $input;
     $input.after($datalist);
-  });
+    if (kol === 'data'){
+      $input.datepicker({ dateFormat: 'yy-mm-dd'});
+    }
+  }
 }
 
 Distinct.prototype.dist = function()
 {
   if (this.wygenerowane === 0) return this.generujObiekt();
 
-  this.kolumn = Object.getOwnPropertyNames(this.all[0]);
-  const kol = this.kolumn;
-  kol.forEach(el => {
-     this.dist_kolumn[el] = [];
+  Object.getOwnPropertyNames(this.all[0]).forEach(el => {
+     this.kolumn[el.toLowerCase()] = {dist:[]};
   })
-  kol.splice(kol.indexOf('ID'),1);
-  kol.splice(kol.indexOf('data'),1);
-  kol.splice(kol.indexOf('kwota'),1);
-  kol.splice(kol.indexOf('Powiązane'),1);
-  kol.splice(kol.indexOf('Opis'),1);
 
-
+  //console.log(this.kolumn);
   this.all.forEach(row => {
-    kol.forEach(el => {
-      if (row[el] !== null && row[el] !== '')
-      {
-        if (this.dist_kolumn[el].indexOf(row[el]) === -1) this.dist_kolumn[el].push(row[el]);
+    for (const el in this.kolumn){
+      //console.log(el);
+      let dist = this.kolumn[el].dist;
+      if (el !== 'id' && el !== 'data' && el !== 'kwota' && el !== 'powiazane' && el !== 'opis'){
+        if (row[el] !== null && row[el] !== '')
+        {
+          if (typeof row[el] !== 'undefined') if (dist.indexOf(row[el]) === -1) dist.push(row[el]);
+        }
+      }else{
+        dist = null;
       }
-    })
+    }
+  });
+}
+
+Distinct.prototype.wczytajDoObiektu = function(){
+  $('#dodaj input').each((i,e) =>{
+    //console.log(i, e, e.classList[0]);
+    this.kolumn[e.classList[0]].value = e.value;
+  });
+}
+
+Distinct.prototype.wyczysc = function(){
+  $('#dodaj input').each((i,e) =>{
+    this.kolumn[e.classList[0]].value = '';
+    e.value = '';
   });
 }
 
 Distinct.prototype.czytajIWyslij = function(){
-  $('#dodaj input').each((i,e) =>{
-    this.value[e.className] = e.value;
-  });
-  insert(uri+"api/wydatki",this.value);
+  this.wczytajDoObiektu();
+  const obj = {};
+  for (const el in this.kolumn){
+    const {value} = this.kolumn[el];
+    if (typeof value !== 'undefined') obj[el] = value;
+  }
+  if (this.sprawdz() == 1)
+  {
+      insert(uri+"api/wydatki",obj)
+      .done(res => {
+        if (typeof res.id !== 'undefined' && res.id > -1){
+          this.wyczysc();
+          console.log("Udało się wysłac, id: ", res.id);
+          $('#dodaj').slideToggle();
+        }else{
+          console.error(res);
+        }
+      }).error(err => console.error(err))
+
+  }
+  else
+  console.error("Błędnie wypełniono, popraw błędy i wyślij ponownie")
+}
+
+Distinct.prototype.sprawdz = function(){
+  //console.log(this.value);
+  //bank
+
+  this.kolumn.bank.rule = {
+    title: 'Bank',
+    required: true,
+    min: 3
+  };
+
+  this.kolumn.kwota.rule = {
+    title: 'Kwota',
+    required: true,
+    currency: true
+  };
+
+  this.kolumn.data.rule = {
+    title: 'Data',
+    required: true,
+    date: 'ymd'
+  };
+
+  this.kolumn.typ.rule = {
+    title: 'Typ',
+    required: true,
+    min: 3
+  };
+
+  this.kolumn.typ2.rule = {
+    title: 'Typ2',
+    required: true,
+    min: 3
+  };
+
+  this.kolumn.gdzie.rule = {
+    title: 'Gdzie',
+    required: true,
+    min: 3
+  };
+
+  this.kolumn.kogo.rule = {
+    title: 'Kogo',
+    required: true,
+    min: 3
+  };
+
+  this.kolumn.osoba.rule = {
+    title: 'Osoba'
+  };
+
+  this.kolumn.powiazane.rule = {
+    title: 'Powiązane'
+  };
+
+  this.kolumn.opis.rule = {
+    title: 'Opis'
+  };
+
+let wszystko_ok = 1;
+  for (const el in this.kolumn){
+    if (this.kolumn[el].inputs.length === 0) continue;
+    let {rule} = this.kolumn[el];
+    if (typeof rule === 'undefined') continue;
+    const aprv = approve.value(this.kolumn[el].value, rule)
+    if (aprv.approved) {
+      this.kolumn[el].inputs.addClass('good_value');
+      this.kolumn[el].inputs.removeClass('bad_value');
+    }else{
+      wszystko_ok = 0;
+      this.kolumn[el].inputs.addClass('bad_value');
+      this.kolumn[el].inputs.removeClass('good_value');
+    }
+  }
+  return wszystko_ok;
 }
 
 

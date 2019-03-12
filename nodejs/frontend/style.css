@@ -145,11 +145,30 @@ th.Opis, td.Opis{
   width: fit-content;
 }
 
+#add_data::after{
+  font-family: "Font Awesome 5 Free";
+  content: "";
+  margin: 5px;
+  right: 8px;
+  color: grey;
+}
 
-
-#dodaj input {
+input {
+  border: 2px solid lightgrey;
+  border-radius: 4px;
   margin: 4px;
 }
+
+input.good_value{
+  border: 2px solid green;
+  border-radius: 4px;
+}
+
+input.bad_value{
+  border: 2px solid red;
+  border-radius: 4px;
+}
+
 
 #dodaj {
   display: none;

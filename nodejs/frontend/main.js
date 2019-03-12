@@ -8,4 +8,5 @@ const tabelka = new Tabelka("wydatki","wydatki");
 tabelka.adres += 'api/'+tabelka.sql_table+"/query";
 tabelka.init();
 
+
 // -------------------------------------------KONIEC MAIN----------------------

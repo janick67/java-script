@@ -31,6 +31,11 @@ $('#add_btn').click(e => {
   distinct.czytajIWyslij();
 });
 
+$('#wszystkie').click(function(){
+  tabelka.adres += 'api/'+tabelka.sql_table+"/query";
+  tabelka.init();
+});
+
 $('#saldo').click(function(){
   const tab_saldo = new Tabelka("saldo","saldo");
   tab_saldo.adres += 'api/wydatki/saldo/query';

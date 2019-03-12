@@ -65,12 +65,15 @@ app.get('/api/wydatki/query',(req,res) => {
 
 
 app.post('/api/wydatki', (req,res) => {
-  console.log("body: ",req.body);
-
+  //console.log("body: ",req.body);
+  let  body = req.body;
   const sql = 'INSERT INTO wydatki SET ?';
-  const query = db.query(sql,req.body, (err, result) => {
-    if (err) return res.send(err);
-    res.send(result);
+  const query = db.query(sql,body, (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.send(err);
+    }
+    res.send({id:result.insertId});
   })
 })
 

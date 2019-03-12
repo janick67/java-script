@@ -145,26 +145,27 @@ th.Opis, td.Opis{
   width: fit-content;
 }
 
-#add_data::after{
-  font-family: "Font Awesome 5 Free";
-  content: "";
-  margin: 5px;
-  right: 8px;
-  color: grey;
+#add_data{
+      background-image: url(./image/icon-calendar.png);
+      background-size: contain;
+      background-position: 99% center;
+      background-repeat: no-repeat;
+      cursor: pointer;
 }
 
-input {
+#dodaj input {
+  height: 25px;
   border: 2px solid lightgrey;
   border-radius: 4px;
   margin: 4px;
 }
 
-input.good_value{
+#dodaj input.good_value{
   border: 2px solid green;
   border-radius: 4px;
 }
 
-input.bad_value{
+#dodaj input.bad_value{
   border: 2px solid red;
   border-radius: 4px;
 }
@@ -175,5 +176,5 @@ input.bad_value{
   margin-top: -20px;
   margin-bottom: 10px;
   padding: 10px;
-  border:#babbbc 5px solid;
+  /*border:#babbbc 5px solid;*/
 }

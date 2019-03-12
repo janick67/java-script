@@ -23,8 +23,7 @@ $('#na_strone').on('change', function() {
 });
 
 $('#btn_dodaj').click(e => {
-  if (distinct.wygenerowane === 0) distinct.generujObiekt();
-  $('#dodaj').slideToggle();
+  distinct.toggle();
 });
 
 $('#add_btn').click(e => {

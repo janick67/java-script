@@ -379,7 +379,7 @@ Distinct.prototype.czytajIWyslij = function(){
         if (typeof res.id !== 'undefined' && res.id > -1){
           this.wyczysc();
           console.log("Udało się wysłac, id: ", res.id);
-          $('#dodaj').slideToggle();
+          this.toggle();
         }else{
           console.error(res);
         }
@@ -388,6 +388,11 @@ Distinct.prototype.czytajIWyslij = function(){
   }
   else
   console.error("Błędnie wypełniono, popraw błędy i wyślij ponownie")
+}
+
+Distinct.prototype.toggle = function(){
+  if (distinct.wygenerowane === 0) distinct.generujObiekt();
+  $('#dodaj').slideToggle();
 }
 
 Distinct.prototype.sprawdz = function(){

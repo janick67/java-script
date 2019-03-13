@@ -85,70 +85,32 @@ app.post('/api/wydatki', (req,res) => {
 
 app.listen(3000, () => console.log('Listen on port 3000...'))
 
+function rules(){
+  const m = {required:'Pole {title} jest wymagane.',
+  min:'Wymagane przynajmniej {min} znaki.',
+  cur:'Podaj prawidłową wartosc',
+  data:'Podaj prawidłową date'};
+  const rules = {};
+  rules.bank = {title: 'Bank',required:{required:true,message:m.required},min:{min:3,message:m.min}};
+  rules.kwota = {title: 'Kwota',required:{required:true,message:m.required},currency:{currency:true,message:m.cur},min:{min:3,message:m.min}};
+  rules.data = {title: 'Data',required:{required:true,message:m.required},date:{format:'ymd',message:m.data},min:{min:3,message:m.min}};
+  rules.typ = {title: 'Typ',required:{required:true,message:m.required},min:{min:3,message:m.min}};
+  rules.typ2 = {title: 'Typ2',required:{required:true,message:m.required},min:{min:3,message:m.min}};
+  rules.gdzie = {title: 'Gdzie',required:{required:true,message:m.required},min:{min:3,message:m.min}};
+  rules.kogo = {title: 'Kogo',required:{required:true,message:m.required},min:{min:3,message:m.min}};
+  rules.osoba = {title: 'Osoba'};
+  rules.powiazane = {title: 'Powiązane'};
+  rules.opis = {title: 'Opis'};
+  return rules;
+}
 
 function sprawdz(dane){
-  const rules = {};
-  rules.bank = {
-    title: 'Bank',
-    required: true,
-    min: 3
-  };
-
-  rules.kwota = {
-    title: 'Kwota',
-    required: true,
-    currency: true
-  };
-
-  rules.data = {
-    title: 'Data',
-    required: true,
-    date: 'ymd'
-  };
-
-  rules.typ = {
-    title: 'Typ',
-    required: true,
-    min: 3
-  };
-
-  rules.typ2 = {
-    title: 'Typ2',
-    required: true,
-    min: 3
-  };
-
-  rules.gdzie = {
-    title: 'Gdzie',
-    required: true,
-    min: 3
-  };
-
-  rules.kogo = {
-    title: 'Kogo',
-    required: true,
-    min: 3
-  };
-
-  rules.osoba = {
-    title: 'Osoba'
-  };
-
-  rules.powiazane = {
-    title: 'Powiązane'
-  };
-
-  rules.opis = {
-    title: 'Opis',
-  };
-
-  console.log('deb: rules ',rules);
+  const rule = rules();
   const errors = {};
-  for (const el in rules){
-    if (typeof rules[el] === 'undefined') continue;
-    const aprv = approve.value(dane[el], rules[el])
+  for (const el in rule){
+    if (typeof rule[el] === 'undefined') continue;
+    const aprv = approve.value(dane[el], rule[el])
     if (!aprv.approved){
-      console.log('aprv: ',aprv);
       errors[el] = aprv.errors;
     }
   }

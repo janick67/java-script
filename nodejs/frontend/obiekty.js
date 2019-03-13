@@ -283,240 +283,138 @@ $(this.$tr.children()).each((i,el) =>{  //petla po wszystkich td w tr z heada ta
 //=========================================================================================================================================//
 
 function Distinct(){
-  this.all = {};  //wszystkie rekordy
-  this.kolumn = {};
-  this.inputs = {};
+  this.all = {};  //wszystkie rekordy prosto po pobraniu z bazy
+  this.kolumn = {}; //w obiekcie są zapisane inputy, ich wartości, sugerowane wartosci w inputach
   this.wygenerowane = 0;
-  this.value = {};
 }
 
-Distinct.prototype.generujObiekt = function(){
+
+Distinct.prototype.init = function(){
   $.getJSON("/api/wydatki/query",{table: 'wydatki'}) // pobiera dane z serwera
   .done(resp => {
-    this.all = resp;
+    this.all = resp;  //odpowiedz jest w formie tablicy obiektów(nazwa kolumny: wartośc)
     this.wygenerowane = 1;
-    this.dist();
-    this.ustaw();
-
+    this.generujProponowane();  //generuje i zapisuje do obiektu this.kolumn[el].proponowane
+    this.przygotujInputy(); //dodaje klasy, dataliste z podpowiedziami i datapickera dla inputa data
   }).fail(err => console.log(err));
 }
 
-Distinct.prototype.pokaz = function()
-{
-  if (this.wygenerowane === 0) return this.generujObiekt();
-  console.log(this.all);
-}
-
-Distinct.prototype.ustaw = function(){
+Distinct.prototype.przygotujInputy = function(){ //dodaje klasy, dataliste z podpowiedziami i tworzy datapickera
   for (const kol in this.kolumn){
-    const id = 'add_'+kol;
+    const id = 'add_'+kol; // kol to nazwa kolumny z bazy pisana małymi literami
     const $input = $(`#${id}`)
-    $input.addClass(kol);
-    $input.attr('list',`${id}_list`);
-    const $datalist = $(`<datalist id="${id}_list">`);
-    this.kolumn[kol].dist.forEach(el => {
+    $input.addClass(kol);   //dodaje klasy do inputów o takiej wartości jak nazwa kolumny
+    $input.attr('list',`${id}_list`); //podpina datalist pod inputa tak żeby podpowiadały się wartości
+    const $datalist = $(`<datalist id="${id}_list">`); //tworzy dataliste do każdego inputa z podpowiedziami
+    this.kolumn[kol].proponowane.forEach(el => {  //tworzy wartości do datalisty i dodaje je do niej
       $option = $(`<option value=${el}>`);
       $datalist.append($option);
     });
-    this.kolumn[kol].inputs = $input;
-    $input.after($datalist);
-    if (kol === 'data'){
-      $input.datepicker({ dateFormat: 'yy-mm-dd'});
-    }
+    this.kolumn[kol].input = $input; //dodaje inputa do obiektu w którym są jeszcze wartości i domyślne wartości
+    $input.after($datalist);  //dodaje datalistę po inpucie w htmlu
+    if (kol === 'data') $input.datepicker({ dateFormat: 'yy-mm-dd'}) // dla daty dodaję jeszcze okienko modalne pozwalające wybrac date
   }
 }
 
-Distinct.prototype.dist = function()
-{
-  if (this.wygenerowane === 0) return this.generujObiekt();
-
-  Object.getOwnPropertyNames(this.all[0]).forEach(el => {
-     this.kolumn[el.toLowerCase()] = {dist:[]};
+Distinct.prototype.generujProponowane = function(){ //robi pętle po wszystkich rekordach z bazy i robi tak jakby distincta
+  if (this.wygenerowane === 0) return this.generujObiekt(); // jeśli obiekt jeszcze nie jest wygenerowany to wygeneruj
+  Object.getOwnPropertyNames(this.all[0]).forEach(el => { // wypełnia nazwami kolumn pisanymi małymi literami obiekt kolumn w którym później będą wszystkie dane odnosnie inputów
+     this.kolumn[el.toLowerCase()] = {proponowane:[]};
   })
-
-  //console.log(this.kolumn);
-  this.all.forEach(row => {
-    for (const el in this.kolumn){
-      //console.log(el);
-      let dist = this.kolumn[el].dist;
-      if (el !== 'id' && el !== 'data' && el !== 'kwota' && el !== 'powiazane' && el !== 'opis'){
-        if (row[el] !== null && row[el] !== '')
-        {
-          if (typeof row[el] !== 'undefined') if (dist.indexOf(row[el]) === -1) dist.push(row[el]);
-        }
+  this.all.forEach(row => { //pętla po wszystkich zwróconych rekordach z bazy
+    for (const el in this.kolumn){  //w każdym rekordzie pętla po wszyskich jego kolumnach
+      let {proponowane} = this.kolumn[el];  // destrukturyzacja
+      if (el !== 'id' && el !== 'data' && el !== 'kwota' && el !== 'powiazane' && el !== 'opis'){ // dla tych pól nie są podpowiadane żadne wartości
+        if (typeof row[el] !== 'undefined' && row[el] !== null && row[el] !== '')  //dla pustych wartości nie robimy nic
+            if (proponowane.indexOf(row[el]) === -1) proponowane.push(row[el]);// jeśli nie ma jeszcze takiego rekordu to wrzucamy na koniec tablicy
       }else{
-        dist = null;
-      }
-    }
-  });
-}
-
-Distinct.prototype.wczytajDoObiektu = function(){
-  $('#dodaj input').each((i,e) =>{
-    //console.log(i, e, e.classList[0]);
-    this.kolumn[e.classList[0]].value = e.value;
-  });
-}
+        proponowane = null; // jeśli to jest jedna z wyżej wymienionych kolumn i nie potrzebuje podpowiedzi to przypisujemy nulla
+  }}});}
 
 Distinct.prototype.wyczysc = function(){
   $('#dodaj input').each((i,el) =>{
-    this.kolumn[el.classList[0]].value = '';
-    el.value = '';
-    this.kolumn[el.classList[0]].inputs.removeClass('bad_value');
-    this.kolumn[el.classList[0]].inputs.removeClass('good_value');
+    const kol = this.kolumn[el.classList[0]]; // upraszczam zapis
+    kol.value = ''; //zeruje wartośc wpisana do obiektu
+    el.value = '';  //
+    kol.input.removeClass('bad_value');
+    kol.input.removeClass('good_value');
   });
 }
 
-Distinct.prototype.czytajIWyslij = function(){
-  this.wczytajDoObiektu();
-  const obj = {};
-  for (const el in this.kolumn){
-    const {value} = this.kolumn[el];
-    if (typeof value !== 'undefined') obj[el] = value;
+Distinct.prototype.czytajIWyslij = function(){ // wczytuje dane z imputów, wysyła do walidacji i później je wysyła i obsługuje odpowiedź
+  $('#dodaj input').each((i,e) =>{
+    this.kolumn[e.classList[0]].value = e.value;  //pętla po wszystkich inputach, zczytuje ich wartości i wrzuca do obiektu kolumn
+  });
+  const obj = {}; // obiekt w którym będą wartości wszystkich pól i po walidacji zostanie wysłany do serwera
+  for (const el in this.kolumn){ //pętla po wszystkich kolumnach
+    const {value} = this.kolumn[el]; // destrukturyzacja
+    if (typeof value !== 'undefined') obj[el] = value; //przypisanie wartości z inputa do obiektu
   }
-  if (this.sprawdz() == 1)
-  {
-      insert(uri+"api/wydatki",obj)
-      .done(res => {
-        if (typeof res.id !== 'undefined' && res.id > -1){
-          this.wyczysc();
-          console.log("Udało się wysłac, id: ", res.id);
-          this.toggle();
-        }else{
-          console.error(res);
-        }
+  if (this.sprawdz(obj) == 1){  // walidacja przed wysłaniem na serwer
+      insert(uri+"api/wydatki",obj) //jeśli jest ok to wysyłam
+      .done(res => { //sprawdzam odpowiedz bo to że jest to jeszcze nie znaczy że jest dobra
+        if (typeof res.id !== 'undefined' && res.id > -1){  //jeśli serwer zwrócił nam id nowo dodanego rekordu to jest ok
+          this.wyczysc(); //czyszczę bo jak już dodane to nie trzeba mi już tych danych
+        }else{console.error(res);}
       }).error(err => console.error(err))
-
-  }
-  else
-  console.error("Błędnie wypełniono, popraw błędy i wyślij ponownie")
+  }else{
+  console.error("Błędnie wypełniono, popraw błędy i wyślij ponownie!")}
 }
 
-Distinct.prototype.toggle = function(){
-  if (distinct.wygenerowane === 0) distinct.generujObiekt();
+Distinct.prototype.toggle = function(){ // pokazuje i chowa diva z wprowadzaniem
+  if (distinct.wygenerowane === 0) distinct.init();
   $('#dodaj').slideToggle();
 }
 
-Distinct.prototype.sprawdz = function(){
-  //console.log(this.value);
-  //bank
-
-  this.kolumn.bank.rule = {
-    title: 'Bank',
-    required: {
-      required: true,
-      message: 'Pole {title} jest wymagane.'
-    },
-    min: {
-      min: 3,
-      message: "Wymagane przynajmniej 3 znaki."
-    }
-  };
-
-  this.kolumn.kwota.rule = {
-    title: 'Kwota',
-    required: {
-      required: true,
-      message: 'Pole {title} jest wymagane.'
-    },
-    currency:{
-      currency: true,
-      message: 'Podaj prawidłową kwote, użyj ".".'
-    }
-  };
-
-  this.kolumn.data.rule = {
-    title: 'Data',
-    required: {
-      required: true,
-      message: 'Pole {title} jest wymagane.'
-    },
-    date:{
-      format: 'ymd',
-      message: 'Nieprawidłowy format daty.'
-    }
-  };
-
-  this.kolumn.typ.rule = {
-    title: 'Typ',
-    required: {
-      required: true,
-      message: 'Pole {title} jest wymagane.'
-    },
-    min: {
-      min: 3,
-      message: "Wymagane przynajmniej 3 znaki."
-    }
-  };
-
-  this.kolumn.typ2.rule = {
-    title: 'Typ2',
-    required: {
-      required: true,
-      message: 'Pole {title} jest wymagane.'
-    },
-    min: {
-      min: 3,
-      message: "Wymagane przynajmniej 3 znaki."
-    }
-  };
-
-  this.kolumn.gdzie.rule = {
-    title: 'Gdzie',
-    required: {
-      required: true,
-      message: 'Pole {title} jest wymagane.'
-    },
-    min: {
-      min: 3,
-      message: "Wymagane przynajmniej 3 znaki."
-    }
-  };
-
-  this.kolumn.kogo.rule = {
-    title: 'Kogo',
-    required: {
-      required: true,
-      message: 'Pole {title} jest wymagane.'
-    },
-    min: {
-      min: 3,
-      message: "Wymagane przynajmniej 3 znaki."
-    }
-  };
-
-  this.kolumn.osoba.rule = {
-    title: 'Osoba'
-  };
-
-  this.kolumn.powiazane.rule = {
-    title: 'Powiązane'
-  };
-
-  this.kolumn.opis.rule = {
-    title: 'Opis'
-  };
+Distinct.prototype.sprawdz = function(obj){
+  const err = sprawdz(obj);
   $('#dodaj span.error').remove();
-
-let wszystko_ok = 1;
   for (const el in this.kolumn){
-    if (this.kolumn[el].inputs.length === 0) continue;
-    let {rule} = this.kolumn[el];
-    if (typeof rule === 'undefined') continue;
-    const aprv = approve.value(this.kolumn[el].value, rule)
-    if (aprv.approved) {
-      this.kolumn[el].inputs.addClass('good_value');
-      this.kolumn[el].inputs.removeClass('bad_value');
+    const {input} = this.kolumn[el];
+    if (input.length === 0) continue;
+    if (typeof err[el] === 'undefined') {
+      input.addClass('good_value');
+      input.removeClass('bad_value');
     }else{
-      wszystko_ok = 0;
-      this.kolumn[el].inputs.after($(`<span class="error">${aprv.errors[0]}</span>`));
-      this.kolumn[el].inputs.addClass('bad_value');
-      this.kolumn[el].inputs.removeClass('good_value');
+      input.after($(`<span class="error">${err[el][0]}</span>`));
+      input.addClass('bad_value');
+      input.removeClass('good_value');
     }
   }
-  return wszystko_ok;
+  if (Object.keys(err).length > 0) return 0;
+  return 1;
 }
 
+function rules(){
+  const m = {required:'Pole {title} jest wymagane.',
+  min:'Wymagane przynajmniej {min} znaki.',
+  cur:'Podaj prawidłową wartosc',
+  data:'Podaj prawidłową date'};
+  const rules = {};
+  rules.bank = {title: 'Bank',required:{required:true,message:m.required},min:{min:3,message:m.min}};
+  rules.kwota = {title: 'Kwota',required:{required:true,message:m.required},currency:{currency:true,message:m.cur},min:{min:3,message:m.min}};
+  rules.data = {title: 'Data',required:{required:true,message:m.required},date:{format:'ymd',message:m.data},min:{min:3,message:m.min}};
+  rules.typ = {title: 'Typ',required:{required:true,message:m.required},min:{min:3,message:m.min}};
+  rules.typ2 = {title: 'Typ2',required:{required:true,message:m.required},min:{min:3,message:m.min}};
+  rules.gdzie = {title: 'Gdzie',required:{required:true,message:m.required},min:{min:3,message:m.min}};
+  rules.kogo = {title: 'Kogo',required:{required:true,message:m.required},min:{min:3,message:m.min}};
+  rules.osoba = {title: 'Osoba'};
+  rules.powiazane = {title: 'Powiązane'};
+  rules.opis = {title: 'Opis'};
+  return rules;
+}
+
+function sprawdz(dane){
+  const rule = rules();
+  const errors = {};
+  for (const el in rule){
+    if (typeof rule[el] === 'undefined') continue;
+    const aprv = approve.value(dane[el], rule[el])
+    if (!aprv.approved){
+      errors[el] = aprv.errors;
+    }}
+  return errors;
+}
 
 function insert(adres,obiekt){
 return $.ajax({

@@ -111,7 +111,7 @@ function generujSql(obj){
   return sql;
 }
 
-app.listen(3001, () => console.log('Listen on port 3001...'))
+app.listen(3001, () => console.log('Listen on port 3001....'))
 
 
 

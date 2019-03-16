@@ -22,7 +22,7 @@ const db = mysql.createConnection({
 
 db.connect((err) => {
   if(err) throw err;
-  logZData('MySql Connected...');
+  console.log(aktualnaData()+'MySql Connected...');
 });
 
 app.get('/api/wydatki/query',(req,res) => {
@@ -55,7 +55,7 @@ app.get('/api/wydatki/kto_ma_oddac/query',(req,res) => {
   response(req,res, obj => {
     if (typeof obj.where === 'undefined') obj.where = '';
     if (typeof obj.orderby === 'undefined') obj.orderby = 'kogo';
-    obj.where += 'and powiązane = 0 and kogo not like "inne" and kogo not like "moje" and data > "2018-09-01"';
+    obj.where += 'and powiazane = 0 and kogo not like "inne" and kogo not like "moje" and data > "2018-09-01"';
   });
 });
 
@@ -67,10 +67,29 @@ app.get('/api/wydatki/kto_ma_oddac_suma/query',(req,res) => {
     if (typeof obj.groupby === 'undefined') obj.groupby = '';
     if (typeof obj.orderby === 'undefined') obj.orderby = 'Year(data), MONTH(data)';
     obj.select += 'kogo, sum(kwota)';
-    obj.where += 'and powiązane = 0 and kogo not like "inne" and kogo not like "moje" and data > "2018-09-01"';
+    obj.where += 'and powiazane = 0 and kogo not like "inne" and kogo not like "moje" and data > "2018-09-01"';
     obj.groupby += 'kogo';
   });
 });
+
+app.post('/api/wydatki', (req,res) => {
+  let  body = req.body;
+  const spr = sprawdz(body);
+  if (Object.keys(spr).length > 0) return res.send({error:'Błędne dane',message:spr});
+  const sql = 'INSERT INTO wydatki SET ?';
+  const query = db.query(sql,body, (err, result) => {
+    if (err) {
+      console.error(aktualnaData()+err);
+      return res.send(err);
+    }
+    res.send({id:result.insertId});
+  })
+})
+
+
+
+app.listen(3001, () => console.log(aktualnaData()+'Listen on port 3001....'))
+
 
 
 function generujSql(obj){
@@ -109,73 +128,32 @@ function generujSql(obj){
   if (typeof obj.from === 'undefined') obj.from = 'wydatki';
 
   let sql = `SELECT ${obj.select} from ${obj.from} ${obj.where} ${obj.groupby} ${obj.orderby} ${obj.limit} ${obj.offset}`;
-  logZData(sql);
+  console.log(aktualnaData()+sql);
   return sql;
 }
-
-app.listen(3001, () => logZData('Listen on port 3001....'))
-
-
 
 function response(req,res,func)
 {
   if (req.query.table !== "wydatki") return res.send("wybrano zła tabele");
   delete req.query.table;
-  let sql = 'Select * from wydatki';
-  let where = ' where 1';
-  let limit = ' Limit';
-  let orderby = ' order by ';
   const param = req.query;
-  const name = Object.getOwnPropertyNames(param);
-  //console.log( name,param[name[0]]);
- for (const el of name){
-    if (el === 'limit'){
-      limit += ' '+param[el];
-    }else if(el === 'offset'){
-      limit += ' offset '+param[el];
-    }else if(el === 'orderby'){
-      let order = param[el];
-      console.log(order);
-      order.forEach((element,i) =>{
-        console.log("el",element, i);
-        if (element[0] === '!') element = element.slice(1) + ' desc';
-        if (i > 0) element = ', '+element;
-        orderby += element;
-      });
-    }else if(el === 'data' || el === 'kwota'){
-      where += ' and ' + el + ' = "' + param[el] + '" ';
-    }else{
-      if(param[el].indexOf(";") > -1) param[el] = param[el].replace(/;/g,'","');
-      where += ' and ' + el+' in ("'+param[el]+'") ';
-    }
-    };
-  sql += where; // dopisane cos wiecej niz samo where więc dodajemy do sql
-  if (orderby.length > 10) sql += orderby;
-  if (limit.length > 6) sql += limit; //jw
-  console.log(sql);
-  const query = db.query(sql, (err, result) => {
+  const obj = param;
+
+  if (typeof obj.orderby !== 'undefined'){
+    obj.orderby = decodeOrderby(obj.orderby);
+  }
+
+  if (typeof obj.where !== 'undefined'){
+    obj.where = decodeWhere(obj.where);
+  }
+
+  if (typeof func !== undefined) func(obj);
+
+  let sql = generujSql(obj);
     if (err){console.error(err);  return res.send(err)};
     res.send(result);
   });
-});
-
-
-app.post('/api/wydatki', (req,res) => {
-  let  body = req.body;
-  const spr = sprawdz(body);
-  if (Object.keys(spr).length > 0) return res.send({error:'Błędne dane',message:spr});
-  const sql = 'INSERT INTO wydatki SET ?';
-  const query = db.query(sql,body, (err, result) => {
-    if (err) {
-      console.error(err);
-      return res.send(err);
-    }
-    res.send({id:result.insertId});
-  })
-})
-
-
-app.listen(3000, () => console.log('Listen on port 3000...'))
+}
 
 function rules(){
   const m = {required:'Pole {title} jest wymagane.',
@@ -209,14 +187,14 @@ function sprawdz(dane){
   return errors;
 }
 
-function logZData(message){
+function aktualnaData(){
   const rok = leadingZero(data.getFullYear());
   const miesiac = leadingZero(data.getMonth()+1);
   const dzien = leadingZero(data.getDate());
   const godz = leadingZero(data.getHours());
   const min = leadingZero(data.getMinutes());
   const sec = leadingZero(data.getSeconds());
-  console.log(`[${dzien}.${miesiac}.${rok} ${godz}:${min}:${sec}] ${message}`)
+  return `[${dzien}.${miesiac}.${rok} ${godz}:${min}:${sec}] `
 }
 
 function leadingZero(i) {

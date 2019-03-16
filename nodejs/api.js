@@ -10,6 +10,8 @@ app.use(express.json());
 
 app.use(express.static(__dirname + '/frontend/'));
 
+const data = new Date();
+
 const db = mysql.createConnection({
   host    : 'localhost',
   user    : 'janick67',
@@ -19,7 +21,7 @@ const db = mysql.createConnection({
 
 db.connect((err) => {
   if(err) throw err;
-  console.log('MySql Connected...');
+  logZData('MySql Connected...');
 });
 
 
@@ -107,11 +109,11 @@ function generujSql(obj){
   if (typeof obj.from === 'undefined') obj.from = 'wydatki';
 
   let sql = `SELECT ${obj.select} from ${obj.from} ${obj.where} ${obj.groupby} ${obj.orderby} ${obj.limit} ${obj.offset}`;
-  console.log(sql);
+  logZData(sql);
   return sql;
 }
 
-app.listen(3001, () => console.log('Listen on port 3001....'))
+app.listen(3001, () => logZData('Listen on port 3001....'))
 
 
 
@@ -160,4 +162,18 @@ function decodeWhere(obj)
       where += ' and ' + el+' in ("'+obj[el]+'") ';
     }
   return where;
+}
+
+function logZData(message){
+  const rok = leadingZero(data.getFullYear());
+  const miesiac = leadingZero(data.getMonth()+1);
+  const dzien = leadingZero(data.getDate());
+  const godz = leadingZero(data.getHours());
+  const min = leadingZero(data.getMinutes());
+  const sec = leadingZero(data.getSeconds());
+  console.log(`[${dzien}.${miesiac}.${rok} ${godz}:${min}:${sec}] ${message}`)
+}
+
+function leadingZero(i) {
+  return (i < 10)? '0'+i : i;
 }

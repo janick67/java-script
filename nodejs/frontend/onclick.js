@@ -19,7 +19,20 @@ $('#na_strone').on('change', function() {
   const it = aktualna_tabelka;
   it.na_strone = this.value;
   it.object.limit = it.na_strone;
+  console.log(it);
   it.odswiez();
+});
+
+$('#btn_dodaj').click(e => {
+  distinct.toggle();
+});
+
+$('#add_btn').click(e => {
+  distinct.czytajIWyslij();
+});
+
+$('#wszystkie').click(function(){
+  tabelka.pokaz();
 });
 
 $('#saldo').click(function(){

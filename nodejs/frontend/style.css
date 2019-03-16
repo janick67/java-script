@@ -9,7 +9,7 @@ div.divTable{
   overflow: auto;
 }
 
-input{
+tr.trFilter input{
   width:100%;
 }
 
@@ -131,7 +131,6 @@ tr:last-child td:last-child{
     border-bottom-right-radius:3px;
 }
 
-
 td, th{
   width: 70px;
 }
@@ -144,4 +143,43 @@ th.ID, td.ID {
 
 th.Opis, td.Opis{
   width: fit-content;
+}
+
+#add_data{
+      background-image: url(./image/icon-calendar.png);
+      background-size: contain;
+      background-position: 99% center;
+      background-repeat: no-repeat;
+      cursor: pointer;
+}
+
+#dodaj input {
+  height: 25px;
+  border: 2px solid lightgrey;
+  border-radius: 4px;
+  margin: 4px;
+}
+
+#dodaj input.good_value{
+  border: 2px solid green;
+  border-radius: 4px;
+}
+
+#dodaj input.bad_value{
+  border: 2px solid red;
+  border-radius: 4px;
+}
+
+#dodaj span.error{
+  color: red;
+  font-style: italic;
+  margin-left: 10px;
+}
+
+#dodaj {
+  display: none;
+  margin-top: -20px;
+  margin-bottom: 10px;
+  padding: 10px;
+  /*border:#babbbc 5px solid;*/
 }

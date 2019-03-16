@@ -6,10 +6,14 @@
         <title></title>
         <meta http-equiv="x-ua-compatible" content="ie=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-      <script src="jquery.min.js"></script>
-      <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-      <link rel="stylesheet" href="style.css" type="text/css" />
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="jquery.min.js"></script>
+        <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+        <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/approvejs/3.1.2/approve.min.js"></script>
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+        <link rel="stylesheet" href="style.css" type="text/css" />
     </head>
     <body>
       <div id="paginacja">
@@ -24,7 +28,32 @@
           <option>500</option>
       </select></div>
       <br />
-      <div id="Raporty">
+      <button id="btn_dodaj"> Dodaj wpis </button><br /><br />
+      <div id="dodaj">
+        <label>Bank:</label>
+        <input id="add_bank"> </input><br />
+        <label>Kwota:</label>
+        <input id="add_kwota"> </input><br />
+        <label>Data:</label>
+        <input id="add_data"> </input><br />
+        <label>Typ:</label>
+        <input id="add_typ"> </input><br />
+        <label>Typ2:</label>
+        <input id="add_typ2"> </input><br />
+        <label>Gdzie:</label>
+        <input id="add_gdzie"> </input><br />
+        <label>Kogo:</label>
+        <input id="add_kogo"> </input><br />
+        <label>Osoba:</label>
+        <input id="add_osoba"> </input><br />
+        <label>Powiązane:</label>
+        <input id="add_powiazane"> </input><br />
+        <label>Opis:</label>
+        <input id="add_opis"> </input><br />
+        <button id="add_btn"> Wyślij </button>
+      </div>
+      <div id="raporty">
+        <button id="wszystkie">Wszystkie</button>
         <button id="saldo">Saldo</button>
         <button id="saldo_na_miesiac">Saldo na miesiąc</button>
         <button id="kto_ma_oddac">Kto ma ile oddać</button>

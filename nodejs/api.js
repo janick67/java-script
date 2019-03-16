@@ -3,6 +3,7 @@ const mysql = require('mysql');
 const cors = require('cors')
 const path = require('path');
 const bourbon = require('bourbon');
+const approve = require('approvejs');
 
 const app = express();
 app.use(cors());
@@ -23,7 +24,6 @@ db.connect((err) => {
   if(err) throw err;
   logZData('MySql Connected...');
 });
-
 
 app.get('/api/wydatki/query',(req,res) => {
   response(req,res, obj => {});
@@ -121,47 +121,92 @@ function response(req,res,func)
 {
   if (req.query.table !== "wydatki") return res.send("wybrano zła tabele");
   delete req.query.table;
+  let sql = 'Select * from wydatki';
+  let where = ' where 1';
+  let limit = ' Limit';
+  let orderby = ' order by ';
   const param = req.query;
-  const obj = param;
-
-  if (typeof obj.orderby !== 'undefined'){
-    obj.orderby = decodeOrderby(obj.orderby);
-  }
-
-  if (typeof obj.where !== 'undefined'){
-    obj.where = decodeWhere(obj.where);
-  }
-
-  if (typeof func !== undefined) func(obj);
-
-  let sql = generujSql(obj);
+  const name = Object.getOwnPropertyNames(param);
+  //console.log( name,param[name[0]]);
+ for (const el of name){
+    if (el === 'limit'){
+      limit += ' '+param[el];
+    }else if(el === 'offset'){
+      limit += ' offset '+param[el];
+    }else if(el === 'orderby'){
+      let order = param[el];
+      console.log(order);
+      order.forEach((element,i) =>{
+        console.log("el",element, i);
+        if (element[0] === '!') element = element.slice(1) + ' desc';
+        if (i > 0) element = ', '+element;
+        orderby += element;
+      });
+    }else if(el === 'data' || el === 'kwota'){
+      where += ' and ' + el + ' = "' + param[el] + '" ';
+    }else{
+      if(param[el].indexOf(";") > -1) param[el] = param[el].replace(/;/g,'","');
+      where += ' and ' + el+' in ("'+param[el]+'") ';
+    }
+    };
+  sql += where; // dopisane cos wiecej niz samo where więc dodajemy do sql
+  if (orderby.length > 10) sql += orderby;
+  if (limit.length > 6) sql += limit; //jw
+  console.log(sql);
   const query = db.query(sql, (err, result) => {
     if (err){console.error(err);  return res.send(err)};
     res.send(result);
   });
-}
+});
 
-function decodeOrderby(obj)
-{
-  let order = obj;
-  gotowy_obj = '';
-  order.forEach((element,i) =>{
-    if (element[0] === '!') element = element.slice(1) + ' desc';
-    if (i > 0) element = ', '+element;
-    gotowy_obj += element;
-  });
-  return gotowy_obj;
-}
 
-function decodeWhere(obj)
-{
-  let where = '';
-    const name = Object.getOwnPropertyNames(obj);
-    for (const el of name){
-      if(obj[el].indexOf(";") > -1) obj[el] = obj[el].replace(/;/g,'","');
-      where += ' and ' + el+' in ("'+obj[el]+'") ';
+app.post('/api/wydatki', (req,res) => {
+  let  body = req.body;
+  const spr = sprawdz(body);
+  if (Object.keys(spr).length > 0) return res.send({error:'Błędne dane',message:spr});
+  const sql = 'INSERT INTO wydatki SET ?';
+  const query = db.query(sql,body, (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.send(err);
     }
-  return where;
+    res.send({id:result.insertId});
+  })
+})
+
+
+app.listen(3000, () => console.log('Listen on port 3000...'))
+
+function rules(){
+  const m = {required:'Pole {title} jest wymagane.',
+  min:'Wymagane przynajmniej {min} znaki.',
+  cur:'Podaj prawidłową wartosc',
+  data:'Podaj prawidłową date'};
+  const rules = {};
+  rules.bank = {title: 'Bank',required:{required:true,message:m.required},min:{min:3,message:m.min}};
+  rules.kwota = {title: 'Kwota',required:{required:true,message:m.required},currency:{currency:true,message:m.cur}};
+  rules.data = {title: 'Data',required:{required:true,message:m.required},date:{format:'ymd',message:m.data},min:{min:3,message:m.min}};
+  rules.typ = {title: 'Typ',required:{required:true,message:m.required},min:{min:3,message:m.min}};
+  rules.typ2 = {title: 'Typ2',required:{required:true,message:m.required},min:{min:3,message:m.min}};
+  rules.gdzie = {title: 'Gdzie',required:{required:true,message:m.required},min:{min:3,message:m.min}};
+  rules.kogo = {title: 'Kogo',required:{required:true,message:m.required},min:{min:3,message:m.min}};
+  rules.osoba = {title: 'Osoba'};
+  rules.powiazane = {title: 'Powiązane'};
+  rules.opis = {title: 'Opis'};
+  return rules;
+}
+
+function sprawdz(dane){
+  const rule = rules();
+  const errors = {};
+  for (const el in rule){
+    if (typeof rule[el] === 'undefined') continue;
+    const aprv = approve.value(dane[el], rule[el])
+    if (!aprv.approved){
+      errors[el] = aprv.errors;
+    }
+  }
+  return errors;
 }
 
 function logZData(message){

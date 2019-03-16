@@ -4,6 +4,7 @@
   "description": "test",
   "main": "index.js",
   "dependencies": {
+    "approvejs": "^3.1.2",
     "bourbon": "^5.1.0",
     "cors": "^2.8.5",
     "express": "^4.16.4",

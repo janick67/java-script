@@ -331,12 +331,13 @@ Distinct.prototype.generujProponowane = function(){ //robi pętle po wszystkich 
         proponowane = null; // jeśli to jest jedna z wyżej wymienionych kolumn i nie potrzebuje podpowiedzi to przypisujemy nulla
   }}});}
 
-Distinct.prototype.wyczysc = function(){
+Distinct.prototype.wyczysc = function(){//czysci wszystkie inputy ich klasy i obiekt
   $('#dodaj input').each((i,el) =>{
     const kol = this.kolumn[el.classList[0]]; // upraszczam zapis
     kol.value = ''; //zeruje wartośc wpisana do obiektu
-    el.value = '';  //
-    kol.input.removeClass('bad_value');
+    el.value = '';  //zeruje wartosc wpisana do inputa
+    $('#dodaj span.error').remove(); //usuwa wszystkie stare komunikaty o błędach
+    kol.input.removeClass('bad_value'); //usuwam klasy, ktore zmienialy wyglad inpotow, skoro czyszcze to juz takie oznaczenia nie sa potrzebne
     kol.input.removeClass('good_value');
   });
 }
@@ -354,6 +355,7 @@ Distinct.prototype.czytajIWyslij = function(){ // wczytuje dane z imputów, wysy
       insert(uri+"api/wydatki",obj) //jeśli jest ok to wysyłam
       .done(res => { //sprawdzam odpowiedz bo to że jest to jeszcze nie znaczy że jest dobra
         if (typeof res.id !== 'undefined' && res.id > -1){  //jeśli serwer zwrócił nam id nowo dodanego rekordu to jest ok
+          location.reload();
           this.wyczysc(); //czyszczę bo jak już dodane to nie trzeba mi już tych danych
         }else{console.error(res);}
       }).error(err => console.error(err))
@@ -366,33 +368,33 @@ Distinct.prototype.toggle = function(){ // pokazuje i chowa diva z wprowadzaniem
   $('#dodaj').slideToggle();
 }
 
-Distinct.prototype.sprawdz = function(obj){
-  const err = sprawdz(obj);
-  $('#dodaj span.error').remove();
-  for (const el in this.kolumn){
+Distinct.prototype.sprawdz = function(obj){ // wysyła dane do walidacji i wyswietal poźniej stosowne informacje o błędzie, zwraca 1 jeśli wszystko jest ok i 0 gdy coś się nie powiodło
+  const err = sprawdz(obj);// waliduje dane zwraca 1 gdy ok i 0 gdy nie
+  $('#dodaj span.error').remove(); //usuwa wszystkie stare komunikaty o błędach
+  for (const el in this.kolumn){ // pętla po wszystkich kolumnach
     const {input} = this.kolumn[el];
-    if (input.length === 0) continue;
-    if (typeof err[el] === 'undefined') {
-      input.addClass('good_value');
+    if (input.length === 0) continue;  // jesli nie zawiera inputow to nie ma co sprawdzac
+    if (typeof err[el] === 'undefined') { // jeśli nie ma błędow dla tego elementu to znaczy ze wszystko jest ok
+      input.addClass('good_value'); //ustawia flagę informującą o powodzeniu i usuwa ewentualną o nie powodzeniu
       input.removeClass('bad_value');
     }else{
-      input.after($(`<span class="error">${err[el][0]}</span>`));
-      input.addClass('bad_value');
+      input.after($(`<span class="error">${err[el][0]}</span>`)); // dodaje spana po prawej stronie inputaa informującą o błędzie i jego treści
+      input.addClass('bad_value'); //usuwa dobrą dodaje klase informujaca o bledzie
       input.removeClass('good_value');
     }
   }
-  if (Object.keys(err).length > 0) return 0;
+  if (Object.keys(err).length > 0) return 0; //jeśli nie ma żadnych błędow to zwraca 1 i można wtedy wyslac dane
   return 1;
 }
 
-function rules(){
+function rules(){ // funkcja konfigurująca, ustawiam tu wymagania przy walidacji inputow i ewentualne informacje przy bledach, zwraca obiekt zawierający wszystkie regoly pogrupowane na kolumny
   const m = {required:'Pole {title} jest wymagane.',
   min:'Wymagane przynajmniej {min} znaki.',
   cur:'Podaj prawidłową wartosc',
   data:'Podaj prawidłową date'};
-  const rules = {};
+  const rules = {}; //obiekt ktory bedzie zawierał wszystkie bledy
   rules.bank = {title: 'Bank',required:{required:true,message:m.required},min:{min:3,message:m.min}};
-  rules.kwota = {title: 'Kwota',required:{required:true,message:m.required},currency:{currency:true,message:m.cur},min:{min:3,message:m.min}};
+  rules.kwota = {title: 'Kwota',required:{required:true,message:m.required},currency:{currency:true,message:m.cur}};
   rules.data = {title: 'Data',required:{required:true,message:m.required},date:{format:'ymd',message:m.data},min:{min:3,message:m.min}};
   rules.typ = {title: 'Typ',required:{required:true,message:m.required},min:{min:3,message:m.min}};
   rules.typ2 = {title: 'Typ2',required:{required:true,message:m.required},min:{min:3,message:m.min}};
@@ -401,22 +403,22 @@ function rules(){
   rules.osoba = {title: 'Osoba'};
   rules.powiazane = {title: 'Powiązane'};
   rules.opis = {title: 'Opis'};
-  return rules;
+  return rules; // zwraca obiekt zawierający wszystkie regoly pogrupowane na kolumny
 }
 
-function sprawdz(dane){
+function sprawdz(dane){ // funkcja walidujaca dane, zwraca tablice z ewentualnymi bledami
   const rule = rules();
-  const errors = {};
-  for (const el in rule){
-    if (typeof rule[el] === 'undefined') continue;
-    const aprv = approve.value(dane[el], rule[el])
-    if (!aprv.approved){
-      errors[el] = aprv.errors;
+  const errors = {};// w tym obiekcie beda zapisane wszystkie bledy ktore wystapia
+  for (const kol in rule){
+    if (typeof rule[kol] === 'undefined') continue; // jeśli nie znalazl żadnej reguły to nie ma co sprawdzac wiec pomija
+    const aprv = approve.value(dane[kol], rule[kol]) //funkcja sprawdzajaca dane, zwraca obiekt
+    if (!aprv.approved){ //zwracany obiekt zawiera approved ktore jest rowne 1 jesli wszystko jest ok i 0 gdy cos nie przeszlo testow
+      errors[kol] = aprv.errors; // przytpisuje tablice błedow do konkretnej kolumny
     }}
-  return errors;
+  return errors;//zwraca obiekt z elementami kolumn a w nich tablice z błedami
 }
 
-function insert(adres,obiekt){
+function insert(adres,obiekt){// wysyła dane postem, w obiekcie sa dane ktore zostana wyslane do sql
 return $.ajax({
   method: "POST",
   url: adres,

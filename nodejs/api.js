@@ -66,12 +66,9 @@ app.get('/api/wydatki/query',(req,res) => {
 
 
 app.post('/api/wydatki', (req,res) => {
-  //console.log("body: ",req.body);
   let  body = req.body;
   const spr = sprawdz(body);
-  console.log('spr: ', spr, 'length: ', Object.keys(spr).length);
   if (Object.keys(spr).length > 0) return res.send({error:'Błędne dane',message:spr});
-
   const sql = 'INSERT INTO wydatki SET ?';
   const query = db.query(sql,body, (err, result) => {
     if (err) {
@@ -92,7 +89,7 @@ function rules(){
   data:'Podaj prawidłową date'};
   const rules = {};
   rules.bank = {title: 'Bank',required:{required:true,message:m.required},min:{min:3,message:m.min}};
-  rules.kwota = {title: 'Kwota',required:{required:true,message:m.required},currency:{currency:true,message:m.cur},min:{min:3,message:m.min}};
+  rules.kwota = {title: 'Kwota',required:{required:true,message:m.required},currency:{currency:true,message:m.cur}};
   rules.data = {title: 'Data',required:{required:true,message:m.required},date:{format:'ymd',message:m.data},min:{min:3,message:m.min}};
   rules.typ = {title: 'Typ',required:{required:true,message:m.required},min:{min:3,message:m.min}};
   rules.typ2 = {title: 'Typ2',required:{required:true,message:m.required},min:{min:3,message:m.min}};

@@ -150,6 +150,8 @@ function response(req,res,func)
   if (typeof func !== undefined) func(obj);
 
   let sql = generujSql(obj);
+  const query = db.query(sql, (err, result) => {
+    console.log(result);
     if (err){console.error(err);  return res.send(err)};
     res.send(result);
   });

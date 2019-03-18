@@ -151,10 +151,33 @@ function response(req,res,func)
 
   let sql = generujSql(obj);
   const query = db.query(sql, (err, result) => {
-    console.log(result);
+    //console.log(result);
     if (err){console.error(err);  return res.send(err)};
     res.send(result);
   });
+}
+
+function decodeOrderby(obj)
+{
+  let order = obj;
+  gotowy_obj = '';
+  order.forEach((element,i) =>{
+    if (element[0] === '!') element = element.slice(1) + ' desc';
+    if (i > 0) element = ', '+element;
+    gotowy_obj += element;
+  });
+  return gotowy_obj;
+}
+
+function decodeWhere(obj)
+{
+  let where = '';
+    const name = Object.getOwnPropertyNames(obj);
+    for (const el of name){
+      if(obj[el].indexOf(";") > -1) obj[el] = obj[el].replace(/;/g,'","');
+      where += ' and ' + el+' in ("'+obj[el]+'") ';
+    }
+  return where;
 }
 
 function rules(){

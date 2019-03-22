@@ -146,7 +146,7 @@ th.Opis, td.Opis{
 }
 
 #add_data{
-      background-image: url(./image/icon-calendar.png);
+      background-image: url(../images/icon-calendar.png);
       background-size: contain;
       background-position: 99% center;
       background-repeat: no-repeat;

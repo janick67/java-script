@@ -9,7 +9,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use(express.static(__dirname + '/frontend/'));
+app.use(express.static('../frontend/'));
 
 const data = new Date();
 

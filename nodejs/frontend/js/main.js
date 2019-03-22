@@ -1,4 +1,4 @@
-const uri = document.location.href;
+const uri = document.location.origin;
 
 let aktualna_tabelka = null;
 let distinct = new Distinct();

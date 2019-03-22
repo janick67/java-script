@@ -71,6 +71,7 @@ Tabelka.prototype.generuj = function(){
     })
     .fail(err => {
       console.log(err)
+      window.location.href = uri + '/logowanie/index.html';
     });
     return this;
   };

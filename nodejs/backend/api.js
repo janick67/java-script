@@ -118,6 +118,9 @@ app.use(function(req, res, next) {
   });
 
 app.use(function(req, res, next) {
+  if(typeof req.user === 'undefined' && req.path.indexOf('api/') >= 0){
+    return res.status(404).send("Najpierw się zaloguj");
+  }
   if (typeof req.user === 'undefined' && req.path.indexOf('/logowanie/') !== 0 && req.path.indexOf('/css/') !== 0 && req.path.indexOf('/js/') !== 0 && req.path.indexOf('/images/') !== 0 && req.path !== '/signin' && req.path !== '/signup')
     {
        console.log("Przekierowywuje Cie do logowania");
@@ -169,7 +172,10 @@ function sprawdzRejestracja(body){
 
 
 
-
+app.get('/', (req,res) => {
+  console.log("jesteś na głownej");
+  res.redirect('/logowanie/index.html');
+});
 
 
 

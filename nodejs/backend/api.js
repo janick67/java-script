@@ -101,7 +101,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use(function(req, res, next) {
-    if (req.path.indexOf('.css') === -1 && req.path.indexOf('.js') === -1 ){
+  //  if (req.path.indexOf('.css') === -1 && req.path.indexOf('.js') === -1 ){
         console.log("\n\n\naktualna ścieżka to: ", req.path,req.path.indexOf('login') === -1);
         console.log("aktualny użytkownik to req.user: ", req.user, typeof req.user === 'undefined');
         console.log('-------------------------- session -----------------------------------------');
@@ -113,7 +113,7 @@ app.use(function(req, res, next) {
         console.log('-------------------------- user -----------------------------------------');
         console.dir(req.user);
         console.log('------------------------------------------------------------------------------------');
-    }
+  //  }
     next();
   });
 
@@ -121,7 +121,7 @@ app.use(function(req, res, next) {
   if(typeof req.user === 'undefined' && req.path.indexOf('api/') >= 0){
     return res.status(404).send("Najpierw się zaloguj");
   }
-  if (typeof req.user === 'undefined' && req.path.indexOf('/logowanie/') !== 0 && req.path.indexOf('/css/') !== 0 && req.path.indexOf('/js/') !== 0 && req.path.indexOf('/images/') !== 0 && req.path !== '/signin' && req.path !== '/signup')
+  if (typeof req.user === 'undefined' && req.path.indexOf('/logowanie/') !== 0 && req.path.indexOf('/css/') !== 0 && req.path.indexOf('/js/') !== 0 && req.path.indexOf('/images/') !== 0  && req.path.indexOf('/favicon') !== 0 && req.path !== '/signin' && req.path !== '/signup')
     {
        console.log("Przekierowywuje Cie do logowania");
        return  res.redirect('/logowanie/index.html');

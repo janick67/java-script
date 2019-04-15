@@ -87,7 +87,7 @@ passport.deserializeUser((id, done) => {
 // add & configure middleware
 app.use(session({
   genid: (req) => {
-  //  console.log('Inside the session middleware')
+    console.log('Inside the session middleware')
   //  console.log(req.sessionID)
     return uuid() // use UUIDs for session IDs
   },
@@ -101,7 +101,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use(function(req, res, next) {
-  //  if (req.path.indexOf('.css') === -1 && req.path.indexOf('.js') === -1 ){
+    if (req.path.indexOf('.css') === -1 && req.path.indexOf('.js') === -1 ){
         console.log("\n\n\naktualna ścieżka to: ", req.path,req.path.indexOf('login') === -1);
         console.log("aktualny użytkownik to req.user: ", req.user, typeof req.user === 'undefined');
         console.log('-------------------------- session -----------------------------------------');
@@ -113,18 +113,19 @@ app.use(function(req, res, next) {
         console.log('-------------------------- user -----------------------------------------');
         console.dir(req.user);
         console.log('------------------------------------------------------------------------------------');
-  //  }
+    }
     next();
   });
 
 app.use(function(req, res, next) {
+  console.log("ELOOOOOOOOOO: " + req.path);
   if(typeof req.user === 'undefined' && req.path.indexOf('api/') >= 0){
     return res.status(404).send("Najpierw się zaloguj");
   }
   if (typeof req.user === 'undefined' && req.path.indexOf('/logowanie/') !== 0 && req.path.indexOf('/css/') !== 0 && req.path.indexOf('/js/') !== 0 && req.path.indexOf('/images/') !== 0  && req.path.indexOf('/favicon') !== 0 && req.path !== '/signin' && req.path !== '/signup')
     {
        console.log("Przekierowywuje Cie do logowania");
-       return  res.redirect('/logowanie/index.html');
+       return  res.redirect('logowanie/index.html');
     }
     if (typeof req.user !== 'undefined' && req.path.indexOf('/logowanie') !== -1)
     {
@@ -135,7 +136,7 @@ app.use(function(req, res, next) {
 });
 
 app.post('/signin', (req, res, next) => {
-  //console.log('Inside the new POST /login callback')
+  console.log('Inside the new POST /login callback')
   passport.authenticate('local', (err, user, info) => {
     console.log("(err, user, info)",err, user, info);
     if (err || !user) return res.send("Nie udało się uwierzytelnic");
@@ -165,6 +166,13 @@ app.post('/signup', (req, res, next) => {
   })
 });
 
+app.get('/logout',(req, res) => {
+  req.logout();
+  res.send("ok");
+  res.redirect('/');
+});
+
+
 function sprawdzRejestracja(body){
   return {};
 }
@@ -174,7 +182,7 @@ function sprawdzRejestracja(body){
 
 app.get('/', (req,res) => {
   console.log("jesteś na głownej");
-  res.redirect('/logowanie/index.html');
+  res.redirect('logowanie/index.html');
 });
 
 
@@ -228,6 +236,7 @@ app.get('/api/wydatki/kto_ma_oddac_suma/query',(req,res) => {
 
 app.post('/api/wydatki', (req,res) => {
   let  body = req.body;
+  body.userId = req.user.id;
   const spr = sprawdz(body);
   if (Object.keys(spr).length > 0) return res.send({error:'Błędne dane',message:spr});
   const sql = 'INSERT INTO wydatki SET ?';
@@ -291,7 +300,11 @@ function response(req,res,func)
   if (req.query.table !== "wydatki") return res.send("wybrano zła tabele");
   delete req.query.table;
   const param = req.query;
+  if (typeof param.where === 'undefined') param.where = {};
+  param.where.userId = req.user.id.toString();
+  console.log(param);
   const obj = param;
+
 
   if (typeof obj.orderby !== 'undefined'){
     obj.orderby = decodeOrderby(obj.orderby);
@@ -328,6 +341,7 @@ function decodeWhere(obj)
   let where = '';
     const name = Object.getOwnPropertyNames(obj);
     for (const el of name){
+      console.log("W pętli: ",el,obj[el]);
       if(obj[el].indexOf(";") > -1) obj[el] = obj[el].replace(/;/g,'","');
       where += ' and ' + el+' in ("'+obj[el]+'") ';
     }

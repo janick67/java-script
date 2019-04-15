@@ -102,9 +102,12 @@ function zarejestruj(dane){
 
 function zaloguj(dane){
   post("/signin",dane).done(resp => {
+    console.log("odpowiedź serwera:" + resp);
     if (resp === "Zalogowano pomyślnie"){
+      console.log("siema, witam");
       window.location.href = uri + '/';
     }else{
+      console.log("sorry, podaj prawidłowe dane logowania");
       $('form.login').addClass("bad");
     }});
 }

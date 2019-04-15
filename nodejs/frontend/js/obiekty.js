@@ -46,7 +46,7 @@ Tabelka.prototype.generujBody = function(resp){
   resp.forEach(row =>{
     const $tr = $('<tr class=trBody></tr>');
     for (const el in row){
-      if (el === "data")  // data jest podawana w długim formacie więc go skracam
+      if (el === "data" || el === 'createdDate')  // data jest podawana w długim formacie więc go skracam
       {
         row[el] = formatujDate(row[el]);
       }
@@ -63,6 +63,7 @@ Tabelka.prototype.generujBody = function(resp){
 Tabelka.prototype.generuj = function(){
   if (this.wygenerowane === 1) return;  //jeśli już wygenerowano to nie robi tego kolejny raz
   this.generujObiekt(); // wygenerowanie domyślnego
+  console.log("this.adres,this.object", this.adres,this.object);
     $.getJSON(this.adres,this.object) // pobiera dane z serwera
     .done(resp => {
       this.generujHead(resp);
@@ -71,7 +72,8 @@ Tabelka.prototype.generuj = function(){
     })
     .fail(err => {
       console.log(err)
-      window.location.href = uri + '/logowanie/index.html';
+      console.log("Przekierowywuje do logowania");
+      window.location.href = uri + 'logowanie/index.html';
     });
     return this;
   };
@@ -359,7 +361,7 @@ Distinct.prototype.czytajIWyslij = function(){ // wczytuje dane z imputów, wysy
           location.reload();
           this.wyczysc(); //czyszczę bo jak już dodane to nie trzeba mi już tych danych
         }else{console.error(res);}
-      }).error(err => console.error(err))
+      }).fail(err => console.error(err))
   }else{
   console.error("Błędnie wypełniono, popraw błędy i wyślij ponownie!")}
 }
@@ -425,7 +427,7 @@ return $.ajax({
   url: adres,
   data: JSON.stringify(obiekt),
   contentType : 'application/json'
-});}
+})}
 
 function formatujDate(date){
 const data = new Date(date);
@@ -434,4 +436,9 @@ return leadingZero(data.getFullYear()) + "-" + leadingZero(data.getMonth()+1) + 
 
 function leadingZero(i) {
   return (i < 10)? '0'+i : i;
+}
+
+function wyloguj()
+{
+    window.location.href = uri+"logout";
 }

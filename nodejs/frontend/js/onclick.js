@@ -31,6 +31,11 @@ $('#add_btn').click(e => {
   distinct.czytajIWyslij();
 });
 
+$('#btn_wyloguj').click(e => {
+  wyloguj();
+});
+
+
 $('#wszystkie').click(function(){
   tabelka.pokaz();
 });

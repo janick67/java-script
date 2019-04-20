@@ -26,6 +26,7 @@ function Tabelka(id,nazwa)
   this.$tabela.append(this.$thead);
   this.$tbody = $('<tbody class="tbody"></tbody>');
   this.$tabela.append(this.$tbody);
+  this.$strona = $('#strona');
   this.filtr = null;
   this.wygenerowane = 0;
 }
@@ -132,6 +133,16 @@ Tabelka.prototype.init = function(){
   this.pokaz();
 }
 //----------------------------------------------------------------------------------------Koniec init------------------------------------
+
+//--------------------------------------------------------------------------------------------init--------------------------------------
+Tabelka.prototype.zmienStrone = function(nowaStrona){
+  this.strona = nowaStrona
+  this.$strona[0].value = this.strona;
+  this.object.offset = this.na_strone*(this.strona-1);
+  this.odswiez();
+}
+//----------------------------------------------------------------------------------------Koniec init------------------------------------
+
 
 //-------------------------------------------------------------------------------------------sortuj-------------------------------------
 Tabelka.prototype.sortuj = function(target){

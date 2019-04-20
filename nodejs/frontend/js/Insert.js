@@ -60,7 +60,7 @@ Insert.prototype.wyczysc = function(){//czysci wszystkie inputy ich klasy i obie
 
 Insert.prototype.czytajIWyslij = function(){ // wczytuje dane z imputów, wysyła do walidacji i później je wysyła i obsługuje odpowiedź
   $('#dodaj input').each((i,e) =>{
-    this.kolumn[e.classList[0]].value = e.value;  //pętla po wszystkich inputach, zczytuje ich wartości i wrzuca do obiektu kolumn
+    this.kolumn[e.name].value = e.value;  //pętla po wszystkich inputach, zczytuje ich wartości i wrzuca do obiektu kolumn
   });
   const obj = {}; // obiekt w którym będą wartości wszystkich pól i po walidacji zostanie wysłany do serwera
   for (const el in this.kolumn){ //pętla po wszystkich kolumnach
@@ -86,17 +86,17 @@ Insert.prototype.toggle = function(){ // pokazuje i chowa diva z wprowadzaniem
 
 Insert.prototype.sprawdz = function(obj){ // wysyła dane do walidacji i wyswietal poźniej stosowne informacje o błędzie, zwraca 1 jeśli wszystko jest ok i 0 gdy coś się nie powiodło
   const err = sprawdz(obj);// waliduje dane zwraca 1 gdy ok i 0 gdy nie
-  $('#dodaj span.error').remove(); //usuwa wszystkie stare komunikaty o błędach
+  $('#dodaj div.invalid-feedback').remove(); //usuwa wszystkie stare komunikaty o błędach
   for (const el in this.kolumn){ // pętla po wszystkich kolumnach
     const {input} = this.kolumn[el];
     if (input.length === 0) continue;  // jesli nie zawiera inputow to nie ma co sprawdzac
     if (typeof err[el] === 'undefined') { // jeśli nie ma błędow dla tego elementu to znaczy ze wszystko jest ok
-      input.addClass('good_value'); //ustawia flagę informującą o powodzeniu i usuwa ewentualną o nie powodzeniu
-      input.removeClass('bad_value');
+      input.addClass(' is-valid'); //ustawia flagę informującą o powodzeniu i usuwa ewentualną o nie powodzeniu
+      input.removeClass('is-invalid');
     }else{
-      input.after($(`<span class="error">${err[el][0]}</span>`)); // dodaje spana po prawej stronie inputaa informującą o błędzie i jego treści
-      input.addClass('bad_value'); //usuwa dobrą dodaje klase informujaca o bledzie
-      input.removeClass('good_value');
+      input.after($(`<div class="invalid-feedback">${err[el][0]}</div>`)); // dodaje diva pod inputem z informującą o błędzie
+      input.addClass('is-invalid'); //usuwa dobrą dodaje klase informujaca o bledzie
+      input.removeClass('is-valid');
     }
   }
   if (Object.keys(err).length > 0) return 0; //jeśli nie ma żadnych błędow to zwraca 1 i można wtedy wyslac dane

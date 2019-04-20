@@ -101,7 +101,8 @@ app.use(passport.session());
 app.use(function(req, res, next) {
     if (req.path.indexOf('.css') === -1 && req.path.indexOf('.js') === -1 ){
         console.log("\n\n\nścieżka: ", req.path);
-        console.log("użytkownik: ", req.user.username);
+        if (typeof req.user !== 'undefined') console.log("użytkownik: ", req.user.username);
+        else console.log("Brak użytkownika");
         // console.log('-------------------------- session -----------------------------------------');
         // console.dir(req.sessionID);
         // console.log('------------------------------------------------------------------------------------');

@@ -2,33 +2,33 @@
 //---------------------------------------------EVENTY------------------------------
 
 $('#next').on('click', function(){
-  const it = aktualna_tabelka;
-  it.strona++;
-  it.object.offset = it.na_strone*(it.strona-1);
-  it.odswiez();
+  aktualna_tabelka.zmienStrone(aktualna_tabelka.strona*1+1);
 });
 
 $('#prev').on('click', function(){
-  const it = aktualna_tabelka;
-  it.strona--;
-  it.object.offset = it.na_strone*(it.strona-1);
-  it.odswiez();
+  // window.history.pushState(
+  //       { page: 'messages' },
+  //       'Messages',
+  //       '/index.html'
+  //   );
+  // console.log(JSON.stringify(window.history.state))
+  aktualna_tabelka.zmienStrone(aktualna_tabelka.strona-1);
 });
 
 $('#na_strone').on('change', function() {
   const it = aktualna_tabelka;
   it.na_strone = this.value;
   it.object.limit = it.na_strone;
-  console.log(it);
   it.odswiez();
 });
 
 $('#btn_dodaj').click(e => {
-  distinct.toggle();
+  insert.toggle();
 });
 
 $('#add_btn').click(e => {
-  distinct.czytajIWyslij();
+   e.preventDefault();
+  insert.czytajIWyslij();
 });
 
 $('#btn_wyloguj').click(e => {
@@ -92,5 +92,11 @@ $div_body.click( e => {
     }
 });
 
+$('#strona').on('change', e => {
+  aktualna_tabelka.zmienStrone(e.target.value);
+});
 
+window.addEventListener('popstate', e => {
+    console.log("location: " + document.location + ", state: " + JSON.stringify(event.state));
+})
 //----------------------------------------------EVENTY KONIEC-----------------------

@@ -61,67 +61,71 @@
             <div class="form-group">
               <div class="row">
                 <div class="col">
-                  <input type="text" name="Bank" id="add_bank" class="form-control" placeholder="Bank"> </input>
+                  <input type="text" name="bank" id="add_bank" class="form-control" placeholder="Bank"> </input>
                 </div>
                 <div class="col">
-                  <input type="text" name="Kwota" id="add_kwota" class="form-control" placeholder="Kwota"> </input>
-                </div>
-              </div>
-            </div>
-            <input type="text" name="Data" id="add_data" class="form-control" placeholder="Data"> </input><br />
-            <div class="form-group">
-              <div class="row">
-                <div class="col">
-                  <input type="text" name="Typ" id="add_typ" class="form-control" placeholder="Typ"> </input>
-                </div>
-                <div class="col">
-                  <input type="text" name="Typ2" id="add_typ2" class="form-control" placeholder="Typ2"> </input>
+                  <input type="text" name="kwota" id="add_kwota" class="form-control" placeholder="Kwota"> </input>
                 </div>
               </div>
             </div>
+            <input type="text" name="data" id="add_data" class="form-control" placeholder="Data"> </input><br />
             <div class="form-group">
               <div class="row">
                 <div class="col">
-                  <input type="text" name="Gdzie" id="add_gdzie" class="form-control" placeholder="Gdzie"> </input>
+                  <input type="text" name="typ" id="add_typ" class="form-control" placeholder="Typ"> </input>
                 </div>
                 <div class="col">
-                  <input type="text" name="Kogo" id="add_kogo" class="form-control" placeholder="Kogo"> </input>
+                  <input type="text" name="typ2" id="add_typ2" class="form-control" placeholder="Typ2"> </input>
                 </div>
               </div>
             </div>
             <div class="form-group">
               <div class="row">
                 <div class="col">
-                  <input type="text" name="Osoba" id="add_osoba" class="form-control" placeholder="Osoba"> </input>
+                  <input type="text" name="gdzie" id="add_gdzie" class="form-control" placeholder="Gdzie"> </input>
                 </div>
                 <div class="col">
-                  <input type="text" name="Powiązane" id="add_powiazane" class="form-control" placeholder="Powiązane"> </input>
+                  <input type="text" name="kogo" id="add_kogo" class="form-control" placeholder="Kogo"> </input>
                 </div>
               </div>
             </div>
-            <textarea type="text" name="Opis" id="add_opis" class="form-control" placeholder="Opis"> </textarea><br />
+            <div class="form-group">
+              <div class="row">
+                <div class="col">
+                  <input type="text" name="osoba" id="add_osoba" class="form-control" placeholder="Osoba"> </input>
+                </div>
+                <div class="col">
+                  <input type="text" name="powiazane" id="add_powiazane" class="form-control" placeholder="Powiązane"> </input>
+                </div>
+              </div>
+            </div>
+            <textarea type="text" name="opis" id="add_opis" class="form-control" placeholder="Opis"> </textarea><br />
             <button type="submit" class="btn btn-primary" id="add_btn"> Wyślij </button>
           </form>
         </div>
       </div>
     </div>
   </div>
+  <div id="divTabelka">
+    <div id="body">
 
-  <div id="body"></div>
 
-  <div id="paginacja">
-    <button id="prev" type="button" class="btn btn-secondary">Prev</button>
-    <input type="text" name="strona" id="strona" value="1" class="form-control align-top"> </input>
-    <button id="next" type="button" class="btn btn-secondary">Next</button>
-      <select class="custom-select" name="na_strone" id="na_strone">
-        <option>5</option>
-        <option>10</option>
-        <option>25</option>
-        <option>50</option>
-        <option>100</option>
-        <option>500</option>
-      </select>
-</div>
+    </div>
+    <div id="paginacja">
+      <button id="prev" type="button" class="btn btn-secondary">Prev</button>
+      <input type="text" name="strona" id="strona" value="1" class="form-control align-top"> </input>
+      <button id="next" type="button" class="btn btn-secondary">Next</button>
+        <select class="custom-select" name="na_strone" id="na_strone">
+          <option>5</option>
+          <option>10</option>
+          <option>25</option>
+          <option>50</option>
+          <option>100</option>
+          <option>500</option>
+        </select>
+    </div>
+  </div>
+
   <script src="../js/Tabelka.js"></script>
   <script src="../js/Filtr.js"></script>
   <script src="../js/Insert.js"></script>

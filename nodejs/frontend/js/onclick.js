@@ -2,21 +2,6 @@
 //---------------------------------------------EVENTY------------------------------
 
 
-document.querySelector('#next')
-.onclick = e => aktualna_tabelka.zmienStrone(aktualna_tabelka.strona*1+1)
-
-
-document.querySelector('#prev')
-.onclick = e => aktualna_tabelka.zmienStrone(aktualna_tabelka.strona*1-1)
-
-document.querySelector('#na_strone')
-.addEventListener('change', e => {
-  const it = aktualna_tabelka;
-  it.na_strone = e.target.value;
-  it.object.limit = it.na_strone;
-  it.odswiez();
-})
-
 document.querySelector('#add_btn')
 .onclick = e =>  {
   e.preventDefault();
@@ -34,7 +19,6 @@ document.querySelector('#wszystkie')
   e.preventDefault();
   tabelka.pokaz();
 }
-
 
 document.querySelector('#saldo')
 .onclick = e =>{
@@ -68,33 +52,6 @@ document.querySelector('#kto_ma_oddac_suma')
     tab_kto_ma_oddac_suma.init();
 }
 
-
-const div_body = document.querySelector('#body')
-
-
-div_body.addEventListener('mouseout', e => {
-  getClossestTag(e.target,'tr').classList.remove('red');
-  getClossestTag(e.target,'td').classList.remove('blue')
-  });
-
-div_body.addEventListener('mouseover', e => {
-  getClossestTag(e.target,'tr').classList.add('red');
-  getClossestTag(e.target,'td').classList.add('blue')
-});
-
-div_body.onclick = e => {
-  console.log(getClossestClass(e.target, 'divTable'))
-  const kliknieta_tabelka = $(e.target).closest('.divTable').data('obj');
-  kliknieta_tabelka.filtr.ustaw(e.target);// do filtrowania według kliknietego
-
-  if (e.target.tagName === 'SPAN' && e.target.parentElement.tagName === 'TH'  && e.offsetX > e.target.offsetWidth) {  //sprawdza klikniete bylo na obiekcie czy na prawo od niego jesli na prawo to znaczy ze to byl pseudo element bo jego nie ma w strukturze DOM
-          kliknieta_tabelka.sortuj(e.target) //do sortowania według kliknietego
-    }
-}
-
-document.querySelector('#strona').addEventListener('change', e => {
-  aktualna_tabelka.zmienStrone(e.target.value);
-});
 
 window.addEventListener('popstate', e => {
     console.log("location: " + document.location + ", state: " + JSON.stringify(event.state));

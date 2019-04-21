@@ -14,12 +14,13 @@ let aktualna_tabelka = null;
 let insert = new Insert();
 
 //-----------------------------------------MAIN----------------------------------
+const wszystkieTabelki = {};
 const tabelka = new Tabelka("wydatki","wydatki");
 tabelka.adres += 'api/'+tabelka.sql_table+"/query";
+docReady(()=>{
 tabelka.init();
 insert.init();
-
-
+})
 // -------------------------------------------KONIEC MAIN----------------------
 
 
@@ -85,8 +86,7 @@ function wyloguj()
 function getJson(adres,ob)
 {
   // console.log(adres);
-  return fetch(adres+'?'+getUrlString(ob))
-  .then(resp => resp.json())
+  return fetch(adres+'?'+getUrlString(ob)).then(resp => resp.json())
 }
 
 function getUrlString ( obj, keys = [], isArray = false) {
@@ -127,4 +127,12 @@ Object.keys(params).map(key => {
 
   keys.pop()
   return p;
+}
+
+function docReady(cb) {
+  if (document.readyState != 'loading'){
+    cb();
+  } else {
+    document.addEventListener('DOMContentLoaded', cb);
+  }
 }

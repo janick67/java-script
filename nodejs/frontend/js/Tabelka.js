@@ -16,19 +16,11 @@ function Tabelka(id,nazwa)
   this.nazwa = nazwa;
   this.sql_table = 'wydatki';
   this.id = id;
-  this.$div = $(`<div class="divTable" id="${this.id}"></div>`); //zewnętrzny div w którym znajduje sie cała tabelka
-  $('div#body').append(this.$div);
-  this.$div.data('obj',this); // w data jest trzymany odnośnik do tego objektu
-  this.$tabela = $(`<table summary="${this.nazwa}"></table>`);
-  this.$div.append(this.$tabela);
-  this.$div.hide(); //zaraz po utworzeniu jest ukrywane
-  this.$thead = $('<thead class="thead"><tr class="trHeader"></tr></thead>');
-  this.$tabela.append(this.$thead);
-  this.$tbody = $('<tbody class="tbody"></tbody>');
-  this.$tabela.append(this.$tbody);
-  this.$strona = $('#strona');
+  this.el = {}; // zawiera wszystkie elementy html
+  this.deklarujElementy()
   this.filtr = null;
   this.wygenerowane = 0;
+  wszystkieTabelki[id] = this;
 }
 //----------------------------------------------------------------------------------KONIEC konstruktora Tabelka------------------------
 
@@ -36,26 +28,116 @@ function Tabelka(id,nazwa)
 Tabelka.prototype.generujHead = function(resp){   // generuje tylko częśc nagłowkową tabeli
   const headers = Object.getOwnPropertyNames(resp[0]);  //pobiera nagłówki kolumn w tabeli
   headers.forEach(el => {
-    const $td = $(`<th class="${el}"><span>${el}</span></th>`)   //tworzy element html
-    this.$thead.children().append($td);             //dodaje ten element na koniec $tr#head
+    const th = document.createElement('th');
+    th.classList.add(el);
+    const span = document.createElement('span');
+    span.innerText = el;
+    th.appendChild(span);  //tworzy element html
+    this.el.trHeader.appendChild(th);             //dodaje ten element na koniec tr#head
   });
 }
 //--------------------------------------------------------------------------------------KONIEC generujHead---------------------------
 
+
+
+Tabelka.prototype.deklarujElementy = function(){
+this.el.mainDiv = document.createElement('div');
+this.el.mainDiv.setAttribute('id',this.id);
+this.el.mainDiv.style.display = 'none'; //zaraz po utworzeniu jest ukrywane
+
+this.el.divBody = document.createElement('div');
+this.el.divBody.classList.add('divTable');
+
+this.el.table = document.createElement('table');
+this.el.table.setAttribute('summary',this.nazwa);
+
+this.el.thead = document.createElement('thead');
+
+this.el.trHeader = document.createElement('tr');
+this.el.trHeader.classList.add('trHeader');
+
+this.el.tbody = document.createElement('tbody');
+
+this.el.paginacja = document.createElement('div')
+this.el.paginacja.setAttribute('id','paginacja')
+this.el.paginacja.innerHTML = `<button id="prev" type="button" class="btn btn-secondary">Prev</button>
+      <input type="text" name="strona" id="strona" value="1" class="form-control align-top"> </input>
+      <button id="next" type="button" class="btn btn-secondary">Next</button>
+        <select class="custom-select" name="na_strone" id="na_strone">
+          <option>5</option>
+          <option>10</option>
+          <option>25</option>
+          <option>50</option>
+          <option>100</option>
+          <option>500</option>
+        </select>`
+
+this.el.paginacja.querySelector('#next')
+.onclick = e => aktualna_tabelka.zmienStrone(aktualna_tabelka.strona*1+1)
+
+this.el.paginacja.querySelector('#prev')
+.onclick = e => aktualna_tabelka.zmienStrone(aktualna_tabelka.strona*1-1)
+
+this.el.paginacja.querySelector('#na_strone')
+.addEventListener('change', e => {
+  const it = aktualna_tabelka;
+  it.na_strone = e.target.value;
+  it.object.limit = it.na_strone;
+  it.odswiez();
+})
+
+this.el.strona = this.el.paginacja.querySelector('#strona');
+this.el.strona.addEventListener('change', e => {
+  aktualna_tabelka.zmienStrone(e.target.value);
+});
+
+this.el.divBody.addEventListener('mouseout', e => {
+  getClossestTag(e.target,'tr').classList.remove('red');
+  getClossestTag(e.target,'td').classList.remove('blue')
+  });
+
+this.el.divBody.addEventListener('mouseover', e => {
+  getClossestTag(e.target,'tr').classList.add('red');
+  getClossestTag(e.target,'td').classList.add('blue')
+});
+
+this.el.divBody.onclick = e => {
+  const id = getClossestClass(e.target, 'divTable').id;
+  const kliknieta_tabelka = wszystkieTabelki[id];
+  kliknieta_tabelka.filtr.ustaw(e.target);// do filtrowania według kliknietego
+
+  if (e.target.tagName === 'SPAN' && e.target.parentElement.tagName === 'TH'  && e.offsetX > e.target.offsetWidth) {  //sprawdza klikniete bylo na obiekcie czy na prawo od niego jesli na prawo to znaczy ze to byl pseudo element bo jego nie ma w strukturze DOM
+          kliknieta_tabelka.sortuj(e.target) //do sortowania według kliknietego
+    }
+}
+
+this.el.thead.appendChild(this.el.trHeader);
+this.el.table.appendChild(this.el.thead);
+this.el.table.appendChild(this.el.tbody);
+this.el.divBody.appendChild(this.el.table);
+this.el.mainDiv.appendChild(this.el.divBody);
+this.el.mainDiv.appendChild(this.el.paginacja);
+document.querySelector('#tableContainer').appendChild(this.el.mainDiv);
+}
+
+
+
+
 // --------------------------------------------------------------------------------------generujBody-------------------------------
 Tabelka.prototype.generujBody = function(resp){
   resp.forEach(row =>{
-    const $tr = $('<tr class=trBody></tr>');
+    const tr = document.createElement('tr');
+    tr.classList.add('trBody');
     for (const el in row){
       if (el === "data" || el === 'createdDate')  // data jest podawana w długim formacie więc go skracam
-      {
         row[el] = formatujDate(row[el]);
-      }
-      if (row[el] === null || row[el] == 0) row[el] = ''; //nie chce zer i nulli
-      const $td = $(`<td class="${el}">${row[el]}</td>`)
-      $tr.append($td);
+      if (row[el] === null || row[el] == 0) row[el] = ''; //nie chce wyświetlac zer i nulli
+      const td = document.createElement('td');
+      td.classList.add(el);
+      td.innerText = row[el];
+      tr.appendChild(td);
     };
-    this.$tbody.append($tr);
+    this.el.tbody.appendChild(tr);
   });
 }
 //--------------------------------------------------------------------------------------KONIEC generujBody-----------------------------
@@ -64,6 +146,7 @@ Tabelka.prototype.generujBody = function(resp){
 Tabelka.prototype.generuj = function(){
   if (this.wygenerowane === 1) return;  //jeśli już wygenerowano to nie robi tego kolejny raz
   this.generujObiekt(); // wygenerowanie domyślnego
+    console.log('this.adres: ',this.adres,' this.object: ',this.object);
     getJson(this.adres,this.object) // pobiera dane z serwera
     .then(resp => {
       this.generujHead(resp);
@@ -97,10 +180,12 @@ Tabelka.prototype.generujObiekt = function(obj){ // służy do wygenerowania obj
 
 //------------------------------------------------------------------------------------------pokaz-------------------------------------
 Tabelka.prototype.pokaz = function(){                   //tej funkcji używam żeby wybrac tabelke na ktorej bede obecnie pracowal
-    this.$div.siblings().each((index,el) => {  //ukrywa wszystkich braci elementu czyli wszystkie pozostałe divy
-      $(el).hide();
+    const sibilings = this.el.mainDiv.parentNode.children;
+    Array.prototype.forEach.call(sibilings, el => {  //ukrywa wszystkich braci elementu czyli wszystkie pozostałe divy
+      // console.log('index: ',index,'el: ', el,'sib: ',sibilings[el]);
+      el.style.display = 'none';
     });
-    this.$div.show(); // na wszelki wypadek jeszcze sprawia że ta tabelka jest widoczna
+    this.el.mainDiv.style.display = 'block'; // na wszelki wypadek jeszcze sprawia że ta tabelka jest widoczna
     aktualna_tabelka = this;  // przypisuje tabelke do zmiennej żeby poźniej można było się do niej łatwo odwołac
   }
 //----------------------------------------------------------------------------------------KONIEC pokaz---------------------------------
@@ -110,7 +195,7 @@ Tabelka.prototype.odswiez = function(){ //funkcja odświeża tylko body tabelki,
   this.generujObiekt();  // generuje obiekt który poźniej jest użyty do zapytania sql
   getJson(this.adres,this.object) //wysyła zapytanie get pod adres z obiektu tabelka i globalny obiekt z ktorego tworzone jest zapytanie sql
   .then(resp => {
-    this.$tbody.children().remove(); //czyści body i wprowadza nowe dane
+    this.el.tbody.innerHTML = ''; //czyści body i wprowadza nowe dane
     this.generujBody(resp);
   })
   .catch(err => {
@@ -136,7 +221,7 @@ Tabelka.prototype.init = function(){
 //--------------------------------------------------------------------------------------------init--------------------------------------
 Tabelka.prototype.zmienStrone = function(nowaStrona){
   this.strona = nowaStrona
-  this.$strona[0].value = this.strona;
+  this.el.strona.value = this.strona;
   this.object.offset = this.na_strone*(this.strona-1);
   this.odswiez();
 }

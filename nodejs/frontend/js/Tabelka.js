@@ -64,17 +64,16 @@ Tabelka.prototype.generujBody = function(resp){
 Tabelka.prototype.generuj = function(){
   if (this.wygenerowane === 1) return;  //jeśli już wygenerowano to nie robi tego kolejny raz
   this.generujObiekt(); // wygenerowanie domyślnego
-//  console.log("this.adres,this.object", this.adres,this.object);
-    $.getJSON(this.adres,this.object) // pobiera dane z serwera
-    .done(resp => {
+    getJson(this.adres,this.object) // pobiera dane z serwera
+    .then(resp => {
       this.generujHead(resp);
       this.generujBody(resp);
       this.wygenerowane = 1;
     })
-    .fail(err => {
+    .catch(err => {
       console.log(err)
       console.log("Przekierowywuje do logowania");
-      window.location.href = uri + 'logowanie/index.html';
+    //  window.location.href = uri + 'logowanie/index.html';
     });
     return this;
   };
@@ -109,12 +108,12 @@ Tabelka.prototype.pokaz = function(){                   //tej funkcji używam ż
 //------------------------------------------------------------------------------------------odswiez------------------------------------
 Tabelka.prototype.odswiez = function(){ //funkcja odświeża tylko body tabelki, potrzebna np. przy zmianie filtrowania albo przy zmianie strony
   this.generujObiekt();  // generuje obiekt który poźniej jest użyty do zapytania sql
-  $.getJSON(this.adres,this.object) //wysyła zapytanie get pod adres z obiektu tabelka i globalny obiekt z ktorego tworzone jest zapytanie sql
-  .done(resp => {
+  getJson(this.adres,this.object) //wysyła zapytanie get pod adres z obiektu tabelka i globalny obiekt z ktorego tworzone jest zapytanie sql
+  .then(resp => {
     this.$tbody.children().remove(); //czyści body i wprowadza nowe dane
     this.generujBody(resp);
   })
-  .fail(err => {
+  .catch(err => {
     console.log(err)
   });
 }

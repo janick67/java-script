@@ -1,5 +1,15 @@
 const uri = document.location.origin + "/";
 
+// const ob = {ob:'cos',obj:{imie:'afsd', nazwisko:'siema'}, inne:{}};
+//   console.log(ob);
+//   console.log("moje: ",getUrlString('',ob));
+//   console.log("jquery: ",$.param(ob));
+
+  // getJson("",{name:'jan'})
+  // .then(res => res.json())
+  // .then(res => { console.log(res)});
+
+
 let aktualna_tabelka = null;
 let insert = new Insert();
 
@@ -47,12 +57,15 @@ function sprawdz(dane){ // funkcja walidujaca dane, zwraca tablice z ewentualnym
 }
 
 function send_insert(adres,obiekt){// wysyła dane postem, w obiekcie sa dane ktore zostana wyslane do sql
-return $.ajax({
-  method: "POST",
-  url: adres,
-  data: JSON.stringify(obiekt),
-  contentType : 'application/json'
-})}
+return fetch(adres, {
+        method: "post",
+        headers: {
+            "Content-type": "application/json; charset=UTF-8"
+        },
+        body: JSON.stringify(obiekt)
+    })
+    .then(resp => resp.json())
+  }
 
 function formatujDate(date){
 const data = new Date(date);
@@ -65,5 +78,53 @@ function leadingZero(i) {
 
 function wyloguj()
 {
-    window.location.href = uri+"logout";
+  fetch(uri+"logout");
+  aktualna_tabelka.odswiez();
+}
+
+function getJson(adres,ob)
+{
+  // console.log(adres);
+  return fetch(adres+'?'+getUrlString(ob))
+  .then(resp => resp.json())
+}
+
+function getUrlString ( obj, keys = [], isArray = false) {
+const params = {};
+Object.assign(params, obj);
+Object.keys(params).map(key => {
+  if (typeof params[key] === 'object'){
+    if (Object.keys(params[key]).length === 0) delete params[key]
+  }
+})
+
+// console.log(params);
+  const p = Object.keys(params).map(key => {
+    let val = params[key]
+
+    if ("[object Object]" === Object.prototype.toString.call(val) || Array.isArray(val)) {
+      if (Array.isArray(params)) {
+        keys.push("")
+      } else {
+        keys.push(key)
+      }
+      return getUrlString( val, keys, Array.isArray(val))
+    } else {
+      let tKey = key
+
+      if (keys.length > 0) {
+        const tKeys = isArray ? keys : [...keys, key]
+        tKey = tKeys.reduce((str, k) => { return "" === str ? k : encodeURIComponent(`${str}[${k}]`) }, "")
+      }
+      if (isArray) {
+        return `${ tKey }[]=${ val }`
+      } else {
+        return `${ tKey }=${ val }`
+      }
+
+    }
+  }).join('&')
+
+  keys.pop()
+  return p;
 }

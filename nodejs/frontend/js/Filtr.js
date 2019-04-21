@@ -7,27 +7,31 @@
 //----------------------------------------------------------------------------------------Konstruktor Filtr--------------------------------
 function Filtr(tabelka){      // konstruktor Filtra
     this.tabelka = tabelka;
-    this.$tr = $(`<tr class="trFilter"></tr>`);
+    this.tr = document.createElement('tr');
+    this.tr.classList.add('trFilter');
     this.wygenerowane = 0;
     this.object = {where:{}}; // w tym obiekcie są wartości wszystkich kolumn wraz z ustawionymi obecnie filtrami
 }
-//-----------------------------------------------------------------------------------Koniec konstruktora Filtr ----------------------------
+//------------------------------------------------------------------------ -----------Koniec konstruktora Filtr ----------------------------
 
 //----------------------------------------------------------------------------------------generuj------------------------------------------
 Filtr.prototype.generuj = function(){   // generuje html filtra
   if (this.wygenerowane == 1) return; //jeśli już jest raz wygenerowany to return żeby nie duplikowac
-  $(this.tabelka.$thead[0].querySelectorAll('TH'))// wyszukuje wszystkie elementy th w headzie tabelki
-  .each((i,el) => { // i robi po nich petle
-    const $th = $(`<th class="${el.className}"></th>`);
-    const $input = $(`<input type="text" class="${el.className}"></input>`);
+  const allTh = this.tabelka.el.thead.querySelectorAll('TH')// wyszukuje wszystkie elementy th w headzie tabelki
+  Array.prototype.forEach.call(allTh,(el) =>{ // i robi po nich petle
+    const th = document.createElement('th');
+    th.classList.add(el.className);
+    const input = document.createElement('input');
+    input.setAttribute('type','text');
+    input.classList.add(el.className);
     this.object.where[el.className] = ''; // towrzy obiekt ktory bedzie odpowaidal zawartoscia inputa czyli na poczatku kazdy input bedzie pusty
-    $th.append($input);
-    this.$tr.append($th);
+    th.appendChild(input);
+    this.tr.appendChild(th);
   });
-  this.tabelka.$thead.append(this.$tr); //dodaje filtr do nagłówka tabeli
-  this.$tr.hide();
+  this.tabelka.el.thead.appendChild(this.tr); //dodaje filtr do nagłówka tabeli
+  this.tr.style.display = 'none';
   this.wygenerowane = 1;
-  this.$tr.on('change', e => {
+  this.tr.addEventListener('change', e => {
     this.object.where[e.target.parentElement.className] = e.target.value;  // pobiera rodzica(td) danego inputa i pobiera z niego klase, przypisuje jej w obiekcie wartosc pobrana z inputa
     this.zastosuj(); // stosuje zmiany, co pobiera dane stosowne do nowego filtra
   });
@@ -37,14 +41,14 @@ Filtr.prototype.generuj = function(){   // generuje html filtra
 //----------------------------------------------------------------------------------------pokaz----------------------------------------------
 Filtr.prototype.pokaz = function(){   // funkcja pokazujaca filtr, generuje go jesli jeszcze nie zostal wygenerowany
   if (this.wygenerowane === 0) this.generuj();
-  this.$tr.show();
+  this.tr.style.display = 'table-row';
 }
 //--------------------------------------------------------------------------------------Koniec pokaz-------------------------------------------
 
 //----------------------------------------------------------------------------------------toggle-----------------------------------------------
 Filtr.prototype.toggle = function(){      // zmienia stan filtra widoczny/nie widoczny
   if (this.wygenerowane == 0) this.generuj();
-  if (this.$tr.css('display') === 'none') // sprawdza w css widocznośc tr z filtrem
+  if (this.tr.style.display === 'none') // sprawdza w css widocznośc tr z filtrem
       this.pokaz();
   else
       this.ukryj();
@@ -53,7 +57,7 @@ Filtr.prototype.toggle = function(){      // zmienia stan filtra widoczny/nie wi
 
 //----------------------------------------------------------------------------------------ukryj-----------------------------------------------
 Filtr.prototype.ukryj = function(){// ukrywa filtr i dodatkowo czyści go
-  this.$tr.hide();
+  this.tr.style.display = 'none';
   this.wyczysc();
 }
 //---------------------------------------------------------------------------------------Koniec ukryj-----------------------------------------
@@ -103,11 +107,14 @@ Filtr.prototype.ustaw = function(target){ // ustawia filtr na podstawie klikniet
 
 //-------------------------------------------------------------------------------------------odswiez---------------------------------------
 Filtr.prototype.odswiez = function(){ //przepisuje wszystkie filtry z obiektu do inputow
-$(this.$tr.children()).each((i,el) =>{  //petla po wszystkich td w tr z heada tabelki
+let isAllEmpty = true;
+Array.prototype.forEach.call(this.tr.children,(el) => {  //petla po wszystkich td w tr z heada tabelki
   val = this.object.where[el.className];
   if (typeof val === 'undefined') val = '';
+  if (val !== '') isAllEmpty = false;
   el.querySelector('input').value = val;  // wyszukuje inputa w td
 });
+if (isAllEmpty) this.tr.style.display = 'none';
 }
 //----------------------------------------------------------------------------------------Koniec odswiez----------------------------------
 

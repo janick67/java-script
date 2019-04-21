@@ -44,6 +44,8 @@ Tabelka.prototype.deklarujElementy = function(){
 this.el.mainDiv = document.createElement('div');
 this.el.mainDiv.setAttribute('id',this.id);
 this.el.mainDiv.style.display = 'none'; //zaraz po utworzeniu jest ukrywane
+this.el.mainDiv.classList.add('mainDiv');
+
 
 this.el.divBody = document.createElement('div');
 this.el.divBody.classList.add('divTable');
@@ -102,8 +104,9 @@ this.el.divBody.addEventListener('mouseover', e => {
 });
 
 this.el.divBody.onclick = e => {
-  const id = getClossestClass(e.target, 'divTable').id;
+  const id = getClossestClass(e.target, 'mainDiv').getAttribute('id');
   const kliknieta_tabelka = wszystkieTabelki[id];
+  // console.log('id:', id,'wszystkie: ', wszystkieTabelki[id]);
   kliknieta_tabelka.filtr.ustaw(e.target);// do filtrowania według kliknietego
 
   if (e.target.tagName === 'SPAN' && e.target.parentElement.tagName === 'TH'  && e.offsetX > e.target.offsetWidth) {  //sprawdza klikniete bylo na obiekcie czy na prawo od niego jesli na prawo to znaczy ze to byl pseudo element bo jego nie ma w strukturze DOM
@@ -146,7 +149,7 @@ Tabelka.prototype.generujBody = function(resp){
 Tabelka.prototype.generuj = function(){
   if (this.wygenerowane === 1) return;  //jeśli już wygenerowano to nie robi tego kolejny raz
   this.generujObiekt(); // wygenerowanie domyślnego
-    console.log('this.adres: ',this.adres,' this.object: ',this.object);
+    // console.log('this.adres: ',this.adres,' this.object: ',this.object);
     getJson(this.adres,this.object) // pobiera dane z serwera
     .then(resp => {
       this.generujHead(resp);

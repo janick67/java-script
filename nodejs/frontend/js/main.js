@@ -136,3 +136,20 @@ function docReady(cb) {
     document.addEventListener('DOMContentLoaded', cb);
   }
 }
+
+
+function getClossestTag(el,tag){
+  while (el.tagName !== tag.toUpperCase()){
+    el = el.parentNode;
+    if (typeof el === 'undefined' || el === null || el === document) return document.createElement('p');
+  }
+  return el;
+}
+
+function getClossestClass(el,klasa){
+  while (!el.classList.contains(klasa)){
+    el = el.parentNode;
+    if (typeof el === 'undefined' || el === null || el === document) return document.createElement('p');
+  }
+  return el;
+}

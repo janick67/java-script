@@ -57,19 +57,3 @@ window.addEventListener('popstate', e => {
     console.log("location: " + document.location + ", state: " + JSON.stringify(event.state));
 })
 //----------------------------------------------EVENTY KONIEC-----------------------
-
-function getClossestTag(el,tag){
-  while (el.tagName !== tag.toUpperCase()){
-    el = el.parentNode;
-    if (typeof el === 'undefined' || el === null || el === document) return document.createElement('p');
-  }
-  return el;
-}
-
-function getClossestClass(el,klasa){
-  while (!el.classList.contains(klasa)){
-    el = el.parentNode;
-    if (typeof el === 'undefined' || el === null || el === document) return document.createElement('p');
-  }
-  return el;
-}

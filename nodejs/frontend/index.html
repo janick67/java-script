@@ -6,20 +6,21 @@
   <title></title>
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="../css/lib/jquery-ui.css">
-  <script src="../js/lib/jquery.min.js"></script>
-  <script src="../js/lib/jquery-ui.js"></script>
   <script src="../js/lib/approve.min.js"></script>
   <link rel="stylesheet" href="../css/lib/fontawesome.css">
   <link rel="stylesheet" href="../css/style.css" type="text/css" />
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <link rel="stylesheet" href="../css/lib/jquery-ui.css">
+  <script src="../js/lib/jquery.min.js"></script>
+  <script src="../js/lib/jquery-ui.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
 </head>
 
 <body>
   <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
-    <a href="" id="wszystkie" class="navbar-brand">Wydatki</a>
+    <a href="" id="nav_wszystkie" class="navbar-brand">Wydatki</a>
     <div class="collapse navbar-collapse" id="navbarMenu">
       <ul class="navbar-nav">
         <li class="nav-item">
@@ -28,17 +29,20 @@
         <li class="dropdown nav-item">
           <a href="#" class="nav-link" data-toggle="dropdown">Raporty<span class="caret"></span></a>
           <ul class="dropdown-menu" role="menu">
-            <li><a class="dropdown-item" href="" id="saldo">Saldo</a></li>
-            <li><a class="dropdown-item" href="" id="saldo_na_miesiac">Saldo na miesiąc</a></li>
-            <li><a class="dropdown-item" href="" id="kto_ma_oddac">Kto ma ile oddać</a></li>
-            <li><a class="dropdown-item" href="" id="kto_ma_oddac_suma">Kto ma ile oddać suma</a></li>
+            <li><a class="dropdown-item" href="" id="nav_saldo">Saldo</a></li>
+            <li><a class="dropdown-item" href="" id="nav_saldo_na_miesiac">Saldo na miesiąc</a></li>
+            <li><a class="dropdown-item" href="" id="nav_kto_ma_oddac">Kto ma ile oddać</a></li>
+            <li><a class="dropdown-item" href="" id="nav_kto_ma_oddac_suma">Kto ma ile oddać suma</a></li>
           </ul>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" id='nav_group'>Grupowanie</a>
         </li>
       </ul>
     </div>
     <ul class="navbar-nav mr-auto">
       <li class="nav-item">
-        <a href="" id='btn_wyloguj' class="nav-link">Wyloguj</a>
+        <a href="" id='nav_wyloguj' class="nav-link">Wyloguj</a>
       </li>
     </ul>
     <button class="navbar-toggler" data-toggle="collapse" data-target="#navbarMenu">
@@ -68,7 +72,7 @@
                 </div>
               </div>
             </div>
-            <input type="text" name="data" id="add_data" class="form-control" placeholder="Data"> </input><br />
+            <input type="text" name="data" id="add_data" class="form-control datepicker"  placeholder="Data"> </input><br />
             <div class="form-group">
               <div class="row">
                 <div class="col">
@@ -106,10 +110,12 @@
       </div>
     </div>
   </div>
+  
   <div id="tableContainer">
   </div>
 
   <script src="../js/Tabelka.js"></script>
+  <script src="../js/Group.js"></script>
   <script src="../js/Filtr.js"></script>
   <script src="../js/Insert.js"></script>
   <script src="../js/onclick.js"></script>

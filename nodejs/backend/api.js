@@ -189,6 +189,18 @@ app.get('/api/wydatki/saldo/query',(req,res) => {
   });
 });
 
+app.get('/api/wydatki/group/query',(req,res) => {
+  response(req,res, obj => {
+    if (typeof obj.select === 'undefined') obj.select = '';
+    //if (typeof obj.where === 'undefined') obj.where = '';
+    //if (typeof obj.groupby === 'undefined') obj.groupby = '';
+    if (typeof obj.orderby === 'undefined') obj.orderby = 'Year(data), MONTH(data)';
+    obj.select += '*';
+    //obj.where += 'and kogo = "moje"';
+    //obj.groupby += 'Year(data), MONTH(data)';
+  });
+});
+
   // `SELECT Year(data), MONTH(data), sum(kwota) FROM wydatki WHERE kogo = 'moje' GROUP BY Year(data), MONTH(data) order by Year(data), MONTH(data)`;
 app.get('/api/wydatki/saldo_na_miesiac/query',(req,res) => {
   response(req,res, obj => {

@@ -165,3 +165,7 @@ th.Opis, td.Opis{
   display:inline-block;
   width:50px;
 }
+
+select.form-control{
+  width: auto;
+}

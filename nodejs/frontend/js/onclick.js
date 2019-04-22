@@ -2,25 +2,33 @@
 //---------------------------------------------EVENTY------------------------------
 
 
+document.querySelector('#nav_group')
+.onclick = e =>  {
+  e.preventDefault();
+  const tab_group = new Tabelka("group","group");
+  tab_group.adres += 'api/wydatki/group/query';
+  tab_group.init();
+}
+
 document.querySelector('#add_btn')
 .onclick = e =>  {
   e.preventDefault();
   insert.czytajIWyslij();
 }
 
-document.querySelector('#btn_wyloguj')
+document.querySelector('#nav_wyloguj')
 .onclick = e =>  {
   e.preventDefault();
   wyloguj();
 }
 
-document.querySelector('#wszystkie')
+document.querySelector('#nav_wszystkie')
 .onclick = e => {
   e.preventDefault();
   tabelka.pokaz();
 }
 
-document.querySelector('#saldo')
+document.querySelector('#nav_saldo')
 .onclick = e =>{
   e.preventDefault();
   const tab_saldo = new Tabelka("saldo","saldo");
@@ -28,7 +36,7 @@ document.querySelector('#saldo')
   tab_saldo.init();
 }
 
-document.querySelector('#saldo_na_miesiac')
+document.querySelector('#nav_saldo_na_miesiac')
 .onclick = e =>{
     e.preventDefault();
     const tab_saldo = new Tabelka("saldo_na_miesiac","saldo_na_miesiac");
@@ -36,7 +44,7 @@ document.querySelector('#saldo_na_miesiac')
     tab_saldo.init();
 }
 
-document.querySelector('#kto_ma_oddac')
+document.querySelector('#nav_kto_ma_oddac')
 .onclick = e =>{
     e.preventDefault();
     const tab_kto_ma_oddac = new Tabelka("kto_ma_oddac","kto_ma_oddac");
@@ -44,7 +52,7 @@ document.querySelector('#kto_ma_oddac')
     tab_kto_ma_oddac.init();
 }
 
-document.querySelector('#kto_ma_oddac_suma')
+document.querySelector('#nav_kto_ma_oddac_suma')
 .onclick = e =>{
     e.preventDefault();
     const tab_kto_ma_oddac_suma = new Tabelka("kto_ma_oddac_suma","kto_ma_oddac_suma");

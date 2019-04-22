@@ -1,70 +1,119 @@
-
 <!doctype html>
 <html class="no-js" lang="pl">
-    <head>
-        <meta charset="utf-8">
-        <title></title>
-        <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="../css/lib/jquery-ui.css">
-        <script src="../js/lib/jquery.min.js"></script>
-        <script src="../js/lib/jquery-ui.js"></script>
-        <script src="../js/lib/approve.min.js"></script>
-        <link rel="stylesheet" href="../css/lib/fontawesome.css">
-        <link rel="stylesheet" href="../css/style.css" type="text/css" />
-    </head>
-    <body>
-      <div id="paginacja">
-      <button id="prev">Prev</button>
-      <button id="next">Next</button>
-      <select name="na_strone" id="na_strone">
-          <option>5</option>
-          <option>10</option>
-          <option>25</option>
-          <option>50</option>
-          <option>100</option>
-          <option>500</option>
-      </select></div>
-      <br />
-      <button id="btn_dodaj"> Dodaj wpis </button><br /><br />
-      <div id="dodaj">
-        <label>Bank:</label>
-        <input id="add_bank"> </input><br />
-        <label>Kwota:</label>
-        <input id="add_kwota"> </input><br />
-        <label>Data:</label>
-        <input id="add_data"> </input><br />
-        <label>Typ:</label>
-        <input id="add_typ"> </input><br />
-        <label>Typ2:</label>
-        <input id="add_typ2"> </input><br />
-        <label>Gdzie:</label>
-        <input id="add_gdzie"> </input><br />
-        <label>Kogo:</label>
-        <input id="add_kogo"> </input><br />
-        <label>Osoba:</label>
-        <input id="add_osoba"> </input><br />
-        <label>Powiązane:</label>
-        <input id="add_powiazane"> </input><br />
-        <label>Opis:</label>
-        <input id="add_opis"> </input><br />
-        <button id="add_btn"> Wyślij </button>
-      </div>
-      <button id="btn_wyloguj">Wyloguj</button>
-      <div id="raporty">
-        <button id="wszystkie">Wszystkie</button>
-        <button id="saldo">Saldo</button>
-        <button id="saldo_na_miesiac">Saldo na miesiąc</button>
-        <button id="kto_ma_oddac">Kto ma ile oddać</button>
-        <button id="kto_ma_oddac_suma">Kto ma ile oddać suma</button>
-      </div>
 
-      <div id="filter">
-        <button id="btn_filter" class="filter">Flitry</button>
+<head>
+  <meta charset="utf-8">
+  <title></title>
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="../css/lib/jquery-ui.css">
+  <script src="../js/lib/jquery.min.js"></script>
+  <script src="../js/lib/jquery-ui.js"></script>
+  <script src="../js/lib/approve.min.js"></script>
+  <link rel="stylesheet" href="../css/lib/fontawesome.css">
+  <link rel="stylesheet" href="../css/style.css" type="text/css" />
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+    <a href="" id="wszystkie" class="navbar-brand">Wydatki</a>
+    <div class="collapse navbar-collapse" id="navbarMenu">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a href="#" class="nav-link" data-toggle="modal" data-target="#modal_add">Dodaj</a>
+        </li>
+        <li class="dropdown nav-item">
+          <a href="#" class="nav-link" data-toggle="dropdown">Raporty<span class="caret"></span></a>
+          <ul class="dropdown-menu" role="menu">
+            <li><a class="dropdown-item" href="" id="saldo">Saldo</a></li>
+            <li><a class="dropdown-item" href="" id="saldo_na_miesiac">Saldo na miesiąc</a></li>
+            <li><a class="dropdown-item" href="" id="kto_ma_oddac">Kto ma ile oddać</a></li>
+            <li><a class="dropdown-item" href="" id="kto_ma_oddac_suma">Kto ma ile oddać suma</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item">
+        <a href="" id='btn_wyloguj' class="nav-link">Wyloguj</a>
+      </li>
+    </ul>
+    <button class="navbar-toggler" data-toggle="collapse" data-target="#navbarMenu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+  </nav>
+
+  <div class="modal fade" id="modal_add">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title">Dodaj wpis</h2>
+          <button type="button" class="close" data-dismiss="modal">
+            <span>&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form action="" class="form-horizontal" id="dodaj" novalidate>
+            <div class="form-group">
+              <div class="row">
+                <div class="col">
+                  <input type="text" name="bank" id="add_bank" class="form-control" placeholder="Bank"> </input>
+                </div>
+                <div class="col">
+                  <input type="text" name="kwota" id="add_kwota" class="form-control" placeholder="Kwota"> </input>
+                </div>
+              </div>
+            </div>
+            <input type="text" name="data" id="add_data" class="form-control" placeholder="Data"> </input><br />
+            <div class="form-group">
+              <div class="row">
+                <div class="col">
+                  <input type="text" name="typ" id="add_typ" class="form-control" placeholder="Typ"> </input>
+                </div>
+                <div class="col">
+                  <input type="text" name="typ2" id="add_typ2" class="form-control" placeholder="Typ2"> </input>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="row">
+                <div class="col">
+                  <input type="text" name="gdzie" id="add_gdzie" class="form-control" placeholder="Gdzie"> </input>
+                </div>
+                <div class="col">
+                  <input type="text" name="kogo" id="add_kogo" class="form-control" placeholder="Kogo"> </input>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="row">
+                <div class="col">
+                  <input type="text" name="osoba" id="add_osoba" class="form-control" placeholder="Osoba"> </input>
+                </div>
+                <div class="col">
+                  <input type="text" name="powiazane" id="add_powiazane" class="form-control" placeholder="Powiązane"> </input>
+                </div>
+              </div>
+            </div>
+            <textarea type="text" name="opis" id="add_opis" class="form-control" placeholder="Opis"> </textarea><br />
+            <button type="submit" class="btn btn-primary" id="add_btn"> Wyślij </button>
+          </form>
+        </div>
       </div>
-      <div id="body"></div>
-        <script src="../js/obiekty.js"></script>
-        <script src="../js/onclick.js"></script>
-        <script src="../js/main.js"></script>
-    </body>
+    </div>
+  </div>
+  <div id="tableContainer">
+  </div>
+
+  <script src="../js/Tabelka.js"></script>
+  <script src="../js/Filtr.js"></script>
+  <script src="../js/Insert.js"></script>
+  <script src="../js/onclick.js"></script>
+  <script src="../js/main.js"></script>
+</body>
+
 </html>

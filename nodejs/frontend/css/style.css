@@ -153,33 +153,15 @@ th.Opis, td.Opis{
       cursor: pointer;
 }
 
-#dodaj input {
-  height: 25px;
-  border: 2px solid lightgrey;
-  border-radius: 4px;
-  margin: 4px;
+#paginacja{
+  margin: 5px;
 }
 
-#dodaj input.good_value{
-  border: 2px solid green;
-  border-radius: 4px;
+#paginacja select{
+  width:70px;
 }
 
-#dodaj input.bad_value{
-  border: 2px solid red;
-  border-radius: 4px;
-}
-
-#dodaj span.error{
-  color: red;
-  font-style: italic;
-  margin-left: 10px;
-}
-
-#dodaj {
-  display: none;
-  margin-top: -20px;
-  margin-bottom: 10px;
-  padding: 10px;
-  /*border:#babbbc 5px solid;*/
+#paginacja input{
+  display:inline-block;
+  width:50px;
 }

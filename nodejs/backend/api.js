@@ -19,8 +19,6 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 app.use(cookieParser());
 
-app.use(express.static('../frontend/'));
-
 const data = new Date();
 
 const db = mysql.createConnection({
@@ -102,38 +100,38 @@ app.use(passport.session());
 
 app.use(function(req, res, next) {
     if (req.path.indexOf('.css') === -1 && req.path.indexOf('.js') === -1 ){
-        console.log("\n\n\naktualna ścieżka to: ", req.path,req.path.indexOf('login') === -1);
-        console.log("aktualny użytkownik to req.user: ", req.user, typeof req.user === 'undefined');
-        console.log('-------------------------- session -----------------------------------------');
-        console.dir(req.sessionID);
-        console.log('------------------------------------------------------------------------------------');
-        console.log('-------------------------- cookies -----------------------------------------');
-        console.dir(req.cookies);
-        console.log('------------------------------------------------------------------------------------');
-        console.log('-------------------------- user -----------------------------------------');
-        console.dir(req.user);
-        console.log('------------------------------------------------------------------------------------');
+        console.log("\n\n\nścieżka: ", req.path);
+        if (typeof req.user !== 'undefined') console.log("użytkownik: ", req.user.username);
+        else console.log("Brak użytkownika");
+        // console.log('-------------------------- session -----------------------------------------');
+        // console.dir(req.sessionID);
+        // console.log('------------------------------------------------------------------------------------');
+        // console.log('-------------------------- cookies -----------------------------------------');
+        // console.dir(req.cookies);
+        // console.log('------------------------------------------------------------------------------------');
+        // console.log('-------------------------- user -----------------------------------------');
+        // console.dir(req.user);
+        // console.log('------------------------------------------------------------------------------------');
     }
     next();
   });
 
-app.use(function(req, res, next) {
-  console.log("ELOOOOOOOOOO: " + req.path);
-  if(typeof req.user === 'undefined' && req.path.indexOf('api/') >= 0){
-    return res.status(404).send("Najpierw się zaloguj");
-  }
-  if (typeof req.user === 'undefined' && req.path.indexOf('/logowanie/') !== 0 && req.path.indexOf('/css/') !== 0 && req.path.indexOf('/js/') !== 0 && req.path.indexOf('/images/') !== 0  && req.path.indexOf('/favicon') !== 0 && req.path !== '/signin' && req.path !== '/signup')
-    {
-       console.log("Przekierowywuje Cie do logowania");
-       return  res.redirect('logowanie/index.html');
+  app.use(function(req, res, next) {
+    if(typeof req.user === 'undefined' && req.path.indexOf('api/') >= 0){
+      return res.status(404).send("Najpierw się zaloguj");
     }
-    if (typeof req.user !== 'undefined' && req.path.indexOf('/logowanie') !== -1)
-    {
-      console.log("Jestes juz zalogowany, po co sie logowac drugi raz?");
-      return  res.redirect('/');
-    }
-    next();
-});
+    if (typeof req.user === 'undefined' && req.path.indexOf('/logowanie/') !== 0 && req.path.indexOf('/css/') !== 0 && req.path.indexOf('/js/') !== 0 && req.path.indexOf('/images/') !== 0  && req.path.indexOf('/favicon') !== 0 && req.path !== '/signin' && req.path !== '/signup')
+      {
+         console.log("Przekierowywuje Cie do logowania");
+         return  res.redirect('logowanie/index.html');
+      }
+      if (typeof req.user !== 'undefined' && req.path.indexOf('/logowanie') !== -1)
+      {
+        console.log("Jestes juz zalogowany, po co sie logowac drugi raz?");
+        return  res.redirect('/');
+      }
+      next();
+  });
 
 app.post('/signin', (req, res, next) => {
   console.log('Inside the new POST /login callback')
@@ -176,14 +174,6 @@ app.get('/logout',(req, res) => {
 function sprawdzRejestracja(body){
   return {};
 }
-
-
-
-
-app.get('/', (req,res) => {
-  console.log("jesteś na głownej");
-  res.redirect('logowanie/index.html');
-});
 
 
 
@@ -249,7 +239,12 @@ app.post('/api/wydatki', (req,res) => {
   })
 })
 
+app.use(express.static('../frontend/'));
 
+
+app.use(function(req, res, next) {
+  return res.status(404).send('Route '+req.url+' Not found.');
+});
 
 app.listen(3001, () => console.log(aktualnaData()+'Listen on port 3001....'))
 

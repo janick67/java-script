@@ -1,24 +1,24 @@
-//$('select').selectpicker();
-console.log('tutaj');
-
 class Group{
-  constructor(table) {
+ constructor(table) {
     this.table = table;
     this.el = {}; //zawiera wszystkie checkboxy
     this.obj = {};//wartości checkboxow
     this.kolumn = [];
-    this.pobierzNazwyKolumn();
-    this.generujHTML();
+    this.pobierzNazwyKolumn()
+    //this.generujHTML();
   }
 
   pobierzNazwyKolumn(){
-    Array.prototype.forEach.call(this.table.el.trHeader.querySelectorAll('th'), el => {
-    this.kolumn.push(el.className.toLowerCase());
-    });
+    getJson('/api/wydatki/columns').then(res =>{
+      res.forEach( el => {
+        this.kolumn.push(el.column_name.toLowerCase());
+        });
+        this.generujHTML()
+    }).catch( er => console.error(er))
+    }
 
-  }
-
-  generujHTML(){
+    generujHTML(){
+    console.log('thiskolumn: ',this.kolumn);
     this.el.groupDiv = document.querySelector('.divGroup');
     console.log(this.el.groupDiv);
 
@@ -35,6 +35,8 @@ class Group{
     })
 
     this.kolumn.forEach(el => {
+
+        console.log('res: ',el)
     const option = document.createElement('option');
     option.innerText = el;
     this.el.select.appendChild(option);

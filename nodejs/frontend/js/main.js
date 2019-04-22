@@ -20,12 +20,6 @@ tabelka.adres += 'api/'+tabelka.sql_table+"/query";
 docReady(()=>{
 tabelka.init();
 insert.init();
-tabelka.el.group = document.createElement('div');
-tabelka.el.group.classList.add('divGroup');
-tabelka.el.mainDiv.insertBefore(tabelka.el.group,tabelka.el.divBody);
-setTimeout(()=>{
-  tabelka.group = new Group(tabelka)
-},500);
 })
 // -------------------------------------------KONIEC MAIN----------------------
 
@@ -91,7 +85,6 @@ function wyloguj()
 
 function getJson(adres,ob)
 {
-  // console.log(adres);
   return fetch(adres+'?'+getUrlString(ob)).then(resp => resp.json())
 }
 

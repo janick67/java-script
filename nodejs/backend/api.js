@@ -175,10 +175,13 @@ function sprawdzRejestracja(body){
   return {};
 }
 
-
-
 app.get('/api/wydatki/query',(req,res) => {
   response(req,res, obj => {});
+});
+
+app.get('/api/wydatki/columns',(req,res) => {
+  let sql = "SELECT column_name FROM information_schema.columns WHERE table_name='wydatki'";
+  sendSql(res,sql);
 });
 
 //------------------------------------------------------------------------------------------------
@@ -193,11 +196,19 @@ app.get('/api/wydatki/group/query',(req,res) => {
   response(req,res, obj => {
     if (typeof obj.select === 'undefined') obj.select = '';
     //if (typeof obj.where === 'undefined') obj.where = '';
-    //if (typeof obj.groupby === 'undefined') obj.groupby = '';
+    if (typeof obj.groupby === 'undefined') obj.groupby = '';
     if (typeof obj.orderby === 'undefined') obj.orderby = 'Year(data), MONTH(data)';
-    obj.select += '*';
+    obj.select += 'Year(data), MONTH(data), sum(kwota)';
     //obj.where += 'and kogo = "moje"';
-    //obj.groupby += 'Year(data), MONTH(data)';
+    obj.groupby += 'Year(data), MONTH(data)';
+    console.log("moje req.params: ", req.query);
+    if (typeof req.query.group !== 'undefined'){
+    req.query.group.forEach(el => {
+      obj.select += ','+el;
+      obj.groupby += ','+el;
+    })
+  }
+
   });
 });
 
@@ -320,10 +331,15 @@ function response(req,res,func)
   if (typeof obj.where !== 'undefined'){
     obj.where = decodeWhere(obj.where);
   }
-
+ console.log("w response req.params: ", req.query);
   if (typeof func !== undefined) func(obj);
 
   let sql = generujSql(obj);
+  sendSql(res,sql);
+}
+
+function sendSql(res,sql)
+{
   const query = db.query(sql, (err, result) => {
     //console.log(result);
     if (err){console.error(err);  return res.send(err)};

@@ -8,6 +8,12 @@ document.querySelector('#nav_group')
   const tab_group = new Tabelka("group","group");
   tab_group.adres += 'api/wydatki/group/query';
   tab_group.init();
+  tab_group.el.group = document.createElement('div');
+  tab_group.el.group.classList.add('divGroup');
+  tab_group.el.mainDiv.insertBefore(tab_group.el.group,tab_group.el.divBody);
+  setTimeout(()=>{
+    tab_group.group = new Group(tab_group)
+  },500);
 }
 
 document.querySelector('#add_btn')

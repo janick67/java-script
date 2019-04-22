@@ -199,7 +199,10 @@ Tabelka.prototype.odswiez = function(){ //funkcja odświeża tylko body tabelki,
   getJson(this.adres,this.object) //wysyła zapytanie get pod adres z obiektu tabelka i globalny obiekt z ktorego tworzone jest zapytanie sql
   .then(resp => {
     this.el.tbody.innerHTML = ''; //czyści body i wprowadza nowe dane
+    this.el.trHeader.innerHTML = ''; //czyści body i wprowadza nowe dane
+
     this.generujBody(resp);
+    this.generujHead(resp)
   })
   .catch(err => {
     console.log(err)

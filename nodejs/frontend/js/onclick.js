@@ -2,7 +2,7 @@
 //---------------------------------------------EVENTY------------------------------
 
 
-document.querySelector('#nav_group')
+document.querySelector('#nav_group') //Przechodzi na strone z grupowaniem
 .onclick = e =>  {
   e.preventDefault();
   const tab_group = new Tabelka("group","group");
@@ -16,7 +16,8 @@ document.querySelector('#nav_group')
   },500);
 }
 
-document.querySelector('#add_btn')
+
+document.querySelector('#add_btn') // w oknie modalnym
 .onclick = e =>  {
   e.preventDefault();
   insert.czytajIWyslij();
@@ -28,7 +29,7 @@ document.querySelector('#nav_wyloguj')
   wyloguj();
 }
 
-document.querySelector('#nav_wszystkie')
+document.querySelector('#nav_wszystkie') // strona głowna
 .onclick = e => {
   e.preventDefault();
   tabelka.pokaz();

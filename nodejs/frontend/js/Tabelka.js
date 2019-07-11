@@ -151,7 +151,6 @@ Tabelka.prototype.deklarujElementy = function(){
 // Used in .......: generuj(), odswiez()
 // Related .......: generujBody()
 // ==============================================================================
-
 Tabelka.prototype.generujHead = function(resp){
   const headers = Object.getOwnPropertyNames(resp[0]);  //pobiera nagłówki kolumn w tabeli
   headers.forEach(el => {
@@ -209,6 +208,7 @@ Tabelka.prototype.generuj = function(){
   if (this.wygenerowane === 1) return;  //jeśli już wygenerowano to nie robi tego kolejny raz
   this.generujObiekt(); // wygenerowanie domyślnego
     // console.log('this.adres: ',this.adres,' this.object: ',this.object);
+    console.log (this.adres,this.object)
     getJson(this.adres,this.object) // pobiera dane z serwera
     .then(resp => {
       this.generujHead(resp);
@@ -223,6 +223,7 @@ Tabelka.prototype.generuj = function(){
     return this;
   };
 //--------------------------------------------------------------------------------------KONIEC generuj--------------------------------
+
 
 //--------------------------------------------------------------------------------------generujObiekt-------------------------------
 // #FUNCTION# ===================================================================

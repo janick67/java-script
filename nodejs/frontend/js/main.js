@@ -11,16 +11,17 @@ const uri = document.location.origin + "/";
   // .then(res => { console.log(res)});
 
 
+  //-----------------------------------------MAIN----------------------------------
 let aktualna_tabelka = null; // zawiera wksaźnik do tabelki ktora jest aktualnie wyswietlana uzytkownikowi
 let insert = new Insert();
 docReady(()=>{
 insert.init();
 })
 
-//-----------------------------------------MAIN----------------------------------
-const wszystkieTabelki = {};
-const tabelka = new Tabelka("wydatki","wydatki"); //głowna tabelka main z wszystkimi wydatkami
-tabelka.adres += 'api/'+tabelka.sql_table+"/query";
+let dane = new Data("wydatki","wydatki");
+// const wszystkieTabelki = {};
+// const tabelka = new Tabelka("wydatki","wydatki"); //głowna tabelka main z wszystkimi wydatkami
+// tabelka.adres += 'api/'+tabelka.sql_table+"/query";
 // -------------------------------------------KONIEC MAIN----------------------
 
 

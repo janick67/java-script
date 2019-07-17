@@ -30,13 +30,13 @@ class Group{
       Array.prototype.forEach.call(e.target.selectedOptions, el => {
         temp.push(el.value);
       })
-      this.table.object.group = temp;
-      this.table.odswiez();
+      console.log('temp ', temp);
+      this.table.data.param.groupby = temp;
+      this.table.reload();
     })
 
     this.kolumn.forEach(el => {
 
-        console.log('res: ',el)
     const option = document.createElement('option');
     option.innerText = el;
     this.el.select.appendChild(option);

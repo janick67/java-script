@@ -17,9 +17,9 @@ let insert = new Insert();
 docReady(()=>{
 insert.init();
 })
+const wszystkieTabelki = {};
 
-let dane = new Data("wydatki","wydatki");
-// const wszystkieTabelki = {};
+wszystkieTabelki['wydatki'] = new Table(new Data("wydatki","wydatki"));
 // const tabelka = new Tabelka("wydatki","wydatki"); //głowna tabelka main z wszystkimi wydatkami
 // tabelka.adres += 'api/'+tabelka.sql_table+"/query";
 // -------------------------------------------KONIEC MAIN----------------------

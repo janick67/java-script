@@ -195,20 +195,9 @@ app.get('/api/wydatki/saldo/query',(req,res) => {
 app.get('/api/wydatki/group/query',(req,res) => {
   response(req,res, obj => {
     if (typeof obj.select === 'undefined') obj.select = '';
-    //if (typeof obj.where === 'undefined') obj.where = '';
-    if (typeof obj.groupby === 'undefined') obj.groupby = '';
-    if (typeof obj.orderby === 'undefined') obj.orderby = 'Year(data), MONTH(data)';
-    obj.select += 'Year(data), MONTH(data), sum(kwota)';
-    //obj.where += 'and kogo = "moje"';
-    obj.groupby += 'Year(data), MONTH(data)';
-    console.log("moje req.params: ", req.query);
-    if (typeof req.query.group !== 'undefined'){
-    req.query.group.forEach(el => {
-      obj.select += ','+el;
-      obj.groupby += ','+el;
-    })
-  }
 
+    obj.select += 'sum(kwota)';
+    if (typeof obj.groupby !== 'undefined') obj.select += ',' + obj.groupby;
   });
 });
 
@@ -288,9 +277,11 @@ function generujSql(obj){
     obj.orderby = 'order by ' + obj.orderby;
   }
 
-  if (typeof obj.groupby === 'undefined') {
+  if (typeof obj.groupby === 'undefined' || obj.groupby.length == 0) {
+    console.log('Groupby undefined');
     obj.groupby = '';
   }else{
+    console.log('Groupby nawet nie blisko undefined: "',obj.groupby,'""',obj.groupby.length );
     obj.groupby = 'group by ' + obj.groupby;
   }
 
@@ -328,10 +319,18 @@ function response(req,res,func)
     obj.orderby = decodeOrderby(obj.orderby);
   }
 
+  console.log("w response req.params: ", req.query);
+
+  if (typeof obj.groupby !== 'undefined'){
+    console.log("no jest rozne undeifned");
+    obj.groupby = decodeGroupby(obj.groupby);
+  }
+
+
   if (typeof obj.where !== 'undefined'){
     obj.where = decodeWhere(obj.where);
   }
- console.log("w response req.params: ", req.query);
+
   if (typeof func !== undefined) func(obj);
 
   let sql = generujSql(obj);
@@ -359,9 +358,23 @@ function decodeOrderby(obj)
   return gotowy_obj;
 }
 
+function decodeGroupby(obj)
+{
+  console.log("seiema, jestesm w decodegroupby");
+  let groupby = obj;
+  gotowy_obj = '';
+  groupby.forEach((element,i) =>{
+    if (i > 0) element = ', '+element;
+    gotowy_obj += element;
+  });
+  return gotowy_obj;
+}
+
 function decodeWhere(obj)
 {
+  console.log("seiema, jestesm w decodewhere");
   let where = '';
+  console.log(obj);
     const name = Object.getOwnPropertyNames(obj);
     for (const el of name){
       console.log("W pętli: ",el,obj[el]);

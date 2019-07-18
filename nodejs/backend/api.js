@@ -195,9 +195,15 @@ app.get('/api/wydatki/saldo/query',(req,res) => {
 app.get('/api/wydatki/group/query',(req,res) => {
   response(req,res, obj => {
     if (typeof obj.select === 'undefined') obj.select = '';
-
-    obj.select += 'sum(kwota)';
+    obj.select += 'sum(kwota) as kwota';
     if (typeof obj.groupby !== 'undefined') obj.select += ',' + obj.groupby;
+  });
+});
+
+//SELECT b.miesiac, b.s_kwota, (SELECT sum(t.s_kwota) FROM (SELECT DATE_FORMAT(data, "%Y-%m") as miesiac, sum(kwota) as s_kwota FROM `wydatki` WHERE kogo = 'moje' GROUP BY DATE_FORMAT(data, "%Y-%m"))as t where t.miesiac <= b.miesiac) as sel FROM (SELECT DATE_FORMAT(data, "%Y-%m") as miesiac, sum(kwota) as s_kwota FROM `wydatki` WHERE kogo = 'moje' GROUP BY DATE_FORMAT(data, "%Y-%m")) as b order by 1,2
+app.get('/api/wydatki/stan_na_miesiac/query',(req,res) => {
+  response(req,res, obj => {
+    obj.sql = "SELECT b.miesiac, b.s_kwota, (SELECT sum(t.s_kwota) FROM (SELECT DATE_FORMAT(data, \"%Y-%m\") as miesiac, sum(kwota) as s_kwota FROM `wydatki` WHERE kogo = 'moje' GROUP BY DATE_FORMAT(data, \"%Y-%m\"))as t where t.miesiac <= b.miesiac) as sel FROM (SELECT DATE_FORMAT(data, \"%Y-%m\") as miesiac, sum(kwota) as s_kwota FROM `wydatki` WHERE kogo = 'moje' GROUP BY DATE_FORMAT(data, \"%Y-%m\")) as b order by 1,2";
   });
 });
 
@@ -278,10 +284,9 @@ function generujSql(obj){
   }
 
   if (typeof obj.groupby === 'undefined' || obj.groupby.length == 0) {
-    console.log('Groupby undefined');
     obj.groupby = '';
   }else{
-    console.log('Groupby nawet nie blisko undefined: "',obj.groupby,'""',obj.groupby.length );
+    obj.groupby = obj.groupby.replace(/\sas\s[^\s,]*/,'');
     obj.groupby = 'group by ' + obj.groupby;
   }
 
@@ -322,7 +327,6 @@ function response(req,res,func)
   console.log("w response req.params: ", req.query);
 
   if (typeof obj.groupby !== 'undefined'){
-    console.log("no jest rozne undeifned");
     obj.groupby = decodeGroupby(obj.groupby);
   }
 
@@ -331,9 +335,14 @@ function response(req,res,func)
     obj.where = decodeWhere(obj.where);
   }
 
-  if (typeof func !== undefined) func(obj);
-
-  let sql = generujSql(obj);
+  if (typeof func !== 'undefined') func(obj);
+  let sql = '';
+  if (typeof obj.sql === 'undefined')  {
+    sql = generujSql(obj);
+  } else {
+    sql = obj.sql;
+    delete obj.sql;
+  }
   sendSql(res,sql);
 }
 
@@ -360,10 +369,11 @@ function decodeOrderby(obj)
 
 function decodeGroupby(obj)
 {
-  console.log("seiema, jestesm w decodegroupby");
   let groupby = obj;
   gotowy_obj = '';
   groupby.forEach((element,i) =>{
+    if (element == 'rok') element = 'Year(data) as rok';
+    if (element == 'miesiąc') element = 'DATE_FORMAT(data, "%Y-%m") as miesiąc';
     if (i > 0) element = ', '+element;
     gotowy_obj += element;
   });
@@ -372,12 +382,9 @@ function decodeGroupby(obj)
 
 function decodeWhere(obj)
 {
-  console.log("seiema, jestesm w decodewhere");
   let where = '';
-  console.log(obj);
     const name = Object.getOwnPropertyNames(obj);
     for (const el of name){
-      console.log("W pętli: ",el,obj[el]);
       if(obj[el].indexOf(";") > -1) obj[el] = obj[el].replace(/;/g,'","');
       where += ' and ' + el+' in ("'+obj[el]+'") ';
     }

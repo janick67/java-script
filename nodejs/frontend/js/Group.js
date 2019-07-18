@@ -10,6 +10,8 @@ class Group{
 
   pobierzNazwyKolumn(){
     getJson('/api/wydatki/columns').then(res =>{
+      this.kolumn.push('rok');
+      this.kolumn.push('miesiąc');
       res.forEach( el => {
         this.kolumn.push(el.column_name.toLowerCase());
         });
@@ -35,12 +37,15 @@ class Group{
       this.table.reload();
     })
 
-    this.kolumn.forEach(el => {
 
+    this.kolumn.forEach(el => {
     const option = document.createElement('option');
     option.innerText = el;
     this.el.select.appendChild(option);
   });
+
+
+
 
     this.el.groupDiv.appendChild(this.el.select);
   }

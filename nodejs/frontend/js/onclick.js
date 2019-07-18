@@ -2,54 +2,65 @@
 //---------------------------------------------EVENTY------------------------------
 
 
-document.querySelector('#add_btn')
+document.querySelector('#nav_group') //Przechodzi na strone z grupowaniem
+.onclick = e =>  {
+  e.preventDefault();
+  let name = 'group';
+  wszystkieTabelki[name] = new Table(new Data(name,name,`api/wydatki/${name}/query`));
+  tab_group = wszystkieTabelki[name];
+  tab_group.el.group = document.createElement('div');
+  tab_group.el.group.classList.add('divGroup');
+  tab_group.el.mainDiv.insertBefore(tab_group.el.group,tab_group.el.divBody);
+  setTimeout(()=>{
+    tab_group.group = new Group(tab_group)
+  },500);
+}
+
+
+document.querySelector('#add_btn') // w oknie modalnym
 .onclick = e =>  {
   e.preventDefault();
   insert.czytajIWyslij();
 }
 
-document.querySelector('#btn_wyloguj')
+document.querySelector('#nav_wyloguj')
 .onclick = e =>  {
   e.preventDefault();
   wyloguj();
 }
 
-document.querySelector('#wszystkie')
+document.querySelector('#nav_wszystkie') // strona głowna
 .onclick = e => {
   e.preventDefault();
-  tabelka.pokaz();
+  Table.pokaz();
 }
 
-document.querySelector('#saldo')
+document.querySelector('#nav_saldo')
 .onclick = e =>{
   e.preventDefault();
-  const tab_saldo = new Tabelka("saldo","saldo");
-  tab_saldo.adres += 'api/wydatki/saldo/query';
-  tab_saldo.init();
+  let name = 'saldo';
+  wszystkieTabelki[name] = new Table(new Data(name,name,`api/wydatki/${name}/query`));
 }
 
-document.querySelector('#saldo_na_miesiac')
+document.querySelector('#nav_saldo_na_miesiac')
 .onclick = e =>{
     e.preventDefault();
-    const tab_saldo = new Tabelka("saldo_na_miesiac","saldo_na_miesiac");
-    tab_saldo.adres += 'api/wydatki/saldo_na_miesiac/query';
-    tab_saldo.init();
+    let name = 'saldo_na_miesiac';
+    wszystkieTabelki[name] = new Table(new Data(name,name,`api/wydatki/${name}/query`));
+  }
+
+document.querySelector('#nav_kto_ma_oddac')
+.onclick = e =>{
+    e.preventDefault();
+    let name = 'kto_ma_oddac';
+    wszystkieTabelki[name] = new Table(new Data(name,name,`api/wydatki/${name}/query`));
 }
 
-document.querySelector('#kto_ma_oddac')
+document.querySelector('#nav_kto_ma_oddac_suma')
 .onclick = e =>{
     e.preventDefault();
-    const tab_kto_ma_oddac = new Tabelka("kto_ma_oddac","kto_ma_oddac");
-    tab_kto_ma_oddac.adres += 'api/wydatki/kto_ma_oddac/query';
-    tab_kto_ma_oddac.init();
-}
-
-document.querySelector('#kto_ma_oddac_suma')
-.onclick = e =>{
-    e.preventDefault();
-    const tab_kto_ma_oddac_suma = new Tabelka("kto_ma_oddac_suma","kto_ma_oddac_suma");
-    tab_kto_ma_oddac_suma.adres += 'api/wydatki/kto_ma_oddac_suma/query';
-    tab_kto_ma_oddac_suma.init();
+    let name = 'kto_ma_oddac_suma';
+    wszystkieTabelki[name] = new Table(new Data(name,name,`api/wydatki/${name}/query`));
 }
 
 

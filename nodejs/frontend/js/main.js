@@ -1,5 +1,6 @@
 const uri = document.location.origin + "/";
 
+// setInterval(()=>{document.querySelector('[role="dialog"][class="style-scope ytd-popup-container"]').querySelector('[class="style-scope paper-button"]').click();},60000)
 // const ob = {ob:'cos',obj:{imie:'afsd', nazwisko:'siema'}, inne:{}};
 //   console.log(ob);
 //   console.log("moje: ",getUrlString('',ob));
@@ -10,19 +11,18 @@ const uri = document.location.origin + "/";
   // .then(res => { console.log(res)});
 
 
-let aktualna_tabelka = null;
+  //-----------------------------------------MAIN----------------------------------
+let aktualna_tabelka = null; // zawiera wksaźnik do tabelki ktora jest aktualnie wyswietlana uzytkownikowi
 let insert = new Insert();
-
-//-----------------------------------------MAIN----------------------------------
-const wszystkieTabelki = {};
-const tabelka = new Tabelka("wydatki","wydatki");
-tabelka.adres += 'api/'+tabelka.sql_table+"/query";
 docReady(()=>{
-tabelka.init();
 insert.init();
 })
-// -------------------------------------------KONIEC MAIN----------------------
+const wszystkieTabelki = {};
 
+wszystkieTabelki['wydatki'] = new Table(new Data("wydatki","wydatki"));
+// const tabelka = new Tabelka("wydatki","wydatki"); //głowna tabelka main z wszystkimi wydatkami
+// tabelka.adres += 'api/'+tabelka.sql_table+"/query";
+// -------------------------------------------KONIEC MAIN----------------------
 
 
 
@@ -85,7 +85,6 @@ function wyloguj()
 
 function getJson(adres,ob)
 {
-  // console.log(adres);
   return fetch(adres+'?'+getUrlString(ob)).then(resp => resp.json())
 }
 

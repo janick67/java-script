@@ -17,15 +17,141 @@ function Tabelka(id,nazwa)
   this.sql_table = 'wydatki';
   this.id = id;
   this.el = {}; // zawiera wszystkie elementy html
-  this.deklarujElementy()
   this.filtr = null;
   this.wygenerowane = 0;
   wszystkieTabelki[id] = this;
+  docReady(()=>{
+  tabelka.init();
+  })
 }
 //----------------------------------------------------------------------------------KONIEC konstruktora Tabelka------------------------
 
+//--------------------------------------------------------------------------------------------init--------------------------------------
+// #FUNCTION# ===================================================================
+// Name ..........: init
+// Description ...: inicjacja Filtra
+// Syntax ........: init()
+// Parameter(s): .: -
+// Return Value ..: -
+// Used in .......: Tabelka()(konstruktor)
+// Related .......: deklarujElementy(),dodajFiltr(),generuj(),pokaz()
+// ==============================================================================
+Tabelka.prototype.init = function(){
+  this.deklarujElementy();
+  this.dodajFiltr();
+  this.generuj();
+  this.pokaz();
+}
+//----------------------------------------------------------------------------------------Koniec init------------------------------------
+
+//-----------------------------------------------------------------------------------------deklarujElementy-------------------------------
+// #FUNCTION# ===================================================================
+// Name ..........: deklarujElementy
+// Description ...: Deklaruje wszystkie elementy HTML
+// Syntax ........: deklarujElementy()
+// Parameter(s): .: -
+// Return Value ..: -
+// Used in .......: init()
+// Related .......: -
+// ==============================================================================
+
+Tabelka.prototype.deklarujElementy = function(){
+  this.el.mainDiv = document.createElement('div');
+  this.el.mainDiv.setAttribute('id',this.id);
+  this.el.mainDiv.style.display = 'none'; //zaraz po utworzeniu jest ukrywane
+  this.el.mainDiv.classList.add('mainDiv');
+
+
+  this.el.divBody = document.createElement('div');
+  this.el.divBody.classList.add('divTable');
+
+  this.el.table = document.createElement('table');
+  this.el.table.setAttribute('summary',this.nazwa);
+
+  this.el.thead = document.createElement('thead');
+
+  this.el.trHeader = document.createElement('tr');
+  this.el.trHeader.classList.add('trHeader');
+
+  this.el.tbody = document.createElement('tbody');
+
+  this.el.paginacja = document.createElement('div')
+  this.el.paginacja.setAttribute('id','paginacja')
+  this.el.paginacja.innerHTML = `<button id="prev" type="button" class="btn btn-secondary">Prev</button>
+      <input type="text" name="strona" id="strona" value="1" class="form-control align-top"> </input>
+      <button id="next" type="button" class="btn btn-secondary">Next</button>
+        <select class="custom-select" name="na_strone" id="na_strone">
+          <option>5</option>
+          <option>10</option>
+          <option>25</option>
+          <option>50</option>
+          <option>100</option>
+          <option>500</option>
+        </select>`
+
+  this.el.paginacja.querySelector('#next')
+  .onclick = e => aktualna_tabelka.zmienStrone(aktualna_tabelka.strona*1+1)
+
+  this.el.paginacja.querySelector('#prev')
+  .onclick = e => aktualna_tabelka.zmienStrone(aktualna_tabelka.strona*1-1)
+
+  this.el.paginacja.querySelector('#na_strone')
+  .addEventListener('change', e => {
+  const it = aktualna_tabelka;
+  it.na_strone = e.target.value;
+  it.object.limit = it.na_strone;
+  it.odswiez();
+  })
+
+  this.el.strona = this.el.paginacja.querySelector('#strona');
+  this.el.strona.addEventListener('change', e => {
+  aktualna_tabelka.zmienStrone(e.target.value);
+  });
+
+  this.el.divBody.addEventListener('mouseout', e => {
+  getClossestTag(e.target,'tr').classList.remove('red');
+  getClossestTag(e.target,'td').classList.remove('blue')
+  });
+
+  this.el.divBody.addEventListener('mouseover', e => {
+  getClossestTag(e.target,'tr').classList.add('red');
+  getClossestTag(e.target,'td').classList.add('blue')
+  });
+
+  this.el.divBody.onclick = e => {
+  const id = getClossestClass(e.target, 'mainDiv').getAttribute('id');
+  const kliknieta_tabelka = wszystkieTabelki[id];
+  // console.log('id:', id,'wszystkie: ', wszystkieTabelki[id]);
+  kliknieta_tabelka.filtr.ustaw(e.target);// do filtrowania według kliknietego
+
+  if (e.target.tagName === 'SPAN' && e.target.parentElement.tagName === 'TH'  && e.offsetX > e.target.offsetWidth) {  //sprawdza klikniete bylo na obiekcie czy na prawo od niego jesli na prawo to znaczy ze to byl pseudo element bo jego nie ma w strukturze DOM
+          kliknieta_tabelka.sortuj(e.target) //do sortowania według kliknietego
+    }
+  }
+
+  this.el.thead.appendChild(this.el.trHeader);
+  this.el.table.appendChild(this.el.thead);
+  this.el.table.appendChild(this.el.tbody);
+  this.el.divBody.appendChild(this.el.table);
+  this.el.mainDiv.appendChild(this.el.divBody);
+  this.el.mainDiv.appendChild(this.el.paginacja);
+  document.querySelector('#tableContainer').appendChild(this.el.mainDiv);
+}
+//--------------------------------------------------------------------------------------KONIEC deklarujElementy---------------------------
+
+
+
 //-----------------------------------------------------------------------------------------generujHead-------------------------------
-Tabelka.prototype.generujHead = function(resp){   // generuje tylko częśc nagłowkową tabeli
+// #FUNCTION# ===================================================================
+// Name ..........: generujHead
+// Description ...: Generuje nagłowek tabeli
+// Syntax ........: generujHead(resp)
+// Parameter(s): .: resp - object from JSON(from backend)
+// Return Value ..: none
+// Used in .......: generuj(), odswiez()
+// Related .......: generujBody()
+// ==============================================================================
+Tabelka.prototype.generujHead = function(resp){
   const headers = Object.getOwnPropertyNames(resp[0]);  //pobiera nagłówki kolumn w tabeli
   headers.forEach(el => {
     const th = document.createElement('th');
@@ -40,93 +166,16 @@ Tabelka.prototype.generujHead = function(resp){   // generuje tylko częśc nag�
 
 
 
-Tabelka.prototype.deklarujElementy = function(){
-this.el.mainDiv = document.createElement('div');
-this.el.mainDiv.setAttribute('id',this.id);
-this.el.mainDiv.style.display = 'none'; //zaraz po utworzeniu jest ukrywane
-this.el.mainDiv.classList.add('mainDiv');
-
-
-this.el.divBody = document.createElement('div');
-this.el.divBody.classList.add('divTable');
-
-this.el.table = document.createElement('table');
-this.el.table.setAttribute('summary',this.nazwa);
-
-this.el.thead = document.createElement('thead');
-
-this.el.trHeader = document.createElement('tr');
-this.el.trHeader.classList.add('trHeader');
-
-this.el.tbody = document.createElement('tbody');
-
-this.el.paginacja = document.createElement('div')
-this.el.paginacja.setAttribute('id','paginacja')
-this.el.paginacja.innerHTML = `<button id="prev" type="button" class="btn btn-secondary">Prev</button>
-      <input type="text" name="strona" id="strona" value="1" class="form-control align-top"> </input>
-      <button id="next" type="button" class="btn btn-secondary">Next</button>
-        <select class="custom-select" name="na_strone" id="na_strone">
-          <option>5</option>
-          <option>10</option>
-          <option>25</option>
-          <option>50</option>
-          <option>100</option>
-          <option>500</option>
-        </select>`
-
-this.el.paginacja.querySelector('#next')
-.onclick = e => aktualna_tabelka.zmienStrone(aktualna_tabelka.strona*1+1)
-
-this.el.paginacja.querySelector('#prev')
-.onclick = e => aktualna_tabelka.zmienStrone(aktualna_tabelka.strona*1-1)
-
-this.el.paginacja.querySelector('#na_strone')
-.addEventListener('change', e => {
-  const it = aktualna_tabelka;
-  it.na_strone = e.target.value;
-  it.object.limit = it.na_strone;
-  it.odswiez();
-})
-
-this.el.strona = this.el.paginacja.querySelector('#strona');
-this.el.strona.addEventListener('change', e => {
-  aktualna_tabelka.zmienStrone(e.target.value);
-});
-
-this.el.divBody.addEventListener('mouseout', e => {
-  getClossestTag(e.target,'tr').classList.remove('red');
-  getClossestTag(e.target,'td').classList.remove('blue')
-  });
-
-this.el.divBody.addEventListener('mouseover', e => {
-  getClossestTag(e.target,'tr').classList.add('red');
-  getClossestTag(e.target,'td').classList.add('blue')
-});
-
-this.el.divBody.onclick = e => {
-  const id = getClossestClass(e.target, 'mainDiv').getAttribute('id');
-  const kliknieta_tabelka = wszystkieTabelki[id];
-  // console.log('id:', id,'wszystkie: ', wszystkieTabelki[id]);
-  kliknieta_tabelka.filtr.ustaw(e.target);// do filtrowania według kliknietego
-
-  if (e.target.tagName === 'SPAN' && e.target.parentElement.tagName === 'TH'  && e.offsetX > e.target.offsetWidth) {  //sprawdza klikniete bylo na obiekcie czy na prawo od niego jesli na prawo to znaczy ze to byl pseudo element bo jego nie ma w strukturze DOM
-          kliknieta_tabelka.sortuj(e.target) //do sortowania według kliknietego
-    }
-}
-
-this.el.thead.appendChild(this.el.trHeader);
-this.el.table.appendChild(this.el.thead);
-this.el.table.appendChild(this.el.tbody);
-this.el.divBody.appendChild(this.el.table);
-this.el.mainDiv.appendChild(this.el.divBody);
-this.el.mainDiv.appendChild(this.el.paginacja);
-document.querySelector('#tableContainer').appendChild(this.el.mainDiv);
-}
-
-
-
-
 // --------------------------------------------------------------------------------------generujBody-------------------------------
+// #FUNCTION# ===================================================================
+// Name ..........: generujBody
+// Description ...: Generuje ciało tabeli
+// Syntax ........: generujBody(resp)
+// Parameter(s): .: resp - object from JSON(from backend)
+// Return Value ..: none
+// Used in .......: generuj(), odswiez()
+// Related .......: generujHead()
+// ==============================================================================
 Tabelka.prototype.generujBody = function(resp){
   resp.forEach(row =>{
     const tr = document.createElement('tr');
@@ -146,10 +195,20 @@ Tabelka.prototype.generujBody = function(resp){
 //--------------------------------------------------------------------------------------KONIEC generujBody-----------------------------
 
 //------------------------------------------------------------------------------------------generuj-------------------------------
+// #FUNCTION# ===================================================================
+// Name ..........: generuj
+// Description ...: Pobeira dane z backendu, Generuje całą tabelke ale tylko za pierwszym razem
+// Syntax ........: generuj()
+// Parameter(s): .: -
+// Return Value ..: -
+// Used in .......: init()
+// Related .......: odswiez(),generujHead(), generujBody()
+// ==============================================================================
 Tabelka.prototype.generuj = function(){
   if (this.wygenerowane === 1) return;  //jeśli już wygenerowano to nie robi tego kolejny raz
   this.generujObiekt(); // wygenerowanie domyślnego
     // console.log('this.adres: ',this.adres,' this.object: ',this.object);
+    console.log (this.adres,this.object)
     getJson(this.adres,this.object) // pobiera dane z serwera
     .then(resp => {
       this.generujHead(resp);
@@ -165,7 +224,17 @@ Tabelka.prototype.generuj = function(){
   };
 //--------------------------------------------------------------------------------------KONIEC generuj--------------------------------
 
+
 //--------------------------------------------------------------------------------------generujObiekt-------------------------------
+// #FUNCTION# ===================================================================
+// Name ..........: generujObiekt
+// Description ...: Służy do wygenerowania objektu który jest potem przesyłany w sql
+// Syntax ........: generujObiekt()
+// Parameter(s): .: -
+// Return Value ..: -
+// Used in .......: odswiez(),generujHead()
+// Related .......: -
+// ==============================================================================
 Tabelka.prototype.generujObiekt = function(obj){ // służy do wygenerowania objektu który jest potem przesyłany w sql
     const obj2 ={       //domyślny obiekt
       table: "wydatki",
@@ -182,6 +251,15 @@ Tabelka.prototype.generujObiekt = function(obj){ // służy do wygenerowania obj
 //--------------------------------------------------------------------------------------KONIEC generujObiekt--------------------------
 
 //------------------------------------------------------------------------------------------pokaz-------------------------------------
+// #FUNCTION# ===================================================================
+// Name ..........: pokaz
+// Description ...: Przelacza tabelke na pierwsze miejsce, zeby mozna było na niej pracowac. Tylko jedna tabelka jest widoczna
+// Syntax ........: pokaz()
+// Parameter(s): .: -
+// Return Value ..: -
+// Used in .......: odswiez(),generujHead()
+// Related .......: init,aktualna_tabelka
+// ==============================================================================
 Tabelka.prototype.pokaz = function(){                   //tej funkcji używam żeby wybrac tabelke na ktorej bede obecnie pracowal
     const sibilings = this.el.mainDiv.parentNode.children;
     Array.prototype.forEach.call(sibilings, el => {  //ukrywa wszystkich braci elementu czyli wszystkie pozostałe divy
@@ -194,12 +272,24 @@ Tabelka.prototype.pokaz = function(){                   //tej funkcji używam ż
 //----------------------------------------------------------------------------------------KONIEC pokaz---------------------------------
 
 //------------------------------------------------------------------------------------------odswiez------------------------------------
-Tabelka.prototype.odswiez = function(){ //funkcja odświeża tylko body tabelki, potrzebna np. przy zmianie filtrowania albo przy zmianie strony
+// #FUNCTION# ===================================================================
+// Name ..........: odswiez
+// Description ...: Pobeira dane z backendu, odświeża tabelke, potrzebna np. przy zmianie filtrowania albo przy zmianie strony
+// Syntax ........: odswiez()
+// Parameter(s): .: -
+// Return Value ..: -
+// Used in .......: zmienStrone(),na_strone,sortuj()
+// Related .......: generuj(),generujBody(), generujHead(), generujObiekt()
+// ==============================================================================
+Tabelka.prototype.odswiez = function(){ //funkcja odświeża tabelke, potrzebna np. przy zmianie filtrowania albo przy zmianie strony
   this.generujObiekt();  // generuje obiekt który poźniej jest użyty do zapytania sql
   getJson(this.adres,this.object) //wysyła zapytanie get pod adres z obiektu tabelka i globalny obiekt z ktorego tworzone jest zapytanie sql
   .then(resp => {
     this.el.tbody.innerHTML = ''; //czyści body i wprowadza nowe dane
+    this.el.trHeader.innerHTML = ''; //czyści body i wprowadza nowe dane
+
     this.generujBody(resp);
+    this.generujHead(resp)
   })
   .catch(err => {
     console.log(err)
@@ -208,30 +298,50 @@ Tabelka.prototype.odswiez = function(){ //funkcja odświeża tylko body tabelki,
 //----------------------------------------------------------------------------------------Koniec odswiez--------------------------------
 
 //-----------------------------------------------------------------------------------------dodajFiltr----------------------------------
+// #FUNCTION# ===================================================================
+// Name ..........: dodajFiltr
+// Description ...: inicjacja Filtra
+// Syntax ........: dodajFiltr()
+// Parameter(s): .: -
+// Return Value ..: -
+// Used in .......: init()
+// Related .......: -
+// ==============================================================================
 Tabelka.prototype.dodajFiltr = function(){// inicjacja Filtra
   this.filtr = new Filtr(this);
 }
 //----------------------------------------------------------------------------------------Koniec dodajFiltr-----------------------------
 
-//--------------------------------------------------------------------------------------------init--------------------------------------
-Tabelka.prototype.init = function(){
-  this.dodajFiltr();
-  this.generuj();
-  this.pokaz();
-}
-//----------------------------------------------------------------------------------------Koniec init------------------------------------
 
-//--------------------------------------------------------------------------------------------init--------------------------------------
+//--------------------------------------------------------------------------------------------zmienStrone--------------------------------------
+// #FUNCTION# ===================================================================
+// Name ..........: zmienStrone
+// Description ...: Przelacza strone i wywołuje odswiezenie
+// Syntax ........: zmienStrone(int nowaStrona)
+// Parameter(s): .: nowaStrona - int numer strony na ktroy ma zostac przelaczona tabelka
+// Return Value ..: -
+// Used in .......: paginacja.querySelector('#strona').onclick(),paginacja.querySelector('#next').onclick,paginacja.querySelector('#prev').onclick
+// Related .......: na_strone
+// ==============================================================================
 Tabelka.prototype.zmienStrone = function(nowaStrona){
   this.strona = nowaStrona
   this.el.strona.value = this.strona;
   this.object.offset = this.na_strone*(this.strona-1);
   this.odswiez();
 }
-//----------------------------------------------------------------------------------------Koniec init------------------------------------
+//----------------------------------------------------------------------------------------Koniec zmienStrone------------------------------------
 
 
 //-------------------------------------------------------------------------------------------sortuj-------------------------------------
+// #FUNCTION# ===================================================================
+// Name ..........: sortuj
+// Description ...: Przelacza strone i wywołuje odswiezenie
+// Syntax ........: sortuj(obj target)
+// Parameter(s): .: target - komorka wedgług ktorej ma byc posortowana tabelka
+// Return Value ..: -
+// Used in .......: divBody.onclick
+// Related .......: -
+// ==============================================================================
 Tabelka.prototype.sortuj = function(target){
   const {orderby} = this.object; //destrukturyzacja obiektu do zwykłej tablicy(pobiera element orderby z obiektu)
   let klasa = target.parentElement.className;               //klasa nadrzędnego elementu(th) np. bank, ID

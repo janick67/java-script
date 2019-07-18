@@ -175,10 +175,13 @@ function sprawdzRejestracja(body){
   return {};
 }
 
-
-
 app.get('/api/wydatki/query',(req,res) => {
   response(req,res, obj => {});
+});
+
+app.get('/api/wydatki/columns',(req,res) => {
+  let sql = "SELECT column_name FROM information_schema.columns WHERE table_name='wydatki'";
+  sendSql(res,sql);
 });
 
 //------------------------------------------------------------------------------------------------
@@ -186,6 +189,15 @@ app.get('/api/wydatki/query',(req,res) => {
 app.get('/api/wydatki/saldo/query',(req,res) => {
   response(req,res, obj => {
     obj.select = 'sum(kwota)';
+  });
+});
+
+app.get('/api/wydatki/group/query',(req,res) => {
+  response(req,res, obj => {
+    if (typeof obj.select === 'undefined') obj.select = '';
+
+    obj.select += 'sum(kwota)';
+    if (typeof obj.groupby !== 'undefined') obj.select += ',' + obj.groupby;
   });
 });
 
@@ -265,9 +277,11 @@ function generujSql(obj){
     obj.orderby = 'order by ' + obj.orderby;
   }
 
-  if (typeof obj.groupby === 'undefined') {
+  if (typeof obj.groupby === 'undefined' || obj.groupby.length == 0) {
+    console.log('Groupby undefined');
     obj.groupby = '';
   }else{
+    console.log('Groupby nawet nie blisko undefined: "',obj.groupby,'""',obj.groupby.length );
     obj.groupby = 'group by ' + obj.groupby;
   }
 
@@ -305,6 +319,14 @@ function response(req,res,func)
     obj.orderby = decodeOrderby(obj.orderby);
   }
 
+  console.log("w response req.params: ", req.query);
+
+  if (typeof obj.groupby !== 'undefined'){
+    console.log("no jest rozne undeifned");
+    obj.groupby = decodeGroupby(obj.groupby);
+  }
+
+
   if (typeof obj.where !== 'undefined'){
     obj.where = decodeWhere(obj.where);
   }
@@ -312,6 +334,11 @@ function response(req,res,func)
   if (typeof func !== undefined) func(obj);
 
   let sql = generujSql(obj);
+  sendSql(res,sql);
+}
+
+function sendSql(res,sql)
+{
   const query = db.query(sql, (err, result) => {
     //console.log(result);
     if (err){console.error(err);  return res.send(err)};
@@ -331,9 +358,23 @@ function decodeOrderby(obj)
   return gotowy_obj;
 }
 
+function decodeGroupby(obj)
+{
+  console.log("seiema, jestesm w decodegroupby");
+  let groupby = obj;
+  gotowy_obj = '';
+  groupby.forEach((element,i) =>{
+    if (i > 0) element = ', '+element;
+    gotowy_obj += element;
+  });
+  return gotowy_obj;
+}
+
 function decodeWhere(obj)
 {
+  console.log("seiema, jestesm w decodewhere");
   let where = '';
+  console.log(obj);
     const name = Object.getOwnPropertyNames(obj);
     for (const el of name){
       console.log("W pętli: ",el,obj[el]);

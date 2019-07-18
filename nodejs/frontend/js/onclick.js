@@ -49,6 +49,13 @@ document.querySelector('#nav_saldo_na_miesiac')
     wszystkieTabelki[name] = new Table(new Data(name,name,`api/wydatki/${name}/query`));
   }
 
+document.querySelector('#nav_stan_na_miesiac')
+.onclick = e =>{
+    e.preventDefault();
+    let name = 'stan_na_miesiac';
+    wszystkieTabelki[name] = new Table(new Data(name,name,`api/wydatki/${name}/query`));
+  }
+
 document.querySelector('#nav_kto_ma_oddac')
 .onclick = e =>{
     e.preventDefault();

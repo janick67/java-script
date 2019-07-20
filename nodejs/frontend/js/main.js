@@ -24,13 +24,17 @@ const allElement = {};
 // allElement[name].data = new Data(name,name,`api/wydatki/${name}/query`)
 // allElement[name].graph = new Graph(allElement[name].data,config_stan_na_miesiac);
 
-let name = 'stan_na_miesiac';
+// let name = 'stan_na_miesiac';
+// allElement[name] = {};
+// allElement[name].data = new Data(name,name,`api/wydatki/${name}/query`)
+// allElement[name].graph = new Graph(allElement[name].data);
+
+
+let name = 'wydatki';
 allElement[name] = {};
-allElement[name].data = new Data(name,name,`api/wydatki/${name}/query`)
-allElement[name].graph = new Graph(allElement[name].data);
+allElement[name].data = new Data(name,name);
+allElement[name].table = new Table(allElement[name].data);
 
-
-//allElement['wydatki'].table = new Table(new Data("wydatki","wydatki"));
 // const tabelka = new Tabelka("wydatki","wydatki"); //głowna tabelka main z wszystkimi wydatkami
 // tabelka.adres += 'api/'+tabelka.sql_table+"/query";
 // -------------------------------------------KONIEC MAIN----------------------

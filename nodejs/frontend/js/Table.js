@@ -112,8 +112,8 @@ class Table{
 
     this.el.divBody.onclick = e => {
     const id = getClossestClass(e.target, 'mainDiv').getAttribute('id');
-    const kliknieta_tabelka = wszystkieTabelki[this.id];
-    // console.log('id:', id,'wszystkie: ', wszystkieTabelki[id]);
+    const kliknieta_tabelka = allElement[this.id].table;
+    // console.log('id:', id,'wszystkie: ', allElement[id].table);
     kliknieta_tabelka.filtr.ustaw(e.target);// do filtrowania według kliknietego
 
     if (e.target.tagName === 'SPAN' && e.target.parentElement.tagName === 'TH'  && e.offsetX > e.target.offsetWidth) {  //sprawdza klikniete bylo na obiekcie czy na prawo od niego jesli na prawo to znaczy ze to byl pseudo element bo jego nie ma w strukturze DOM

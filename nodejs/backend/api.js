@@ -203,7 +203,8 @@ app.get('/api/wydatki/group/query',(req,res) => {
 //SELECT b.miesiac, b.s_kwota, (SELECT sum(t.s_kwota) FROM (SELECT DATE_FORMAT(data, "%Y-%m") as miesiac, sum(kwota) as s_kwota FROM `wydatki` WHERE kogo = 'moje' GROUP BY DATE_FORMAT(data, "%Y-%m"))as t where t.miesiac <= b.miesiac) as sel FROM (SELECT DATE_FORMAT(data, "%Y-%m") as miesiac, sum(kwota) as s_kwota FROM `wydatki` WHERE kogo = 'moje' GROUP BY DATE_FORMAT(data, "%Y-%m")) as b order by 1,2
 app.get('/api/wydatki/stan_na_miesiac/query',(req,res) => {
   response(req,res, obj => {
-    obj.sql = "SELECT b.miesiac, b.s_kwota, (SELECT sum(t.s_kwota) FROM (SELECT DATE_FORMAT(data, \"%Y-%m\") as miesiac, sum(kwota) as s_kwota FROM `wydatki` WHERE kogo = 'moje' GROUP BY DATE_FORMAT(data, \"%Y-%m\"))as t where t.miesiac <= b.miesiac) as sel FROM (SELECT DATE_FORMAT(data, \"%Y-%m\") as miesiac, sum(kwota) as s_kwota FROM `wydatki` WHERE kogo = 'moje' GROUP BY DATE_FORMAT(data, \"%Y-%m\")) as b order by 1,2";
+   //obj.sql = "SELECT b.miesiac, (SELECT sum(t.s_kwota) FROM (SELECT DATE_FORMAT(data, '%Y-%m-%d') as miesiac, sum(kwota) as s_kwota FROM `wydatki` WHERE kogo = 'moje' GROUP BY DATE_FORMAT(data, '%Y-%m-%d'))as t where t.miesiac <= b.miesiac) as sel FROM (SELECT DATE_FORMAT(data, '%Y-%m-%d') as miesiac, sum(kwota) as s_kwota FROM `wydatki` WHERE kogo = 'moje' GROUP BY DATE_FORMAT(data, '%Y-%m-%d')) as b order by 1,2";
+    obj.sql = "SELECT b.miesiac, (SELECT sum(t.s_kwota) FROM (SELECT DATE_FORMAT(data, \"%Y-%m\") as miesiac, sum(kwota) as s_kwota FROM `wydatki` WHERE kogo = 'moje' GROUP BY DATE_FORMAT(data, \"%Y-%m\"))as t where t.miesiac <= b.miesiac) as sel FROM (SELECT DATE_FORMAT(data, \"%Y-%m\") as miesiac, sum(kwota) as s_kwota FROM `wydatki` WHERE kogo = 'moje' GROUP BY DATE_FORMAT(data, \"%Y-%m\")) as b order by 1,2";
   });
 });
 

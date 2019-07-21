@@ -25,7 +25,7 @@ const db = mysql.createConnection({
   host    : 'localhost',
   user    : 'janick67',
   password: 'janick67a',
-  database: 'jw_wydatki'
+  database: 'wydatki'
 })
 
 db.connect((err) => {
@@ -58,9 +58,10 @@ passport.use(new LocalStrategy(
         if (typeof user === 'undefined') {return done(true, false);}
         console.log('Użytkownik z bazy: ',user.email ,typeof user.email, user.password,typeof user.password);
         if(email == user.email && password == user.password) {
-          //console.log('Local strategy returned true')
+          console.log('Local strategy returned true')
           return done(false, user)
         }else{
+console.log('Local strategy returned false')
           return done(true, false);
         }
       });

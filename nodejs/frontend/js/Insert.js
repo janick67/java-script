@@ -34,6 +34,7 @@ Insert.prototype.przygotujInputy = function(){ //dodaje klasy, dataliste z podpo
 
 Insert.prototype.generujProponowane = function(){ //robi pętle po wszystkich rekordach z bazy i robi tak jakby distincta
   if (this.wygenerowane === 0) return this.generujObiekt(); // jeśli obiekt jeszcze nie jest wygenerowany to wygeneruj
+  console.log(this.all[0]);
   Object.getOwnPropertyNames(this.all[0]).forEach(el => { // wypełnia nazwami kolumn pisanymi małymi literami obiekt kolumn w którym później będą wszystkie dane odnosnie inputów
      this.kolumn[el.toLowerCase()] = {proponowane:[]};
   })

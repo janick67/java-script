@@ -11,6 +11,19 @@ class Table{
     this.data = data;
     this.id = this.data.id;
     this.filtr = null;
+    this.kolumnsToShow =  [{name:'Id',fieldInSql:'id',priority:0},
+                          {name:'Bank',fieldInSql:'bank',priority:3},
+                          {name:'Kwota',fieldInSql:'kwota',priority:1},
+                          {name:'Data',fieldInSql:'data',priority:2},
+                          {name:'Typ',fieldInSql:'typ',priority:2},
+                          {name:'Typ2',fieldInSql:'typ2',priority:3},
+                          {name:'Gdzie',fieldInSql:'gdzie',priority:4},
+                          {name:'Kogo',fieldInSql:'kogo',priority:4},
+                          {name:'Osoba',fieldInSql:'osoba',priority:0},
+                          {name:'Powiązane',fieldInSql:'powiazane',priority:0},
+                          {name:'Opis',fieldInSql:'opis',priority:4},
+                          {name:'Data wpisu',fieldInSql:'createdDate',priority:0},
+                          {name:'Użytkownik',fieldInSql:'userId',priority:0}];
     this.el = {}; // zawiera wszystkie elementy html
     docReady(()=>{
     this.init();
@@ -58,6 +71,11 @@ class Table{
     this.el.divBody.classList.add('divTable');
 
     this.el.table = document.createElement('table');
+    this.el.editButton = document.createElement('div');
+    this.el.editButton.setAttribute('class','editButton');
+    this.el.editButton.setAttribute('title','Edytuj układ tabelki');
+
+    this.el.table.appendChild(this.el.editButton);
     this.el.table.setAttribute('summary',this.nazwa);
 
     this.el.thead = document.createElement('thead');
@@ -121,6 +139,10 @@ class Table{
       }
     }
 
+    this.el.editButton.onclick = e =>{
+      $('#modal_edit_table').modal();
+    }
+
     this.el.thead.appendChild(this.el.trHeader);
     this.el.table.appendChild(this.el.thead);
     this.el.table.appendChild(this.el.tbody);
@@ -148,8 +170,8 @@ class Table{
     //console.log('resp = ' , this.data.resp.length);
     if (this.data.resp.length > 0)
     {
-      this.reloadBody();
       this.reloadHead();
+      this.reloadBody();
     }else
     {
       this.el.tbody.innerHTML = ''; //czyści body i wprowadza nowe dane
@@ -171,25 +193,24 @@ class Table{
   // ==============================================================================
   reloadHead(){
     // console.log(this.data.resp);
-    const headers = Object.getOwnPropertyNames(this.data.resp[0]);  //pobiera nagłówki kolumn w tabeli
-    if (!this.isChangeHead(headers)) return;
     this.el.trHeader.innerHTML = ''; //czyści body i wprowadza nowe dane
-    headers.forEach(el => {
+    this.kolumnsToShow.forEach(el => {
+      if(el.priority <= 0) return;
       const th = document.createElement('th');
-      th.classList.add(el);
+      th.classList.add(el.fieldInSql);
       const span = document.createElement('span');
-      span.innerText = el;
+      span.innerText = el.name;
       th.appendChild(span);  //tworzy element html
       this.el.trHeader.appendChild(th);             //dodaje ten element na koniec tr#head
     });
   }
   //--------------------------------------------------------------------------------------KONIEC reloadHead---------------------------
 
-  isChangeHead(newHeaders){
+  isChangeHead(newHeaders){//sprawdza czy nowy nagłowek rozni sie od tego w htmlu
     let change = false;
     newHeaders.forEach((el,i) => {
       if (typeof this.el.trHeader.children[i] == 'undefined') change = true; return;
-      if (this.el.trHeader.children[i].classList[0] == el) {change = true; return;}
+      if (this.el.trHeader.children[i].classList[0] !== el.fieldInSql || this.el.trHeader.children[i].innerText !== el.name) {change = true; return;}
     });
     if (change) return true;
     return false;
@@ -207,11 +228,16 @@ class Table{
   // Related .......: reloadHead()
   // ==============================================================================
   reloadBody(){
+    let trChild = allElement.wydatki.table.el.trHeader.children;
+    let headers = [];
+    for (let i = 0; i < trChild.length; i++){
+      headers.push(trChild[i].classList[0])
+    }
     this.el.tbody.innerHTML = ''; //czyści body i wprowadza nowe dane
     this.data.resp.forEach(row =>{
       const tr = document.createElement('tr');
       tr.classList.add('trBody');
-      for (const el in row){
+      headers.forEach(el=>{
         if (el === "data" || el === 'createdDate')  // data jest podawana w długim formacie więc go skracam
           row[el] = formatujDate(row[el]);
         if (row[el] === null || row[el] == 0) row[el] = ''; //nie chce wyświetlac zer i nulli
@@ -219,7 +245,7 @@ class Table{
         td.classList.add(el);
         td.innerText = row[el];
         tr.appendChild(td);
-      };
+      });
       this.el.tbody.appendChild(tr);
     });
   }

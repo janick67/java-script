@@ -181,37 +181,3 @@ th.Opis, td.Opis{
 select.form-control{
   width: auto;
 }
-
-#modal_edit_table{
-  background: rgb(238,238,238);
-overflow: hidden;
-}
-
-.container {
-  position: relative;
-  width: 320px;
-  height: 400px;
-  opacity: 0;
-  visibility: hidden;
-}
-
-.list-item {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 90px;
-  width: 100%;
-}
-
-.item-content {
-  height: 100%;
-  border: 0px solid rgba(123, 123, 123, 0.498039);
-  border-radius: 4px;
-  color: rgb(153, 153, 153);
-  line-height: 90px;
-  padding-left: 32px;
-  font-size: 24px;
-  font-weight: 400;
-  background-color: rgb(255, 255, 255);
-  box-shadow: rgba(0,0,0,0.2) 0px 1px 2px 0px;
-}

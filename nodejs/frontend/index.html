@@ -123,24 +123,23 @@
             <span>&times;</span>
           </button>
         </div>
-        <div class="modal-body">
-              <div class="accordion" id="accordionExample">
+        <div class="modal-body">  
+              <div id="et_accordion">
                   <div id='editTableList' class='list-group col'>
-
-                  <div id="toChange" class="card">
-                    <div class="card-header" id="headingOne" data-toggle="collapse" data-target="#kwota">
+                  <div id="et_template" class="card" style='display: none'>
+                    <div class="card-header" id="heading_{{kolumnsToShow.et_fieldInSql}}" data-toggle="collapse" data-target="#et_collapse_{{kolumnsToShow.et_fieldInSql}}">
                       <h5 class="mb-0">
                           <i class="fas fa-arrows-alt handle"></i>
-                          <span class="tc_showingName">Kwota</span>
+                          <span class="et_headerName">Kwota</span>
                       </h5>
                     </div>
-                    <div class="collapse hide" aria-labelledby="headingOne" data-parent="#accordionExample">
+                    <div class="collapse hide" id="et_collapse_{{kolumnsToShow.et_fieldInSql}}"  data-parent="#et_accordion"">
                       <div class="card-body">
                           <div class="form-group row">
                               <div class="col-sm-6">
                               <div class="form-check align-self-center">
-                                <input class="form-check-input" type="checkbox" id="et_show">
-                                <label class="form-check-label" for="et_show">
+                                <input class="form-check-input inputShow" type="checkbox" id="et_show_{{kolumnsToShow.et_fieldInSql}}">
+                                <label class="form-check-label" for="et_show_{{kolumnsToShow.et_fieldInSql}}">
                                   Widoczność
                                 </label>
                               </div>
@@ -148,25 +147,25 @@
                           </div>
                           <div class="form-group row">
                               <div class="col-sm-4">
-                              <label for="et_fieldinSql" >Pole w bazie</label>
-                                <input class="form-control" id="et_fieldInSql" placeholder="Pole w bazie">
+                              <label for="et_fieldinSql_{{kolumnsToShow.et_fieldInSql}}" >Pole w bazie</label>
+                                <input class="form-control inputField" id="et_fieldInSql_{{kolumnsToShow.et_fieldInSql}}" placeholder="Pole w bazie">
                               </div>
                               <div class="col-sm-4">
-                                <label for="et_priorytet" >Priorytet</label>
-                                  <input class="form-control" id="et_priorytet" placeholder="Priorytet">
+                                <label for="et_priority_{{kolumnsToShow.et_fieldInSql}}" >Priorytet</label>
+                                  <input class="form-control inputPriority" id="et_priority_{{kolumnsToShow.et_fieldInSql}}" placeholder="Priorytet">
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="et_name">Nazwa</label>
-                                      <input class="form-control" id="et_name" placeholder="Nazwa">
+                                    <label for="et_name_{{kolumnsToShow.et_fieldInSql}}">Nazwa</label>
+                                      <input class="form-control inputName" id="et_name_{{kolumnsToShow.et_fieldInSql}}" placeholder="Nazwa">
                                     </div>
                           </div>
                       </div>
                     </div>
                   </div>
-              </div>
+</div>
           </div>
           <br />
-          <button type="submit" class="btn btn-primary">Submit</button>
+          <button id='et_submit' type="submit" class="btn btn-primary">Submit</button>
         </div>
       </div>
     </div>

@@ -11,19 +11,19 @@ class Table{
     this.data = data;
     this.id = this.data.id;
     this.filtr = null;
-    this.kolumnsToShow =  [{name:'Id',fieldInSql:'id',priority:0},
-                          {name:'Bank',fieldInSql:'bank',priority:3},
-                          {name:'Kwota',fieldInSql:'kwota',priority:1},
-                          {name:'Data',fieldInSql:'data',priority:2},
-                          {name:'Typ',fieldInSql:'typ',priority:2},
-                          {name:'Typ2',fieldInSql:'typ2',priority:3},
-                          {name:'Gdzie',fieldInSql:'gdzie',priority:4},
-                          {name:'Kogo',fieldInSql:'kogo',priority:4},
-                          {name:'Osoba',fieldInSql:'osoba',priority:0},
-                          {name:'Powiązane',fieldInSql:'powiazane',priority:0},
-                          {name:'Opis',fieldInSql:'opis',priority:4},
-                          {name:'Data wpisu',fieldInSql:'createdDate',priority:0},
-                          {name:'Użytkownik',fieldInSql:'userId',priority:0}];
+    this.kolumnsToShow =  [{param:{name:'Id',show:true,fieldInSql:'id',priority:0},el:{}},
+                          {param:{name:'Bank',show:true,fieldInSql:'bank',priority:3},el:{}},
+                          {param:{name:'Kwota',show:true,fieldInSql:'kwota',priority:1},el:{}},
+                          {param:{name:'Data',show:true,fieldInSql:'data',priority:2},el:{}},
+                          {param:{name:'Typ',show:true,fieldInSql:'typ',priority:2},el:{}},
+                          {param:{name:'Typ2',show:true,fieldInSql:'typ2',priority:3},el:{}},
+                          {param:{name:'Gdzie',show:true,fieldInSql:'gdzie',priority:4},el:{}},
+                          {param:{name:'Kogo',show:true,fieldInSql:'kogo',priority:4},el:{}},
+                          {param:{name:'Osoba',show:true,fieldInSql:'osoba',priority:0},el:{}},
+                          {param:{name:'Powiązane',show:true,fieldInSql:'powiazane',priority:0},el:{}},
+                          {param:{name:'Opis',show:true,fieldInSql:'opis',priority:4},el:{}}]
+                          //{name:'Data wpisu',fieldInSql:'createdDate',priority:0},
+                          //{name:'Użytkownik',fieldInSql:'userId',priority:0}];
     this.el = {}; // zawiera wszystkie elementy html
     docReady(()=>{
     this.init();
@@ -140,7 +140,14 @@ class Table{
     }
 
     this.el.editButton.onclick = e =>{
+      this.createEditTableHTML();
       $('#modal_edit_table').modal();
+    }
+
+    document.querySelector('#et_submit').onclick = e =>{
+      this.kolumnsToShow = this.readEditTable();
+      this.reload();
+      $('#modal_edit_table').modal('hide');
     }
 
     this.el.thead.appendChild(this.el.trHeader);
@@ -153,6 +160,74 @@ class Table{
   }
 
   //--------------------------------------------------------------------------------------KONIEC createHTML---------------------------
+
+
+  createEditTableHTML(){
+    let et_template = document.querySelector('div#et_template');
+    let parent = et_template.parentNode;
+    parent.innerHTML = '';      //Czyścimy parent node i zostawiamy tylko template żeby za każdym razem był od nowa generowany
+    parent.append(et_template);
+    //console.log(this.kolumnsToShow);
+    this.kolumnsToShow.forEach((element)=>{
+      let el = element.param;
+      let newelement = {};
+      let globalCard = et_template.cloneNode(true);
+
+      globalCard.id = el.fieldInSql;
+      globalCard.querySelector('.et_headerName').innerText = el.name;
+      globalCard.innerHTML = globalCard.innerHTML.replace(/{{kolumnsToShow.et_fieldInSql}}/g,el.fieldInSql)
+      newelement.inputShow = globalCard.querySelector('.inputShow');
+      newelement.inputShow.checked = el.show;
+      newelement.inputField = globalCard.querySelector('.inputField');
+      newelement.inputField.value = el.fieldInSql;
+      newelement.inputPriority = globalCard.querySelector('.inputPriority');
+      newelement.inputPriority.value = el.priority;
+      newelement.inputName = globalCard.querySelector('.inputName');
+      newelement.inputName.value = el.name;
+      globalCard.style.display ='';
+      //console.log(newelement.innerHTML);
+      //console.log(et_template.parentElement,newelement);
+      et_template.parentElement.append(globalCard);
+      newelement[globalCard] = globalCard;
+      element.el = newelement;
+    })
+    //console.log(this.kolumnsToShow)
+
+  new Sortable(document.querySelector('#editTableList'), {
+    handle: '.handle', // handle's class
+    animation: 500
+});
+
+  }
+
+  readEditTableHTML()
+  {
+    let tab = [];
+    let el = document.querySelector('div#et_template').parentNode.children;
+    for (let i = 1; i < el.length; i++){ // od 1 żeby pominąć template
+     tab.push(this.kolumnsToShow[this.findInTab(el[i].id)]);
+    }
+    return tab;
+  }
+  
+  findInTab(value){
+    let tab = this.kolumnsToShow;
+    for (let i = 0; i < tab.length; i++){
+      if (tab[i].param['fieldInSql'] == value) return i;
+    }
+  }
+
+  readEditTable(){
+    this.kolumnsToShow.forEach(element =>{
+      let el = element.param;
+      el.show = element.el.inputShow.checked;
+      el.name = element.el.inputName.value
+      el.priority = element.el.inputPriority.value
+      el.fieldInSql = element.el.inputField.value
+    })
+    return this.readEditTableHTML();
+  }
+
 
   //------------------------------------------------------------------------------------------reload------------------------------------
   // #FUNCTION# ===================================================================
@@ -193,9 +268,12 @@ class Table{
   // ==============================================================================
   reloadHead(){
     // console.log(this.data.resp);
+    console.log(this.kolumnsToShow);
+    
     this.el.trHeader.innerHTML = ''; //czyści body i wprowadza nowe dane
-    this.kolumnsToShow.forEach(el => {
-      if(el.priority <= 0) return;
+    this.kolumnsToShow.forEach(element => {
+      let el = element.param;
+      if(!el.show) return;
       const th = document.createElement('th');
       th.classList.add(el.fieldInSql);
       const span = document.createElement('span');

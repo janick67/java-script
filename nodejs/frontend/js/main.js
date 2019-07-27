@@ -10,12 +10,7 @@ const uri = document.location.origin + "/";
   // .then(res => res.json())
   // .then(res => { console.log(res)});
 
-  new Sortable(document.querySelector('#editTableList'), {
-    handle: '.handle', // handle's class
-    animation: 150
-});
 
-$('#modal_edit_table').modal();
 
 
   //-----------------------------------------MAIN----------------------------------
@@ -41,6 +36,7 @@ let name = 'wydatki';
 allElement[name] = {};
 allElement[name].data = new Data(name,name);
 allElement[name].table = new Table(allElement[name].data);
+
 
 // const tabelka = new Tabelka("wydatki","wydatki"); //głowna tabelka main z wszystkimi wydatkami
 // tabelka.adres += 'api/'+tabelka.sql_table+"/query";

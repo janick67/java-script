@@ -30,6 +30,15 @@ position: absolute;
   color: green;
 }
 
+.eye{
+  position: relative;
+  float: right;
+  margin:0.5%;
+   font-family: "Font Awesome 5 Free";
+   font-size: 120%;
+   color: grey;
+}
+
 tr.trHeader span::after {
   font-family: "Font Awesome 5 Free";
   content: "";

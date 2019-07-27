@@ -46,6 +46,7 @@ class Table{
     this.filtr = new Filtr(this);
     this.reload();
     this.show();
+    this.createEditTableHTML();
   }
   //----------------------------------------------------------------------------------------Koniec init------------------------------------
 
@@ -176,8 +177,6 @@ class Table{
       globalCard.id = el.fieldInSql;
       globalCard.querySelector('.et_headerName').innerText = el.name;
       globalCard.innerHTML = globalCard.innerHTML.replace(/{{kolumnsToShow.et_fieldInSql}}/g,el.fieldInSql)
-      newelement.inputShow = globalCard.querySelector('.inputShow');
-      newelement.inputShow.checked = el.show;
       newelement.inputField = globalCard.querySelector('.inputField');
       newelement.inputField.value = el.fieldInSql;
       newelement.inputPriority = globalCard.querySelector('.inputPriority');
@@ -185,6 +184,7 @@ class Table{
       newelement.inputName = globalCard.querySelector('.inputName');
       newelement.inputName.value = el.name;
       globalCard.style.display ='';
+      globalCard.querySelector('span.eye').onclick = this.et_eye;
       //console.log(newelement.innerHTML);
       //console.log(et_template.parentElement,newelement);
       et_template.parentElement.append(globalCard);
@@ -198,6 +198,17 @@ class Table{
     animation: 500
 });
 
+  }
+
+  et_eye = e =>{
+    e.stopPropagation();
+    let eye = '';
+    let eyenone = '';
+    if(e.target.innerHTML == eye){
+       e.target.innerHTML = eyenone;
+      }else{
+       e.target.innerHTML = eye;
+      } 
   }
 
   readEditTableHTML()

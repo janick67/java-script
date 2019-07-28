@@ -261,11 +261,13 @@ app.post('/api/wydatki', (req,res) => {
 
 app.post('/api/columns', (req,res) => {
   let {body} = req;
+  console.log('body: ',body);
+  
   let  param = {};
   param.col_name = body.name;
-  param.col_json = JSON.stringify(body.kolumns);
+  param.col_json = JSON.stringify(body.columns);
   param.col_userId = req.user.id;
-  console.log(param);
+  console.log('param: ',param);
   
   const sql = 'INSERT INTO columns SET ?';
   const query = db.query(sql,param, (err, result) => {

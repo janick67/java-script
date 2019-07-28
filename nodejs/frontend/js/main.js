@@ -37,7 +37,6 @@ allElement[name] = {};
 allElement[name].data = new Data(name,name);
 allElement[name].table = new Table(allElement[name].data);
 
-$('#modal_edit_table').modal();
 // const tabelka = new Tabelka("wydatki","wydatki"); //głowna tabelka main z wszystkimi wydatkami
 // tabelka.adres += 'api/'+tabelka.sql_table+"/query";
 // -------------------------------------------KONIEC MAIN----------------------

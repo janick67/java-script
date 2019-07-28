@@ -166,7 +166,6 @@ class Table{
           element.el = {};
           this.columnsToShow.push(element);
         })
-        console.log('zaladowalem: ', this.columnsToShow);
       }else{
         this.columnsToShow =  [{param:{name:'Id',show:true,fieldInSql:'id',priority:0},el:{}},
         {param:{name:'Bank',show:true,fieldInSql:'bank',priority:3},el:{}},
@@ -329,8 +328,6 @@ class Table{
     
     this.el.trHeader.innerHTML = ''; //czyści body i wprowadza nowe dane
     this.columnsToShow.forEach(element => {
-      console.log(element);
-      
       let el = element.param;
       if(!el.show) return;
       const th = document.createElement('th');

@@ -30,14 +30,26 @@ position: absolute;
   color: green;
 }
 
-.eye{
+.inputShow.show::after{
   position: relative;
   float: right;
   margin:0.5%;
    font-family: "Font Awesome 5 Free";
+   content: '';  /* eye */
    font-size: 120%;
    color: grey;
 }
+
+.inputShow.hide::after{
+  position: relative;
+  float: right;
+  margin:0.5%;
+   font-family: "Font Awesome 5 Free";
+   content: ''; /* slashed eye */
+   font-size: 120%;
+   color: grey;
+}
+
 
 tr.trHeader span::after {
   font-family: "Font Awesome 5 Free";

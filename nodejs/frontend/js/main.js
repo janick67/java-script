@@ -76,12 +76,16 @@ function sprawdz(dane){ // funkcja walidujaca dane, zwraca tablice z ewentualnym
 }
 
 function send_insert(adres,obiekt){// wysyła dane postem, w obiekcie sa dane ktore zostana wyslane do sql
-return fetch(adres, {
+  let body = '';
+  if (typeof obiekt == 'string') body = obiekt;
+  else body = JSON.stringify(obiekt);
+
+  return fetch(adres, {
         method: "post",
         headers: {
             "Content-type": "application/json; charset=UTF-8"
         },
-        body: JSON.stringify(obiekt)
+        body: body
     })
     .then(resp => resp.json())
   }

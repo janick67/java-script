@@ -147,6 +147,7 @@ class Table{
 
     document.querySelector('#et_submit').onclick = e =>{
       this.kolumnsToShow = this.readEditTable();
+      this.saveEditTable();
       this.reload();
       $('#modal_edit_table').modal('hide');
     }
@@ -183,8 +184,10 @@ class Table{
       newelement.inputPriority.value = el.priority;
       newelement.inputName = globalCard.querySelector('.inputName');
       newelement.inputName.value = el.name;
+      newelement.inputShow = globalCard.querySelector('.inputShow');
+      newelement.inputShow.classList.add(el.show?'show':'hide');
       globalCard.style.display ='';
-      globalCard.querySelector('span.eye').onclick = this.et_eye;
+      globalCard.querySelector('span.inputShow').onclick = this.et_show;
       //console.log(newelement.innerHTML);
       //console.log(et_template.parentElement,newelement);
       et_template.parentElement.append(globalCard);
@@ -200,15 +203,17 @@ class Table{
 
   }
 
-  et_eye = e =>{
+  et_show = e =>{
     e.stopPropagation();
-    let eye = '';
-    let eyenone = '';
-    if(e.target.innerHTML == eye){
-       e.target.innerHTML = eyenone;
-      }else{
-       e.target.innerHTML = eye;
-      } 
+    let list = e.target.classList;
+    if (list.contains('show')) 
+    {
+      list.add('hide');
+      list.remove('show');
+    }else{
+      list.remove('hide');
+      list.add('show');
+    }
   }
 
   readEditTableHTML()
@@ -218,6 +223,7 @@ class Table{
     for (let i = 1; i < el.length; i++){ // od 1 żeby pominąć template
      tab.push(this.kolumnsToShow[this.findInTab(el[i].id)]);
     }
+     
     return tab;
   }
   
@@ -231,12 +237,34 @@ class Table{
   readEditTable(){
     this.kolumnsToShow.forEach(element =>{
       let el = element.param;
-      el.show = element.el.inputShow.checked;
+     // console.log(element.el.inputShow,element.el.inputShow.classList.contains('show'));
+      
+      el.show = element.el.inputShow.classList.contains('show');
       el.name = element.el.inputName.value
       el.priority = element.el.inputPriority.value
       el.fieldInSql = element.el.inputField.value
     })
+
     return this.readEditTableHTML();
+
+  }
+
+  saveEditTable(){
+    let tab = this.kolumnsToShow;
+    tab.name = 'szablon';
+    let data = JSON.stringify(tab, (key,value) =>{
+      if (key == "el") return undefined;
+      return value;
+    });
+
+    send_insert(uri+"api/kolumns",obj) 
+      .then(res => { //sprawdzam odpowiedz bo to że jest to jeszcze nie znaczy że jest dobra
+        if (typeof res.id !== 'undefined' && res.id > -1){  //jeśli serwer zwrócił nam id nowo dodanego rekordu to jest ok
+          aktualna_tabelka.table.reload() // może jeszcze nie działać, nie przypisuję nic do zmiennej aktualna tabelka
+          //location.reload();
+          this.wyczysc(); //czyszczę bo jak już dodane to nie trzeba mi już tych danych
+        }else{console.error(res);}
+      }).fail(err => console.error(err))
   }
 
 
@@ -279,7 +307,7 @@ class Table{
   // ==============================================================================
   reloadHead(){
     // console.log(this.data.resp);
-    console.log(this.kolumnsToShow);
+    //console.log(this.kolumnsToShow);
     
     this.el.trHeader.innerHTML = ''; //czyści body i wprowadza nowe dane
     this.kolumnsToShow.forEach(element => {

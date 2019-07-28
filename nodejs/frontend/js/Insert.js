@@ -72,7 +72,8 @@ Insert.prototype.czytajIWyslij = function(){ // wczytuje dane z imputów, wysył
       send_insert(uri+"api/wydatki",obj) //jeśli jest ok to wysyłam
       .then(res => { //sprawdzam odpowiedz bo to że jest to jeszcze nie znaczy że jest dobra
         if (typeof res.id !== 'undefined' && res.id > -1){  //jeśli serwer zwrócił nam id nowo dodanego rekordu to jest ok
-          location.reload();
+          aktualna_tabelka.table.reload() // może jeszcze nie działać, nie przypisuję nic do zmiennej aktualna tabelka
+          //location.reload();
           this.wyczysc(); //czyszczę bo jak już dodane to nie trzeba mi już tych danych
         }else{console.error(res);}
       }).fail(err => console.error(err))

@@ -14,7 +14,7 @@ class Data{
   }
 
   load(){
-    console.trace(this.address,this.param);
+    //console.trace(this.address,this.param);
     return getJson(this.address,this.param) // pobiera dane z serwera
     .then(resp => {
       this.resp = resp;

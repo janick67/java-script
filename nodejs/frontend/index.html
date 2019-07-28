@@ -13,7 +13,9 @@
   <script src="../js/lib/jquery.min.js"></script>
   <script src="../js/lib/jquery-ui.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.10.0-rc3/Sortable.min.js"></script>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
 </head>
@@ -112,11 +114,63 @@
     </div>
   </div>
 
+  <div class="modal fade" id="modal_edit_table">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title">Edytuj tabelke</h2>
+          <button type="button" class="close" data-dismiss="modal">
+            <span>&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">  
+              <div id="et_accordion">
+                  <div id='editTableList' class='list-group col'>
+                  <div id="et_template" class="card" style='display: none'>
+                    <div class="card-header handle " id= "heading_{{kolumnsToShow.et_fieldInSql}}" data-toggle="collapse" data-target="#et_collapse_{{kolumnsToShow.et_fieldInSql}}">
+                      <h5 class="mb-0">
+                          <i class="fas fa-arrows-alt handle"></i>
+                          <span class="et_headerName">Kwota</span>
+                          <span class="inputShow"></span>
+                      </h5>
+                    </div>
+                    <div class="collapse hide" id="et_collapse_{{kolumnsToShow.et_fieldInSql}}"  data-parent="#et_accordion"">
+                      <div class="card-body">
+                          <div class="form-group row">
+                              <div class="col-sm-4">
+                              <label for="et_fieldinSql_{{kolumnsToShow.et_fieldInSql}}" >Pole w bazie</label>
+                                <input class="form-control inputField" id="et_fieldInSql_{{kolumnsToShow.et_fieldInSql}}" placeholder="Pole w bazie">
+                              </div>
+                              <div class="col-sm-4">
+                                <label for="et_priority_{{kolumnsToShow.et_fieldInSql}}" >Priorytet</label>
+                                  <input class="form-control inputPriority" id="et_priority_{{kolumnsToShow.et_fieldInSql}}" placeholder="Priorytet">
+                                </div>
+                                <div class="col-sm-4">
+                                    <label for="et_name_{{kolumnsToShow.et_fieldInSql}}">Nazwa</label>
+                                      <input class="form-control inputName" id="et_name_{{kolumnsToShow.et_fieldInSql}}" placeholder="Nazwa">
+                                    </div>
+                          </div>
+                      </div>
+                    </div>
+                  </div>
+</div>
+          </div>
+          <br />
+          <button id='et_submit' type="submit" class="btn btn-primary">Submit</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div id="tableContainer">
+    <div style="width: 90%; height: 80%; padding-left:10%; padding-right:10%; padding-top:2%">
+      <canvas id="myChart" ></canvas>
+    </div>
   </div>
 
   <script src="../js/Data.js"></script>
   <script src="../js/Table.js"></script>
+  <script src="../js/Graph.js"></script>
   <script src="../js/Group.js"></script>
   <script src="../js/Filtr.js"></script>
   <script src="../js/Insert.js"></script>

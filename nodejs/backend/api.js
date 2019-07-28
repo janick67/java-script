@@ -25,7 +25,7 @@ const db = mysql.createConnection({
   host    : 'localhost',
   user    : 'janick67',
   password: 'janick67a',
-  database: 'jw_wydatki'
+  database: 'wydatki'
 })
 
 db.connect((err) => {
@@ -58,9 +58,10 @@ passport.use(new LocalStrategy(
         if (typeof user === 'undefined') {return done(true, false);}
         console.log('Użytkownik z bazy: ',user.email ,typeof user.email, user.password,typeof user.password);
         if(email == user.email && password == user.password) {
-          //console.log('Local strategy returned true')
+          console.log('Local strategy returned true')
           return done(false, user)
         }else{
+console.log('Local strategy returned false')
           return done(true, false);
         }
       });
@@ -203,7 +204,8 @@ app.get('/api/wydatki/group/query',(req,res) => {
 //SELECT b.miesiac, b.s_kwota, (SELECT sum(t.s_kwota) FROM (SELECT DATE_FORMAT(data, "%Y-%m") as miesiac, sum(kwota) as s_kwota FROM `wydatki` WHERE kogo = 'moje' GROUP BY DATE_FORMAT(data, "%Y-%m"))as t where t.miesiac <= b.miesiac) as sel FROM (SELECT DATE_FORMAT(data, "%Y-%m") as miesiac, sum(kwota) as s_kwota FROM `wydatki` WHERE kogo = 'moje' GROUP BY DATE_FORMAT(data, "%Y-%m")) as b order by 1,2
 app.get('/api/wydatki/stan_na_miesiac/query',(req,res) => {
   response(req,res, obj => {
-    obj.sql = "SELECT b.miesiac, b.s_kwota, (SELECT sum(t.s_kwota) FROM (SELECT DATE_FORMAT(data, \"%Y-%m\") as miesiac, sum(kwota) as s_kwota FROM `wydatki` WHERE kogo = 'moje' GROUP BY DATE_FORMAT(data, \"%Y-%m\"))as t where t.miesiac <= b.miesiac) as sel FROM (SELECT DATE_FORMAT(data, \"%Y-%m\") as miesiac, sum(kwota) as s_kwota FROM `wydatki` WHERE kogo = 'moje' GROUP BY DATE_FORMAT(data, \"%Y-%m\")) as b order by 1,2";
+   //obj.sql = "SELECT b.miesiac, (SELECT sum(t.s_kwota) FROM (SELECT DATE_FORMAT(data, '%Y-%m-%d') as miesiac, sum(kwota) as s_kwota FROM `wydatki` WHERE kogo = 'moje' GROUP BY DATE_FORMAT(data, '%Y-%m-%d'))as t where t.miesiac <= b.miesiac) as sel FROM (SELECT DATE_FORMAT(data, '%Y-%m-%d') as miesiac, sum(kwota) as s_kwota FROM `wydatki` WHERE kogo = 'moje' GROUP BY DATE_FORMAT(data, '%Y-%m-%d')) as b order by 1,2";
+    obj.sql = "SELECT b.miesiac, (SELECT sum(t.s_kwota) FROM (SELECT DATE_FORMAT(data, \"%Y-%m\") as miesiac, sum(kwota) as s_kwota FROM `wydatki` WHERE kogo = 'moje' GROUP BY DATE_FORMAT(data, \"%Y-%m\"))as t where t.miesiac <= b.miesiac) as sel FROM (SELECT DATE_FORMAT(data, \"%Y-%m\") as miesiac, sum(kwota) as s_kwota FROM `wydatki` WHERE kogo = 'moje' GROUP BY DATE_FORMAT(data, \"%Y-%m\")) as b order by 1,2";
   });
 });
 
@@ -256,6 +258,31 @@ app.post('/api/wydatki', (req,res) => {
     res.send({id:result.insertId});
   })
 })
+
+app.post('/api/columns', (req,res) => {
+  let {body} = req;
+  console.log('body: ',body);
+  
+  let  param = {};
+  param.col_name = body.name;
+  param.col_json = JSON.stringify(body.columns);
+  param.col_userId = req.user.id;
+  console.log('param: ',param);
+  
+  const sql = 'INSERT INTO columns SET ?';
+  const query = db.query(sql,param, (err, result) => {
+    if (err) {
+      console.error(aktualnaData()+err);
+      return res.send(err);
+    }
+    res.send({id:result.insertId});
+  })
+})
+
+app.get('/api/columns/',(req,res) => {
+  let sql = `SELECT * FROM columns where col_userId = ${req.user.id}`;
+  sendSql(res,sql);
+});
 
 app.use(express.static('../frontend/'));
 

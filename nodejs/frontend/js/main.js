@@ -11,15 +11,32 @@ const uri = document.location.origin + "/";
   // .then(res => { console.log(res)});
 
 
+
+
   //-----------------------------------------MAIN----------------------------------
 let aktualna_tabelka = null; // zawiera wksaźnik do tabelki ktora jest aktualnie wyswietlana uzytkownikowi
 let insert = new Insert();
 docReady(()=>{
 insert.init();
 })
-const wszystkieTabelki = {};
+const allElement = {};
 
-wszystkieTabelki['wydatki'] = new Table(new Data("wydatki","wydatki"));
+// let name = 'stan_na_miesiac';
+// allElement[name] = {};
+// allElement[name].data = new Data(name,name,`api/wydatki/${name}/query`)
+// allElement[name].graph = new Graph(allElement[name].data,config_stan_na_miesiac);
+
+// let name = 'stan_na_miesiac';
+// allElement[name] = {};
+// allElement[name].data = new Data(name,name,`api/wydatki/${name}/query`)
+// allElement[name].graph = new Graph(allElement[name].data);
+
+
+let name = 'wydatki';
+allElement[name] = {};
+allElement[name].data = new Data(name,name);
+allElement[name].table = new Table(allElement[name].data);
+
 // const tabelka = new Tabelka("wydatki","wydatki"); //głowna tabelka main z wszystkimi wydatkami
 // tabelka.adres += 'api/'+tabelka.sql_table+"/query";
 // -------------------------------------------KONIEC MAIN----------------------
@@ -58,12 +75,16 @@ function sprawdz(dane){ // funkcja walidujaca dane, zwraca tablice z ewentualnym
 }
 
 function send_insert(adres,obiekt){// wysyła dane postem, w obiekcie sa dane ktore zostana wyslane do sql
-return fetch(adres, {
+  let body = '';
+  if (typeof obiekt == 'string') body = obiekt;
+  else body = JSON.stringify(obiekt);
+
+  return fetch(adres, {
         method: "post",
         headers: {
             "Content-type": "application/json; charset=UTF-8"
         },
-        body: JSON.stringify(obiekt)
+        body: body
     })
     .then(resp => resp.json())
   }
@@ -80,7 +101,7 @@ function leadingZero(i) {
 function wyloguj()
 {
   fetch(uri+"logout");
-  aktualna_tabelka.odswiez();
+  location.href = '/'
 }
 
 function getJson(adres,ob)

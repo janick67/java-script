@@ -11,7 +11,11 @@ class Table{
     this.data = data;
     this.id = this.data.id;
     this.filtr = null;
+    this.columnsReady = false;
+    this.columnsToShow = [];
     this.el = {}; // zawiera wszystkie elementy html
+    this.getColumns();
+   // let load = ()=>{if (typeof this.getColumns setTimeout(alertFunc, 3000)};
     docReady(()=>{
     this.init();
     })
@@ -33,6 +37,7 @@ class Table{
     this.filtr = new Filtr(this);
     this.reload();
     this.show();
+    this.createEditTableHTML();
   }
   //----------------------------------------------------------------------------------------Koniec init------------------------------------
 
@@ -58,6 +63,11 @@ class Table{
     this.el.divBody.classList.add('divTable');
 
     this.el.table = document.createElement('table');
+    this.el.editButton = document.createElement('div');
+    this.el.editButton.setAttribute('class','editButton');
+    this.el.editButton.setAttribute('title','Edytuj układ tabelki');
+
+    this.el.table.appendChild(this.el.editButton);
     this.el.table.setAttribute('summary',this.nazwa);
 
     this.el.thead = document.createElement('thead');
@@ -112,13 +122,25 @@ class Table{
 
     this.el.divBody.onclick = e => {
     const id = getClossestClass(e.target, 'mainDiv').getAttribute('id');
-    const kliknieta_tabelka = wszystkieTabelki[this.id];
-    // console.log('id:', id,'wszystkie: ', wszystkieTabelki[id]);
+    const kliknieta_tabelka = allElement[this.id].table;
+    // console.log('id:', id,'wszystkie: ', allElement[id].table);
     kliknieta_tabelka.filtr.ustaw(e.target);// do filtrowania według kliknietego
 
     if (e.target.tagName === 'SPAN' && e.target.parentElement.tagName === 'TH'  && e.offsetX > e.target.offsetWidth) {  //sprawdza klikniete bylo na obiekcie czy na prawo od niego jesli na prawo to znaczy ze to byl pseudo element bo jego nie ma w strukturze DOM
             kliknieta_tabelka.sortuj(e.target) //do sortowania według kliknietego
       }
+    }
+
+    this.el.editButton.onclick = e =>{
+      this.createEditTableHTML();
+      $('#modal_edit_table').modal();
+    }
+
+    document.querySelector('#et_submit').onclick = e =>{
+      this.columnsToShow = this.readEditTable();
+      this.saveEditTable();
+      this.reload();
+      $('#modal_edit_table').modal('hide');
     }
 
     this.el.thead.appendChild(this.el.trHeader);
@@ -131,6 +153,136 @@ class Table{
   }
 
   //--------------------------------------------------------------------------------------KONIEC createHTML---------------------------
+
+  getColumns(){
+    getJson(uri + "api/columns")
+    .then(resp => {
+      if (resp.length > 0){
+        this.columnsReady = true;
+        let obj =  JSON.parse(resp[resp.length-1].col_json);
+        obj.forEach(el => {     
+          let element = {};
+          element.param = el;
+          element.el = {};
+          this.columnsToShow.push(element);
+        })
+      }else{
+        this.columnsToShow =  [{param:{name:'Id',show:true,fieldInSql:'id',priority:0},el:{}},
+        {param:{name:'Bank',show:true,fieldInSql:'bank',priority:3},el:{}},
+        {param:{name:'Kwota',show:true,fieldInSql:'kwota',priority:1},el:{}},
+        {param:{name:'Data',show:true,fieldInSql:'data',priority:2},el:{}},
+        {param:{name:'Typ',show:true,fieldInSql:'typ',priority:2},el:{}},
+        {param:{name:'Typ2',show:true,fieldInSql:'typ2',priority:3},el:{}},
+        {param:{name:'Gdzie',show:true,fieldInSql:'gdzie',priority:4},el:{}},
+        {param:{name:'Kogo',show:true,fieldInSql:'kogo',priority:4},el:{}},
+        {param:{name:'Osoba',show:true,fieldInSql:'osoba',priority:0},el:{}},
+        {param:{name:'Powiązane',show:true,fieldInSql:'powiazane',priority:0},el:{}},
+        {param:{name:'Opis',show:true,fieldInSql:'opis',priority:4},el:{}}]
+        //{name:'Data wpisu',fieldInSql:'createdDate',priority:0},
+        //{name:'Użytkownik',fieldInSql:'userId',priority:0}];
+      }
+    }).catch(err => {console.error(err);})
+  }
+
+  createEditTableHTML(){
+    let et_template = document.querySelector('div#et_template');
+    let parent = et_template.parentNode;
+    parent.innerHTML = '';      //Czyścimy parent node i zostawiamy tylko template żeby za każdym razem był od nowa generowany
+    parent.append(et_template);
+    //console.log(this.columnsToShow);
+    this.columnsToShow.forEach((element)=>{
+      let el = element.param;
+      let newelement = {};
+      let globalCard = et_template.cloneNode(true);
+
+      globalCard.id = el.fieldInSql;
+      globalCard.querySelector('.et_headerName').innerText = el.name;
+      globalCard.innerHTML = globalCard.innerHTML.replace(/{{columnsToShow.et_fieldInSql}}/g,el.fieldInSql)
+      newelement.inputField = globalCard.querySelector('.inputField');
+      newelement.inputField.value = el.fieldInSql;
+      newelement.inputPriority = globalCard.querySelector('.inputPriority');
+      newelement.inputPriority.value = el.priority;
+      newelement.inputName = globalCard.querySelector('.inputName');
+      newelement.inputName.value = el.name;
+      newelement.inputShow = globalCard.querySelector('.inputShow');
+      newelement.inputShow.classList.add(el.show?'show':'hide');
+      globalCard.style.display ='';
+      globalCard.querySelector('span.inputShow').onclick = this.et_show;
+      //console.log(newelement.innerHTML);
+      //console.log(et_template.parentElement,newelement);
+      et_template.parentElement.append(globalCard);
+      newelement[globalCard] = globalCard;
+      element.el = newelement;
+    })
+    //console.log(this.columnsToShow)
+
+  new Sortable(document.querySelector('#editTableList'), {
+    handle: '.handle', // handle's class
+    animation: 500
+});
+
+  }
+
+  et_show = e =>{
+    e.stopPropagation();
+    let list = e.target.classList;
+    if (list.contains('show')) 
+    {
+      list.add('hide');
+      list.remove('show');
+    }else{
+      list.remove('hide');
+      list.add('show');
+    }
+  }
+
+  readEditTableHTML()
+  {
+    let tab = [];
+    let el = document.querySelector('div#et_template').parentNode.children;
+    for (let i = 1; i < el.length; i++){ // od 1 żeby pominąć template
+     tab.push(this.columnsToShow[this.findInTab(el[i].id)]);
+    }
+     
+    return tab;
+  }
+  
+  findInTab(value){
+    let tab = this.columnsToShow;
+    for (let i = 0; i < tab.length; i++){
+      if (tab[i].param['fieldInSql'] == value) return i;
+    }
+  }
+
+  readEditTable(){
+    this.columnsToShow.forEach(element =>{
+      let el = element.param;
+     // console.log(element.el.inputShow,element.el.inputShow.classList.contains('show'));
+      
+      el.show = element.el.inputShow.classList.contains('show');
+      el.name = element.el.inputName.value
+      el.priority = element.el.inputPriority.value
+      el.fieldInSql = element.el.inputField.value
+    })
+
+    return this.readEditTableHTML();
+
+  }
+
+  saveEditTable(){
+    let tab = {name:'szablon',columns:[]}
+    this.columnsToShow.forEach(val => {
+      tab.columns.push(val.param);
+    })
+    let data = JSON.stringify(tab);
+    send_insert(uri+"api/columns",data) 
+      .then(res => { //sprawdzam odpowiedz bo to że jest to jeszcze nie znaczy że jest dobra
+        if (typeof res.id !== 'undefined' && res.id > -1){
+        console.log(res);
+        }else{console.error(res);}
+      }).catch(err => console.error(err))
+  }
+
 
   //------------------------------------------------------------------------------------------reload------------------------------------
   // #FUNCTION# ===================================================================
@@ -148,8 +300,8 @@ class Table{
     //console.log('resp = ' , this.data.resp.length);
     if (this.data.resp.length > 0)
     {
-      this.reloadBody();
       this.reloadHead();
+      this.reloadBody();
     }else
     {
       this.el.tbody.innerHTML = ''; //czyści body i wprowadza nowe dane
@@ -171,25 +323,28 @@ class Table{
   // ==============================================================================
   reloadHead(){
     // console.log(this.data.resp);
-    const headers = Object.getOwnPropertyNames(this.data.resp[0]);  //pobiera nagłówki kolumn w tabeli
-    if (!this.isChangeHead(headers)) return;
+    if (!this.columnsReady) console.log('nie zdążyłem pobrać kolumn');
+    
+    
     this.el.trHeader.innerHTML = ''; //czyści body i wprowadza nowe dane
-    headers.forEach(el => {
+    this.columnsToShow.forEach(element => {
+      let el = element.param;
+      if(!el.show) return;
       const th = document.createElement('th');
-      th.classList.add(el);
+      th.classList.add(el.fieldInSql);
       const span = document.createElement('span');
-      span.innerText = el;
+      span.innerText = el.name;
       th.appendChild(span);  //tworzy element html
       this.el.trHeader.appendChild(th);             //dodaje ten element na koniec tr#head
     });
   }
   //--------------------------------------------------------------------------------------KONIEC reloadHead---------------------------
 
-  isChangeHead(newHeaders){
+  isChangeHead(newHeaders){//sprawdza czy nowy nagłowek rozni sie od tego w htmlu
     let change = false;
     newHeaders.forEach((el,i) => {
       if (typeof this.el.trHeader.children[i] == 'undefined') change = true; return;
-      if (this.el.trHeader.children[i].classList[0] == el) {change = true; return;}
+      if (this.el.trHeader.children[i].classList[0] !== el.fieldInSql || this.el.trHeader.children[i].innerText !== el.name) {change = true; return;}
     });
     if (change) return true;
     return false;
@@ -207,11 +362,16 @@ class Table{
   // Related .......: reloadHead()
   // ==============================================================================
   reloadBody(){
+    let trChild = allElement.wydatki.table.el.trHeader.children;
+    let headers = [];
+    for (let i = 0; i < trChild.length; i++){
+      headers.push(trChild[i].classList[0])
+    }
     this.el.tbody.innerHTML = ''; //czyści body i wprowadza nowe dane
     this.data.resp.forEach(row =>{
       const tr = document.createElement('tr');
       tr.classList.add('trBody');
-      for (const el in row){
+      headers.forEach(el=>{
         if (el === "data" || el === 'createdDate')  // data jest podawana w długim formacie więc go skracam
           row[el] = formatujDate(row[el]);
         if (row[el] === null || row[el] == 0) row[el] = ''; //nie chce wyświetlac zer i nulli
@@ -219,7 +379,7 @@ class Table{
         td.classList.add(el);
         td.innerText = row[el];
         tr.appendChild(td);
-      };
+      });
       this.el.tbody.appendChild(tr);
     });
   }

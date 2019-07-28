@@ -19,6 +19,38 @@ button.filter{
   margin: 1%;
 }
 
+.editButton::after   {
+position: absolute;
+ left: 0px;
+ top: 0px;
+ margin-left: 5px;
+  font-family: "Font Awesome 5 Free";
+  content: "";
+  font-size: 150%;
+  color: green;
+}
+
+.inputShow.show::after{
+  position: relative;
+  float: right;
+  margin:0.5%;
+   font-family: "Font Awesome 5 Free";
+   content: '';  /* eye */
+   font-size: 120%;
+   color: grey;
+}
+
+.inputShow.hide::after{
+  position: relative;
+  float: right;
+  margin:0.5%;
+   font-family: "Font Awesome 5 Free";
+   content: ''; /* slashed eye */
+   font-size: 120%;
+   color: grey;
+}
+
+
 tr.trHeader span::after {
   font-family: "Font Awesome 5 Free";
   content: "";
@@ -37,6 +69,7 @@ tr.trHeader span.down::after {
 
 
 table {
+  position: relative;
   width: 96%;
     font-family:Arial, Helvetica, sans-serif;
     color:black;

@@ -11,20 +11,11 @@ class Table{
     this.data = data;
     this.id = this.data.id;
     this.filtr = null;
-    this.kolumnsToShow =  [{param:{name:'Id',show:true,fieldInSql:'id',priority:0},el:{}},
-                          {param:{name:'Bank',show:true,fieldInSql:'bank',priority:3},el:{}},
-                          {param:{name:'Kwota',show:true,fieldInSql:'kwota',priority:1},el:{}},
-                          {param:{name:'Data',show:true,fieldInSql:'data',priority:2},el:{}},
-                          {param:{name:'Typ',show:true,fieldInSql:'typ',priority:2},el:{}},
-                          {param:{name:'Typ2',show:true,fieldInSql:'typ2',priority:3},el:{}},
-                          {param:{name:'Gdzie',show:true,fieldInSql:'gdzie',priority:4},el:{}},
-                          {param:{name:'Kogo',show:true,fieldInSql:'kogo',priority:4},el:{}},
-                          {param:{name:'Osoba',show:true,fieldInSql:'osoba',priority:0},el:{}},
-                          {param:{name:'Powiązane',show:true,fieldInSql:'powiazane',priority:0},el:{}},
-                          {param:{name:'Opis',show:true,fieldInSql:'opis',priority:4},el:{}}]
-                          //{name:'Data wpisu',fieldInSql:'createdDate',priority:0},
-                          //{name:'Użytkownik',fieldInSql:'userId',priority:0}];
+    this.columnsReady = false;
+    this.columnsToShow = [];
     this.el = {}; // zawiera wszystkie elementy html
+    this.getColumns();
+   // let load = ()=>{if (typeof this.getColumns setTimeout(alertFunc, 3000)};
     docReady(()=>{
     this.init();
     })
@@ -146,7 +137,7 @@ class Table{
     }
 
     document.querySelector('#et_submit').onclick = e =>{
-      this.kolumnsToShow = this.readEditTable();
+      this.columnsToShow = this.readEditTable();
       this.saveEditTable();
       this.reload();
       $('#modal_edit_table').modal('hide');
@@ -163,21 +154,51 @@ class Table{
 
   //--------------------------------------------------------------------------------------KONIEC createHTML---------------------------
 
+  getColumns(){
+    getJson(uri + "api/columns")
+    .then(resp => {
+      if (resp.length > 0){
+        this.columnsReady = true;
+        let obj =  JSON.parse(resp[resp.length-1].col_json);
+        obj.forEach(el => {     
+          let element = {};
+          element.param = el;
+          element.el = {};
+          this.columnsToShow.push(element);
+        })
+        console.log('zaladowalem: ', this.columnsToShow);
+      }else{
+        this.columnsToShow =  [{param:{name:'Id',show:true,fieldInSql:'id',priority:0},el:{}},
+        {param:{name:'Bank',show:true,fieldInSql:'bank',priority:3},el:{}},
+        {param:{name:'Kwota',show:true,fieldInSql:'kwota',priority:1},el:{}},
+        {param:{name:'Data',show:true,fieldInSql:'data',priority:2},el:{}},
+        {param:{name:'Typ',show:true,fieldInSql:'typ',priority:2},el:{}},
+        {param:{name:'Typ2',show:true,fieldInSql:'typ2',priority:3},el:{}},
+        {param:{name:'Gdzie',show:true,fieldInSql:'gdzie',priority:4},el:{}},
+        {param:{name:'Kogo',show:true,fieldInSql:'kogo',priority:4},el:{}},
+        {param:{name:'Osoba',show:true,fieldInSql:'osoba',priority:0},el:{}},
+        {param:{name:'Powiązane',show:true,fieldInSql:'powiazane',priority:0},el:{}},
+        {param:{name:'Opis',show:true,fieldInSql:'opis',priority:4},el:{}}]
+        //{name:'Data wpisu',fieldInSql:'createdDate',priority:0},
+        //{name:'Użytkownik',fieldInSql:'userId',priority:0}];
+      }
+    }).catch(err => {console.error(err);})
+  }
 
   createEditTableHTML(){
     let et_template = document.querySelector('div#et_template');
     let parent = et_template.parentNode;
     parent.innerHTML = '';      //Czyścimy parent node i zostawiamy tylko template żeby za każdym razem był od nowa generowany
     parent.append(et_template);
-    //console.log(this.kolumnsToShow);
-    this.kolumnsToShow.forEach((element)=>{
+    //console.log(this.columnsToShow);
+    this.columnsToShow.forEach((element)=>{
       let el = element.param;
       let newelement = {};
       let globalCard = et_template.cloneNode(true);
 
       globalCard.id = el.fieldInSql;
       globalCard.querySelector('.et_headerName').innerText = el.name;
-      globalCard.innerHTML = globalCard.innerHTML.replace(/{{kolumnsToShow.et_fieldInSql}}/g,el.fieldInSql)
+      globalCard.innerHTML = globalCard.innerHTML.replace(/{{columnsToShow.et_fieldInSql}}/g,el.fieldInSql)
       newelement.inputField = globalCard.querySelector('.inputField');
       newelement.inputField.value = el.fieldInSql;
       newelement.inputPriority = globalCard.querySelector('.inputPriority');
@@ -194,7 +215,7 @@ class Table{
       newelement[globalCard] = globalCard;
       element.el = newelement;
     })
-    //console.log(this.kolumnsToShow)
+    //console.log(this.columnsToShow)
 
   new Sortable(document.querySelector('#editTableList'), {
     handle: '.handle', // handle's class
@@ -221,21 +242,21 @@ class Table{
     let tab = [];
     let el = document.querySelector('div#et_template').parentNode.children;
     for (let i = 1; i < el.length; i++){ // od 1 żeby pominąć template
-     tab.push(this.kolumnsToShow[this.findInTab(el[i].id)]);
+     tab.push(this.columnsToShow[this.findInTab(el[i].id)]);
     }
      
     return tab;
   }
   
   findInTab(value){
-    let tab = this.kolumnsToShow;
+    let tab = this.columnsToShow;
     for (let i = 0; i < tab.length; i++){
       if (tab[i].param['fieldInSql'] == value) return i;
     }
   }
 
   readEditTable(){
-    this.kolumnsToShow.forEach(element =>{
+    this.columnsToShow.forEach(element =>{
       let el = element.param;
      // console.log(element.el.inputShow,element.el.inputShow.classList.contains('show'));
       
@@ -250,21 +271,17 @@ class Table{
   }
 
   saveEditTable(){
-    let tab = this.kolumnsToShow;
-    tab.name = 'szablon';
-    let data = JSON.stringify(tab, (key,value) =>{
-      if (key == "el") return undefined;
-      return value;
-    });
-
-    send_insert(uri+"api/kolumns",obj) 
+    let tab = {name:'szablon',columns:[]}
+    this.columnsToShow.forEach(val => {
+      tab.columns.push(val.param);
+    })
+    let data = JSON.stringify(tab);
+    send_insert(uri+"api/columns",data) 
       .then(res => { //sprawdzam odpowiedz bo to że jest to jeszcze nie znaczy że jest dobra
-        if (typeof res.id !== 'undefined' && res.id > -1){  //jeśli serwer zwrócił nam id nowo dodanego rekordu to jest ok
-          aktualna_tabelka.table.reload() // może jeszcze nie działać, nie przypisuję nic do zmiennej aktualna tabelka
-          //location.reload();
-          this.wyczysc(); //czyszczę bo jak już dodane to nie trzeba mi już tych danych
+        if (typeof res.id !== 'undefined' && res.id > -1){
+        console.log(res);
         }else{console.error(res);}
-      }).fail(err => console.error(err))
+      }).catch(err => console.error(err))
   }
 
 
@@ -307,10 +324,13 @@ class Table{
   // ==============================================================================
   reloadHead(){
     // console.log(this.data.resp);
-    //console.log(this.kolumnsToShow);
+    if (!this.columnsReady) console.log('nie zdążyłem pobrać kolumn');
+    
     
     this.el.trHeader.innerHTML = ''; //czyści body i wprowadza nowe dane
-    this.kolumnsToShow.forEach(element => {
+    this.columnsToShow.forEach(element => {
+      console.log(element);
+      
       let el = element.param;
       if(!el.show) return;
       const th = document.createElement('th');

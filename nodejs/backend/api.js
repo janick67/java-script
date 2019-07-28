@@ -259,6 +259,29 @@ app.post('/api/wydatki', (req,res) => {
   })
 })
 
+app.post('/api/columns', (req,res) => {
+  let {body} = req;
+  let  param = {};
+  param.col_name = body.name;
+  param.col_json = JSON.stringify(body.kolumns);
+  param.col_userId = req.user.id;
+  console.log(param);
+  
+  const sql = 'INSERT INTO columns SET ?';
+  const query = db.query(sql,param, (err, result) => {
+    if (err) {
+      console.error(aktualnaData()+err);
+      return res.send(err);
+    }
+    res.send({id:result.insertId});
+  })
+})
+
+app.get('/api/columns/',(req,res) => {
+  let sql = `SELECT * FROM columns where col_userId = ${req.user.id}`;
+  sendSql(res,sql);
+});
+
 app.use(express.static('../frontend/'));
 
 

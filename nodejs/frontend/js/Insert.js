@@ -76,7 +76,7 @@ Insert.prototype.czytajIWyslij = function(){ // wczytuje dane z imputów, wysył
           //location.reload();
           this.wyczysc(); //czyszczę bo jak już dodane to nie trzeba mi już tych danych
         }else{console.error(res);}
-      }).fail(err => console.error(err))
+      }).catch(err => console.error(err))
   }else{
   console.error("Błędnie wypełniono, popraw błędy i wyślij ponownie!")}
 }

@@ -185,16 +185,14 @@ class Table{
   }
 
   createEditTableHTML(){
-    let et_template = document.querySelector('div#et_template');
-    let parent = et_template.parentNode;
+    let et_template = document.querySelector("template#editTableCard").content.children[0];
+    let parent = document.querySelector('div#editTableList');
     parent.innerHTML = '';      //Czyścimy parent node i zostawiamy tylko template żeby za każdym razem był od nowa generowany
-    parent.append(et_template);
     //console.log(this.columnsToShow);
     this.columnsToShow.forEach((element)=>{
       let el = element.param;
       let newelement = {};
       let globalCard = et_template.cloneNode(true);
-
       globalCard.id = el.fieldInSql;
       globalCard.querySelector('.et_headerName').innerText = el.name;
       globalCard.innerHTML = globalCard.innerHTML.replace(/{{columnsToShow.et_fieldInSql}}/g,el.fieldInSql)
@@ -210,7 +208,7 @@ class Table{
       globalCard.querySelector('span.inputShow').onclick = this.et_show;
       //console.log(newelement.innerHTML);
       //console.log(et_template.parentElement,newelement);
-      et_template.parentElement.append(globalCard);
+      parent.append(globalCard);
       newelement[globalCard] = globalCard;
       element.el = newelement;
     })
@@ -239,7 +237,7 @@ class Table{
   readEditTableHTML()
   {
     let tab = [];
-    let el = document.querySelector('div#et_template').parentNode.children;
+    let el = document.querySelector('div#editTableList').children;
     for (let i = 1; i < el.length; i++){ // od 1 żeby pominąć template
      tab.push(this.columnsToShow[this.findInTab(el[i].id)]);
     }

@@ -21,6 +21,14 @@ insert.init();
 })
 const allElement = {};
 
+document.addEventListener('keydown',(e)=>{
+  if (e.keyCode == 27 && document.querySelector('#modal_edit_table').classList.contains('show'))
+    document.querySelector('#et_close').click();
+
+ if (e.keyCode == 13 && document.querySelector('#modal_edit_table').classList.contains('show'))
+  document.querySelector('#et_submit').click();
+})
+
 // let name = 'stan_na_miesiac';
 // allElement[name] = {};
 // allElement[name].data = new Data(name,name,`api/wydatki/${name}/query`)

@@ -163,7 +163,7 @@ class Table{
         obj.forEach(el => {     
           let element = {};
           element.param = el;
-          element.el = {};
+          element.el = {};          
           this.columnsToShow.push(element);
         })
       }else{
@@ -238,7 +238,7 @@ class Table{
   {
     let tab = [];
     let el = document.querySelector('div#editTableList').children;
-    for (let i = 1; i < el.length; i++){ // od 1 żeby pominąć template
+    for (let i = 0; i < el.length; i++){ // od 1 żeby pominąć template
      tab.push(this.columnsToShow[this.findInTab(el[i].id)]);
     }
      
@@ -273,6 +273,8 @@ class Table{
       tab.columns.push(val.param);
     })
     let data = JSON.stringify(tab);
+    // console.log(tab);
+    
     send_insert(uri+"api/columns",data) 
       .then(res => { //sprawdzam odpowiedz bo to że jest to jeszcze nie znaczy że jest dobra
         if (typeof res.id !== 'undefined' && res.id > -1){

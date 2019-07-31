@@ -194,7 +194,7 @@ class Table{
       let newelement = {};
       let globalCard = et_template.cloneNode(true);
       globalCard.id = el.fieldInSql;
-      globalCard.querySelector('.et_headerName').innerText = el.name;
+      globalCard.querySelector('.et_headerName').innerText = el.name;      
       globalCard.innerHTML = globalCard.innerHTML.replace(/{{columnsToShow.et_fieldInSql}}/g,el.fieldInSql)
       newelement.inputField = globalCard.querySelector('.inputField');
       newelement.inputField.value = el.fieldInSql;

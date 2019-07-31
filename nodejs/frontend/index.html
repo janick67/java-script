@@ -151,27 +151,27 @@
   <script src="../js/main.js"></script>
   <template id="editTableCard">
     <div id="et_template" class="card" style='display: none'>
-      <div class="card-header handle " id= "heading_{{kolumnsToShow.et_fieldInSql}}" data-toggle="collapse" data-target="#et_collapse_{{kolumnsToShow.et_fieldInSql}}">
+      <div class="card-header handle " id= "heading_{{columnsToShow.et_fieldInSql}}" data-toggle="collapse" data-target="#et_collapse_{{columnsToShow.et_fieldInSql}}">
         <h5 class="mb-0">
             <i class="fas fa-arrows-alt handle"></i>
             <span class="et_headerName">Kwota</span>
             <span class="inputShow"></span>
         </h5>
       </div>
-      <div class="collapse hide" id="et_collapse_{{kolumnsToShow.et_fieldInSql}}"  data-parent="#et_accordion"">
+      <div class="collapse hide" id="et_collapse_{{columnsToShow.et_fieldInSql}}"  data-parent="#et_accordion"">
         <div class="card-body">
             <div class="form-group row">
                 <div class="col-sm-4">
-                <label for="et_fieldinSql_{{kolumnsToShow.et_fieldInSql}}" >Pole w bazie</label>
-                  <input class="form-control inputField" id="et_fieldInSql_{{kolumnsToShow.et_fieldInSql}}" placeholder="Pole w bazie">
+                <label for="et_fieldinSql_{{columnsToShow.et_fieldInSql}}" >Pole w bazie</label>
+                  <input class="form-control inputField" id="et_fieldInSql_{{columnsToShow.et_fieldInSql}}" placeholder="Pole w bazie">
                 </div>
                 <div class="col-sm-4">
-                  <label for="et_priority_{{kolumnsToShow.et_fieldInSql}}" >Priorytet</label>
-                    <input class="form-control inputPriority" id="et_priority_{{kolumnsToShow.et_fieldInSql}}" placeholder="Priorytet">
+                  <label for="et_priority_{{columnsToShow.et_fieldInSql}}" >Priorytet</label>
+                    <input class="form-control inputPriority" id="et_priority_{{columnsToShow.et_fieldInSql}}" placeholder="Priorytet">
                   </div>
                   <div class="col-sm-4">
-                      <label for="et_name_{{kolumnsToShow.et_fieldInSql}}">Nazwa</label>
-                        <input class="form-control inputName" id="et_name_{{kolumnsToShow.et_fieldInSql}}" placeholder="Nazwa">
+                      <label for="et_name_{{columnsToShow.et_fieldInSql}}">Nazwa</label>
+                        <input class="form-control inputName" id="et_name_{{columnsToShow.et_fieldInSql}}" placeholder="Nazwa">
                       </div>
             </div>
         </div>

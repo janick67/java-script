@@ -37,6 +37,10 @@ class Table{
     this.filtr = new Filtr(this);
     this.reload();
     this.show();
+    new Sortable(document.getElementById('editTableList'), {
+      handle: '.handle', // handle's class
+      animation: 150
+  });
     this.createEditTableHTML();
   }
   //----------------------------------------------------------------------------------------Koniec init------------------------------------
@@ -213,11 +217,6 @@ class Table{
       element.el = newelement;
     })
     //console.log(this.columnsToShow)
-
-  new Sortable(document.querySelector('#editTableList'), {
-    handle: '.handle', // handle's class
-    animation: 500
-});
 
   }
 

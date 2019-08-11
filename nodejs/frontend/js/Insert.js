@@ -19,7 +19,7 @@ Insert.prototype.przygotujInputy = function(){ //dodaje klasy, dataliste z podpo
   for (const kol in this.kolumn){
     const id = 'add_'+kol; // kol to nazwa kolumny z bazy pisana małymi literami
     const $input = $(`#${id}`)
-    $input.addClass(kol);   //dodaje klasy do inputów o takiej wartości jak nazwa kolumny
+    $input.attr('field',kol);   //dodaje klasy do inputów o takiej wartości jak nazwa kolumny
     $input.attr('list',`${id}_list`); //podpina datalist pod inputa tak żeby podpowiadały się wartości
     const $datalist = $(`<datalist id="${id}_list">`); //tworzy dataliste do każdego inputa z podpowiedziami
     this.kolumn[kol].proponowane.forEach(el => {  //tworzy wartości do datalisty i dodaje je do niej
@@ -49,7 +49,7 @@ Insert.prototype.generujProponowane = function(){ //robi pętle po wszystkich re
 
 Insert.prototype.wyczysc = function(){//czysci wszystkie inputy ich klasy i obiekt
   $('#dodaj input').each((i,el) =>{
-    const kol = this.kolumn[el.classList[0]]; // upraszczam zapis
+    const kol = this.kolumn[el.getAttribute('field')]; // upraszczam zapis
     kol.value = ''; //zeruje wartośc wpisana do obiektu
     el.value = '';  //zeruje wartosc wpisana do inputa
     $('#dodaj span.error').remove(); //usuwa wszystkie stare komunikaty o błędach
@@ -71,11 +71,12 @@ Insert.prototype.czytajIWyslij = function(){ // wczytuje dane z imputów, wysył
       send_insert(uri+"api/wydatki",obj) //jeśli jest ok to wysyłam
       .then(res => { //sprawdzam odpowiedz bo to że jest to jeszcze nie znaczy że jest dobra
         if (typeof res.id !== 'undefined' && res.id > -1){  //jeśli serwer zwrócił nam id nowo dodanego rekordu to jest ok
-          aktualna_tabelka.table.reload() // może jeszcze nie działać, nie przypisuję nic do zmiennej aktualna tabelka
+          actualData.table.reload() // może jeszcze nie działać, nie przypisuję nic do zmiennej aktualna tabelka
           //location.reload();
+          $('#modal_add').modal('hide');
           this.wyczysc(); //czyszczę bo jak już dodane to nie trzeba mi już tych danych
         }else{console.error(res);}
-      }).catch(err => console.error(err))
+      }).catch(err => console.error("moj blad",err))
   }else{
   console.error("Błędnie wypełniono, popraw błędy i wyślij ponownie!")}
 }

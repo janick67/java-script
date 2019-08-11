@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="../js/lib/approve.min.js"></script>
   <link rel="stylesheet" href="../css/lib/fontawesome.css">
-  <link rel="stylesheet" href="../css/style.css" type="text/css" />
+  <link rel="stylesheet" href="../css/style.min.css" type="text/css" />
   <link rel="stylesheet" href="../css/lib/jquery-ui.css">
   <script src="../js/lib/jquery.min.js"></script>
   <script src="../js/lib/jquery-ui.js"></script>
@@ -135,6 +135,7 @@
     </div>
   </div>
 
+
   <div id="tableContainer">
     <div style="width: 90%; height: 80%; padding-left:10%; padding-right:10%; padding-top:2%">
       <canvas id="myChart" ></canvas>
@@ -149,6 +150,12 @@
   <script src="../js/Insert.js"></script>
   <script src="../js/onclick.js"></script>
   <script src="../js/main.js"></script>
+
+  <div class="device-xs  d-block d-sm-none"></div>
+  <div class="device-sm  d-none d-sm-block d-md-none"></div>
+  <div class="device-md  d-none d-md-block d-lg-none"></div>
+  <div class="device-lg  d-none d-lg-block"></div>
+
   <template id="editTableCard">
     <div id="et_template" class="card" style='display: none'>
       <div class="card-header " id= "heading_{{columnsToShow.et_fieldInSql}}" data-toggle="collapse" data-target="#et_collapse_{{columnsToShow.et_fieldInSql}}">
@@ -174,6 +181,60 @@
                         <input class="form-control inputName" id="et_name_{{columnsToShow.et_fieldInSql}}" placeholder="Nazwa">
                       </div>
             </div>
+        </div>
+      </div>
+    </div>
+  </template>
+  <template id="table">
+    <div class="mainDiv"> 
+      <div class="emptyTable"></div>
+      <div class="divTable xs d-block d-sm-none"></div>
+      <div class="divTable lg d-none d-sm-block">
+        <table>
+            <div class="editButton" title="Edytuj układ tabelki"></div>
+          <thead>
+            <tr class="trHeader">
+              <th class="th"><span></span></th>
+            </tr>
+            <tr class="trFilter" style="display: none;">
+              <th class="kwota"><input type="text" class="kwota"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="trBody">
+              <td class="td"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination">
+        <button class="pag_prev btn btn-secondary" type="button">Prev</button>
+        <input type="text" name="strona" class="pag_page form-control align-top" value="1"> 
+        <button class="pag_next btn btn-secondary" type="button">Next</button>
+        <select class="custom-select pag_per_page" >
+          <option>5</option>
+          <option>10</option>
+          <option>25</option>
+          <option>50</option>
+          <option>100</option>
+          <option>500</option>
+        </select>
+      </div>
+    </div>
+  </template>
+  <template id="tableXs">
+    <div class="container">
+      <div class="row">
+        <div class="col date"></div>
+      </div>
+      <div class="row">
+        <div class="col title">
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-8 title2">
+        </div>
+        <div class="col-4 cash" style="text-align: right;">
         </div>
       </div>
     </div>

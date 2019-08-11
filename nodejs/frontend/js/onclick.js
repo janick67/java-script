@@ -2,11 +2,20 @@
 //---------------------------------------------EVENTY------------------------------
 
 
+window.onresize = e => {
+  let size = checkBootstrapSizeMode();
+  if (actualBootstrapSize != size){
+    actualBootstrapSize = checkBootstrapSizeMode();
+    actualData.table.reloadTable();
+  } 
+}
+
 document.querySelector('#nav_group') //Przechodzi na strone z grupowaniem
 .onclick = e =>  {
   e.preventDefault();
   let name = 'group';
   allElement[name].table = new Table(new Data(name,name,`api/wydatki/${name}/query`));
+  actualData = allElement[name];
   tab_group = allElement[name].table;
   tab_group.el.group = document.createElement('div');
   tab_group.el.group.classList.add('divGroup');
@@ -39,36 +48,46 @@ document.querySelector('#nav_saldo')
 .onclick = e =>{
   e.preventDefault();
   let name = 'saldo';
+  allElement[name] = {};
   allElement[name].table = new Table(new Data(name,name,`api/wydatki/${name}/query`));
+  actualData = allElement[name];
 }
 
 document.querySelector('#nav_saldo_na_miesiac')
 .onclick = e =>{
     e.preventDefault();
     let name = 'saldo_na_miesiac';
+    allElement[name] = {};
     allElement[name].table = new Table(new Data(name,name,`api/wydatki/${name}/query`));
+    actualData = allElement[name];
   }
 
 document.querySelector('#nav_stan_na_miesiac')
 .onclick = e =>{
     e.preventDefault();
     let name = 'stan_na_miesiac';
+    allElement[name] = {};
     allElement[name].table = new Table(new Data(name,name,`api/wydatki/${name}/query`));
+    actualData = allElement[name];
   }
 
 document.querySelector('#nav_kto_ma_oddac')
 .onclick = e =>{
     e.preventDefault();
     let name = 'kto_ma_oddac';
+    allElement[name] = {};
     allElement[name].table = new Table(new Data(name,name,`api/wydatki/${name}/query`));
-}
+    actualData = allElement[name];
+  }
 
 document.querySelector('#nav_kto_ma_oddac_suma')
 .onclick = e =>{
     e.preventDefault();
     let name = 'kto_ma_oddac_suma';
+    allElement[name] = {};
     allElement[name].table = new Table(new Data(name,name,`api/wydatki/${name}/query`));
-}
+    actualData = allElement[name];
+  }
 
 
 window.addEventListener('popstate', e => {

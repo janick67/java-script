@@ -7,7 +7,7 @@
 // ----------------------------------------------------------------------------------- Konstruktor Tabelka --------------------
 class Table{
 
-  constructor(data){
+  constructor(data,type){ //type 0 - bezpośrednio, 1 - wydatki
     this.data = data;
     this.id = this.data.id;
     this.filtr = null;
@@ -15,6 +15,7 @@ class Table{
     this.columnsToShow = [];
     this.el = {}; // zawiera wszystkie elementy html
     this.getColumns();
+    this.type = type;
    // let load = ()=>{if (typeof this.getColumns setTimeout(alertFunc, 3000)};
     docReady(()=>{
     this.init();
@@ -57,74 +58,62 @@ class Table{
   // ==============================================================================
 
   createHTML(){
-    this.el.mainDiv = document.createElement('div');
-    this.el.mainDiv.setAttribute('id',this.id);
-    this.el.mainDiv.style.display = 'none'; //zaraz po utworzeniu jest ukrywane
-    this.el.mainDiv.classList.add('mainDiv');
+    this.el.template = document.querySelector("template#table").content;
+    this.el.mainDiv = this.el.template.querySelector('.mainDiv').cloneNode(true);
+    let {mainDiv} = this.el;
+    mainDiv.setAttribute('id',this.id);
+    mainDiv.style.display = 'none'; //zaraz po utworzeniu jest ukrywane
+    this.el.divTableLg = mainDiv.querySelector('.divTable.lg');
+    this.el.divTableXs = mainDiv.querySelector('.divTable.xs');
+    
 
-
-    this.el.divBody = document.createElement('div');
-    this.el.divBody.classList.add('divTable');
-
-    this.el.table = document.createElement('table');
-    this.el.editButton = document.createElement('div');
-    this.el.editButton.setAttribute('class','editButton');
-    this.el.editButton.setAttribute('title','Edytuj układ tabelki');
-
-    this.el.table.appendChild(this.el.editButton);
+    this.el.table = mainDiv.querySelector('table');
     this.el.table.setAttribute('summary',this.nazwa);
 
-    this.el.thead = document.createElement('thead');
+    this.el.editButton = mainDiv.querySelector('.editButton');
+    this.el.table.append(this.el.editButton);
 
-    this.el.trHeader = document.createElement('tr');
-    this.el.trHeader.classList.add('trHeader');
+    this.el.thead = mainDiv.querySelector('thead');
 
-    this.el.tbody = document.createElement('tbody');
+    this.el.trHeader = mainDiv.querySelector('tr.trHeader');
 
-    this.el.paginacja = document.createElement('div')
-    this.el.paginacja.setAttribute('id','paginacja')
-    this.el.paginacja.innerHTML = `<button id="prev" type="button" class="btn btn-secondary">Prev</button>
-        <input type="text" name="strona" id="strona" value="1" class="form-control align-top"> </input>
-        <button id="next" type="button" class="btn btn-secondary">Next</button>
-          <select class="custom-select" name="na_strone" id="na_strone">
-            <option>5</option>
-            <option>10</option>
-            <option>25</option>
-            <option>50</option>
-            <option>100</option>
-            <option>500</option>
-          </select>`
+    this.el.tbody = mainDiv.querySelector('tbody');
 
-    this.el.paginacja.querySelector('#next')
-    .onclick = e => aktualna_tabelka.zmienStrone(aktualna_tabelka.data.page*1+1)
+    this.el.paginacja = mainDiv.querySelector('.pagination')
 
-    this.el.paginacja.querySelector('#prev')
-    .onclick = e => aktualna_tabelka.zmienStrone(aktualna_tabelka.data.page*1-1)
+    this.el.paginacja.querySelector('.pag_next')
+    .onclick = e => actualData.table.zmienStrone(actualData.data.page*1+1)
 
-    this.el.paginacja.querySelector('#na_strone')
+    this.el.paginacja.querySelector('.pag_prev')
+    .onclick = e => actualData.table.zmienStrone(actualData.data.page*1-1)
+    this.el.paginacja.querySelector('.pag_prev').disabled = true;
+
+    this.el.paginacja.querySelector('.pag_per_page')
     .addEventListener('change', e => {
-    const it = aktualna_tabelka;
-    it.zmienStrone(1);
+    const it = actualData.table;
+    it.data.param.offset = 0;
+    this.data.page = 1;
+    this.el.strona.value = 1;
     it.data.param.limit = e.target.value;
     it.reload();
     })
 
-    this.el.strona = this.el.paginacja.querySelector('#strona');
+    this.el.strona = this.el.paginacja.querySelector('.pag_page');
     this.el.strona.addEventListener('change', e => {
-    aktualna_tabelka.zmienStrone(e.target.value);
+    actualData.table.zmienStrone(e.target.value);
     });
 
-    this.el.divBody.addEventListener('mouseout', e => {
+    this.el.divTableLg.addEventListener('mouseout', e => {
     getClossestTag(e.target,'tr').classList.remove('red');
     getClossestTag(e.target,'td').classList.remove('blue')
     });
 
-    this.el.divBody.addEventListener('mouseover', e => {
+    this.el.divTableLg.addEventListener('mouseover', e => {
     getClossestTag(e.target,'tr').classList.add('red');
     getClossestTag(e.target,'td').classList.add('blue')
     });
 
-    this.el.divBody.onclick = e => {
+    this.el.divTableLg.onclick = e => {
     const id = getClossestClass(e.target, 'mainDiv').getAttribute('id');
     const kliknieta_tabelka = allElement[this.id].table;
     // console.log('id:', id,'wszystkie: ', allElement[id].table);
@@ -147,12 +136,6 @@ class Table{
       $('#modal_edit_table').modal('hide');
     }
 
-    this.el.thead.appendChild(this.el.trHeader);
-    this.el.table.appendChild(this.el.thead);
-    this.el.table.appendChild(this.el.tbody);
-    this.el.divBody.appendChild(this.el.table);
-    this.el.mainDiv.appendChild(this.el.divBody);
-    this.el.mainDiv.appendChild(this.el.paginacja);
     document.querySelector('#tableContainer').appendChild(this.el.mainDiv);
   }
 
@@ -295,20 +278,30 @@ class Table{
   // ==============================================================================
 
   reload(){ //funkcja odświeża tabelke, potrzebna np. przy zmianie filtrowania albo przy zmianie strony
+  
   this.data.load().then(()=>{
+    //console.trace(this.data.resp);
     //console.log('resp = ' , this.data.resp.length);
-    if (this.data.resp.length > 0)
-    {
-      this.reloadHead();
-      this.reloadBody();
-    }else
-    {
-      this.el.tbody.innerHTML = ''; //czyści body i wprowadza nowe dane
+    if (this.data.resp.length > 0){
+      this.reloadTable();
+      document.querySelector('.emptyTable').innerHTML='';
+    }else{
+      this.el.divTableLg.innerHTML = '';
+      this.el.divTableXs.innerHTML = '';
+      document.querySelector('.emptyTable').append('Brak danych');
     }
     })
   }
   //----------------------------------------------------------------------------------------Koniec reload--------------------------------
 
+  reloadTable(){
+    if(checkBootstrapSizeMode() != 'xs'){
+      this.reloadHead();
+      this.reloadBody();
+    }else{
+      this.reloadXs();
+    }
+  }
 
   //-----------------------------------------------------------------------------------------reloadHead-------------------------------
   // #FUNCTION# ===================================================================
@@ -323,9 +316,7 @@ class Table{
   reloadHead(){
     // console.log(this.data.resp);
     if (!this.columnsReady) console.log('nie zdążyłem pobrać kolumn');
-    
-    
-    this.el.trHeader.innerHTML = ''; //czyści body i wprowadza nowe dane
+    let fragment = document.createDocumentFragment();
     this.columnsToShow.forEach(element => {
       let el = element.param;
       if(!el.show) return;
@@ -334,8 +325,10 @@ class Table{
       const span = document.createElement('span');
       span.innerText = el.name;
       th.appendChild(span);  //tworzy element html
-      this.el.trHeader.appendChild(th);             //dodaje ten element na koniec tr#head
+      fragment.appendChild(th);             //dodaje ten element na koniec tr#head
     });
+    this.el.trHeader.innerHTML = ''; //czyści body i wprowadza nowe dane
+    this.el.trHeader.append(fragment);
   }
   //--------------------------------------------------------------------------------------KONIEC reloadHead---------------------------
 
@@ -366,7 +359,7 @@ class Table{
     for (let i = 0; i < trChild.length; i++){
       headers.push(trChild[i].classList[0])
     }
-    this.el.tbody.innerHTML = ''; //czyści body i wprowadza nowe dane
+    let fragment = document.createDocumentFragment();
     this.data.resp.forEach(row =>{
       const tr = document.createElement('tr');
       tr.classList.add('trBody');
@@ -379,10 +372,29 @@ class Table{
         td.innerText = row[el];
         tr.appendChild(td);
       });
-      this.el.tbody.appendChild(tr);
-    });
+      fragment.appendChild(tr);
+    });   
+    this.el.tbody.innerHTML = ''; //czyści body i wprowadza nowe dane
+    this.el.tbody.append(fragment);
   }
   //--------------------------------------------------------------------------------------KONIEC reloadBody-----------------------------
+
+  reloadXs(){
+    let fragment = document.createDocumentFragment();
+    this.el.templateXs = document.querySelector("template#tableXs").content;    
+    let xs = this.el.templateXs;
+    
+    this.data.resp.forEach(row =>{
+      let container = xs.querySelector('.container').cloneNode(true);
+      container.querySelector('.date').innerText = formatujDate(row.data);
+      container.querySelector('.title').innerText = row.typ;
+      container.querySelector('.title2').innerText = row.typ2;
+      container.querySelector('.cash').innerText = row.kwota;
+      fragment.append(container);
+    });
+    this.el.divTableXs.innerHTML = '';
+    this.el.divTableXs.append(fragment);
+  }
 
 
   //------------------------------------------------------------------------------------------show-------------------------------------
@@ -402,8 +414,7 @@ class Table{
         el.style.display = 'none';
       });
       this.el.mainDiv.style.display = 'block'; // na wszelki wypadek jeszcze sprawia że ta tabelka jest widoczna
-      aktualna_tabelka = this;  // przypisuje tabelke do zmiennej żeby poźniej można było się do niej łatwo odwołac
-    }
+}
   //----------------------------------------------------------------------------------------KONIEC show---------------------------------
 
 
@@ -422,6 +433,11 @@ class Table{
     this.el.strona.value = nowaStrona;
     this.data.param.offset = this.data.param.limit*(nowaStrona-1);
     this.reload();
+    if(nowaStrona == 1) {
+      this.el.paginacja.querySelector('.pag_prev').disabled = true;
+    }else{
+      this.el.paginacja.querySelector('.pag_prev').disabled = false;
+    }
   }
   //----------------------------------------------------------------------------------------Koniec zmienStrone------------------------------------
 
@@ -433,7 +449,7 @@ class Table{
   // Syntax ........: sortuj(obj target)
   // Parameter(s): .: target - komorka wedgług ktorej ma byc posortowana tabelka
   // Return Value ..: -
-  // Used in .......: divBody.onclick
+  // Used in .......: divTable.onclick
   // Related .......: -
   // ==============================================================================
   sortuj(target){

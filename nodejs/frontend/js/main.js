@@ -11,10 +11,9 @@ const uri = document.location.origin + "/";
   // .then(res => { console.log(res)});
 
 
-
-
   //-----------------------------------------MAIN----------------------------------
-let aktualna_tabelka = null; // zawiera wksaźnik do tabelki ktora jest aktualnie wyswietlana uzytkownikowi
+let actualBootstrapSize = 'lg';
+let actualData = null; // zawiera wksaźnik do tabelki ktora jest aktualnie wyswietlana uzytkownikowi
 let insert = new Insert();
 docReady(()=>{
 insert.init();
@@ -43,13 +42,21 @@ document.addEventListener('keydown',(e)=>{
 let name = 'wydatki';
 allElement[name] = {};
 allElement[name].data = new Data(name,name);
-allElement[name].table = new Table(allElement[name].data);
+allElement[name].table = new Table(allElement[name].data,false);
+actualData = allElement[name];
 
 // const tabelka = new Tabelka("wydatki","wydatki"); //głowna tabelka main z wszystkimi wydatkami
 // tabelka.adres += 'api/'+tabelka.sql_table+"/query";
 // -------------------------------------------KONIEC MAIN----------------------
 
-
+let checkBootstrapSizeMode = (event) => {
+  let temp;
+  if (window.getComputedStyle(document.querySelector('.device-xs')).display != 'none') temp = 'xs';
+  if (window.getComputedStyle(document.querySelector('.device-sm')).display != 'none') temp = 'sm';
+  if (window.getComputedStyle(document.querySelector('.device-md')).display != 'none') temp = 'md';
+  if (window.getComputedStyle(document.querySelector('.device-lg')).display != 'none') temp = 'lg';
+  return temp;
+};
 
 function rules(){ // funkcja konfigurująca, ustawiam tu wymagania przy walidacji inputow i ewentualne informacje przy bledach, zwraca obiekt zawierający wszystkie regoly pogrupowane na kolumny
   const m = {required:'Pole {title} jest wymagane.',

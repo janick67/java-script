@@ -1,3 +1,7 @@
+* {
+    box-sizing: border-box;
+}
+
 .inputShow.show::after{
   position: relative;
   float: right;
@@ -181,11 +185,49 @@
 .divTable.xs{
     .container{
         margin-top:5px;
+        position: relative;
+        z-index: 1;
     }
     .date{
         background-color: lightgray;
+        z-index: 2;
+    }
+    .menu{
+        display: flex;
+  align-items: center;
+  justify-content: flex-end;
+        position: absolute;
+        top: 25px;
+        height: 51px;
+        width: calc(100% - 28px);
+        opacity:0;
+        transform:  translate(100%,0);
+        will-change: transform opacity;
+        transition-property: transform, opacity;
+        transition-duration: 0.2s;
+        transition-timing-function: ease-out;
+
+        button{
+            margin: 2px;
+            
+        }
+    }
+    .trans{
+        opacity:1;
+        transform:  translate(0px,0px);
     }
 }
+
+@keyframes animateElement{
+    0% {
+      opacity:0;
+      transform:  translate(100vw,0);
+    }
+    100% {
+      opacity:1;
+      transform:  translate(45vw,0px);
+    }
+  }
 
 #add_data{
       background-image: url(../images/icon-calendar.png);
@@ -221,4 +263,11 @@ select.form-control{
     font-size: 400%;
     align-content: center;
     width:100%;
+}
+
+#drop_zone{
+    padding: 20px;
+    width:150px;
+    border: 1px dashed #000000;
+    text-align: center;
 }

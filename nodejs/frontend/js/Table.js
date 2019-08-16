@@ -7,16 +7,15 @@
 // ----------------------------------------------------------------------------------- Konstruktor Tabelka --------------------
 class Table{
 
-  constructor(data,type){ //type 0 - bezpośrednio, 1 - wydatki
+  constructor(data,type = 0){ //type 0 - bezpośrednio, 1 - wydatki
     this.data = data;
     this.id = this.data.id;
     this.filtr = null;
     this.columnsReady = false;
     this.columnsToShow = [];
     this.el = {}; // zawiera wszystkie elementy html
-    this.getColumns();
     this.type = type;
-   // let load = ()=>{if (typeof this.getColumns setTimeout(alertFunc, 3000)};
+    if(this.type == 1) this.getColumns();
     docReady(()=>{
     this.init();
     })
@@ -129,6 +128,33 @@ class Table{
       $('#modal_edit_table').modal();
     }
 
+    this.el.divTableXs.onclick = e =>{
+      let stop = false;
+      document.querySelectorAll('.menu.trans').forEach((el)=>{
+        el.classList.remove('trans')
+        el.addEventListener('transitionend', () => {
+          el.remove();
+        });  
+        if (getClossestClass(el,'container') == getClossestClass(e.target,'container')) stop = true;
+      })
+      if (stop) return;
+      let container = getClossestClass(e.target,'container');
+      let menu = document.createElement('div');
+      menu.classList.add('menu')
+      let but1 = document.createElement('button');
+      let but2 = document.createElement('button');
+      let but3 = document.createElement('button');
+      but1.innerText = 'Podgląd';
+      but2.innerText = 'Edytuj';
+      but3.innerText = 'Podziel';
+      menu.append(but1);
+      menu.append(but2);
+      menu.append(but3);
+      container.append(menu);
+      window.getComputedStyle(menu).width;
+      menu.classList.add('trans');
+    }
+
     document.querySelector('#et_submit').onclick = e =>{
       this.columnsToShow = this.readEditTable();
       this.saveEditTable();
@@ -142,33 +168,49 @@ class Table{
   //--------------------------------------------------------------------------------------KONIEC createHTML---------------------------
 
   getColumns(){
-    getJson(uri + "api/columns")
-    .then(resp => {
-      if (resp.length > 0){
+    //console.trace('resp',this.data.resp);
+    
+    if(this.type == 0){
+      const headers = Object.getOwnPropertyNames(this.data.resp[0]);
+      headers.forEach(el=>{
+        let element = {};
+        let param = {show:true,priority:1};
+        param.name = el;
+        param.fieldInSql = el;
+        element.param = param;
+        element.el = {}; 
+        this.columnsToShow.push(element);
         this.columnsReady = true;
-        let obj =  JSON.parse(resp[resp.length-1].col_json);
-        obj.forEach(el => {     
-          let element = {};
-          element.param = el;
-          element.el = {};          
-          this.columnsToShow.push(element);
-        })
-      }else{
-        this.columnsToShow =  [{param:{name:'Id',show:true,fieldInSql:'id',priority:0},el:{}},
-        {param:{name:'Bank',show:true,fieldInSql:'bank',priority:3},el:{}},
-        {param:{name:'Kwota',show:true,fieldInSql:'kwota',priority:1},el:{}},
-        {param:{name:'Data',show:true,fieldInSql:'data',priority:2},el:{}},
-        {param:{name:'Typ',show:true,fieldInSql:'typ',priority:2},el:{}},
-        {param:{name:'Typ2',show:true,fieldInSql:'typ2',priority:3},el:{}},
-        {param:{name:'Gdzie',show:true,fieldInSql:'gdzie',priority:4},el:{}},
-        {param:{name:'Kogo',show:true,fieldInSql:'kogo',priority:4},el:{}},
-        {param:{name:'Osoba',show:true,fieldInSql:'osoba',priority:0},el:{}},
-        {param:{name:'Powiązane',show:true,fieldInSql:'powiazane',priority:0},el:{}},
-        {param:{name:'Opis',show:true,fieldInSql:'opis',priority:4},el:{}}]
-        //{name:'Data wpisu',fieldInSql:'createdDate',priority:0},
-        //{name:'Użytkownik',fieldInSql:'userId',priority:0}];
-      }
-    }).catch(err => {console.error(err);})
+      })
+    }else if(this.type == 1){
+      getJson(uri + "api/columns")
+      .then(resp => {
+        if (resp.length > 0){
+          this.columnsReady = true;
+          let obj =  JSON.parse(resp[resp.length-1].col_json);
+          obj.forEach(el => {     
+            let element = {};
+            element.param = el;
+            element.el = {};          
+            this.columnsToShow.push(element);
+          })
+        }else{
+          this.columnsToShow =  [{param:{name:'Id',show:true,fieldInSql:'id',priority:0},el:{}},
+          {param:{name:'Bank',show:true,fieldInSql:'bank',priority:3},el:{}},
+          {param:{name:'Kwota',show:true,fieldInSql:'kwota',priority:1},el:{}},
+          {param:{name:'Data',show:true,fieldInSql:'data',priority:2},el:{}},
+          {param:{name:'Typ',show:true,fieldInSql:'typ',priority:2},el:{}},
+          {param:{name:'Typ2',show:true,fieldInSql:'typ2',priority:3},el:{}},
+          {param:{name:'Gdzie',show:true,fieldInSql:'gdzie',priority:4},el:{}},
+          {param:{name:'Kogo',show:true,fieldInSql:'kogo',priority:4},el:{}},
+          {param:{name:'Osoba',show:true,fieldInSql:'osoba',priority:0},el:{}},
+          {param:{name:'Powiązane',show:true,fieldInSql:'powiazane',priority:0},el:{}},
+          {param:{name:'Opis',show:true,fieldInSql:'opis',priority:4},el:{}}]
+          //{name:'Data wpisu',fieldInSql:'createdDate',priority:0},
+          //{name:'Użytkownik',fieldInSql:'userId',priority:0}];
+        }
+      }).catch(err => {console.error(err);})
+    }
   }
 
   createEditTableHTML(){
@@ -220,7 +262,7 @@ class Table{
   {
     let tab = [];
     let el = document.querySelector('div#editTableList').children;
-    for (let i = 0; i < el.length; i++){ // od 1 żeby pominąć template
+    for (let i = 0; i < el.length; i++){ 
      tab.push(this.columnsToShow[this.findInTab(el[i].id)]);
     }
      
@@ -260,7 +302,7 @@ class Table{
     send_insert(uri+"api/columns",data) 
       .then(res => { //sprawdzam odpowiedz bo to że jest to jeszcze nie znaczy że jest dobra
         if (typeof res.id !== 'undefined' && res.id > -1){
-        console.log(res);
+        //console.log(res);
         }else{console.error(res);}
       }).catch(err => console.error(err))
   }
@@ -280,6 +322,7 @@ class Table{
   reload(){ //funkcja odświeża tabelke, potrzebna np. przy zmianie filtrowania albo przy zmianie strony
   
   this.data.load().then(()=>{
+    if(this.type != 1) this.getColumns();
     //console.trace(this.data.resp);
     //console.log('resp = ' , this.data.resp.length);
     if (this.data.resp.length > 0){
@@ -295,12 +338,16 @@ class Table{
   //----------------------------------------------------------------------------------------Koniec reload--------------------------------
 
   reloadTable(){
-    if(checkBootstrapSizeMode() != 'xs'){
+    if(checkBootstrapSizeMode() != 'xs' || this.type != 1){
       this.reloadHead();
       this.reloadBody();
+      this.el.divTableXs.style.display = 'none';
+      this.el.divTableLg.style.display = 'block';
     }else{
       this.reloadXs();
-    }
+      this.el.divTableXs.style.display = 'block';
+      this.el.divTableLg.style.display = 'none';    
+    }    
   }
 
   //-----------------------------------------------------------------------------------------reloadHead-------------------------------
@@ -316,6 +363,7 @@ class Table{
   reloadHead(){
     // console.log(this.data.resp);
     if (!this.columnsReady) console.log('nie zdążyłem pobrać kolumn');
+
     let fragment = document.createDocumentFragment();
     this.columnsToShow.forEach(element => {
       let el = element.param;
@@ -354,11 +402,13 @@ class Table{
   // Related .......: reloadHead()
   // ==============================================================================
   reloadBody(){
-    let trChild = allElement.wydatki.table.el.trHeader.children;
+    let trChild = this.el.trHeader.children;
     let headers = [];
     for (let i = 0; i < trChild.length; i++){
       headers.push(trChild[i].classList[0])
     }
+    //console.log(this.type,this.columnsToShow, headers, trChild);
+    
     let fragment = document.createDocumentFragment();
     this.data.resp.forEach(row =>{
       const tr = document.createElement('tr');

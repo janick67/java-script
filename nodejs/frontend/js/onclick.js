@@ -41,7 +41,7 @@ document.querySelector('#nav_wyloguj')
 document.querySelector('#nav_wszystkie') // strona głowna
 .onclick = e => {
   e.preventDefault();
-  Table.pokaz();
+  allElement['wydatki'].table.show();
 }
 
 document.querySelector('#nav_saldo')
@@ -93,4 +93,5 @@ document.querySelector('#nav_kto_ma_oddac_suma')
 window.addEventListener('popstate', e => {
     console.log("location: " + document.location + ", state: " + JSON.stringify(event.state));
 })
+
 //----------------------------------------------EVENTY KONIEC-----------------------

@@ -21,7 +21,7 @@ class Data{
         console.error(resp);
         this.resp = '';
       }else{
-        console.log(resp);
+       // console.log(resp);
         this.resp = resp;
       }
     })

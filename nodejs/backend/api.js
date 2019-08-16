@@ -216,7 +216,7 @@ app.get('/api/wydatki/saldo_na_miesiac/query',(req,res) => {
     if (typeof obj.where === 'undefined') obj.where = '';
     if (typeof obj.groupby === 'undefined') obj.groupby = '';
     if (typeof obj.orderby === 'undefined') obj.orderby = 'Year(data), MONTH(data)';
-    obj.select += 'Year(data), MONTH(data), sum(kwota)';
+    obj.select += 'Year(data) rok, MONTH(data) miesiac, sum(kwota) suma';
     obj.where += 'and kogo = "moje"';
     obj.groupby += 'Year(data), MONTH(data)';
   });

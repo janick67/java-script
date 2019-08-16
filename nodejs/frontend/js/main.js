@@ -42,7 +42,7 @@ document.addEventListener('keydown',(e)=>{
 let name = 'wydatki';
 allElement[name] = {};
 allElement[name].data = new Data(name,name);
-allElement[name].table = new Table(allElement[name].data,false);
+allElement[name].table = new Table(allElement[name].data,1);
 actualData = allElement[name];
 
 // const tabelka = new Tabelka("wydatki","wydatki"); //głowna tabelka main z wszystkimi wydatkami

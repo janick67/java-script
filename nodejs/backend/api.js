@@ -246,16 +246,34 @@ app.get('/api/wydatki/kto_ma_oddac_suma/query',(req,res) => {
 
 app.post('/api/wydatki', (req,res) => {
   let  body = req.body;
-  body.userId = req.user.id;
-  const spr = sprawdz(body);
-  if (Object.keys(spr).length > 0) return res.send({error:'Błędne dane',message:spr});
-  const sql = 'INSERT INTO wydatki SET ?';
-  const query = db.query(sql,body, (err, result) => {
-    if (err) {
-      console.error(aktualnaData()+err);
-      return res.send(err);
-    }
-    res.send({id:result.insertId});
+  if (!Array.isArray(body)) body = [body];
+    let response = {errors:[],res:[]};
+    let promises = [];
+    body.forEach((el,i)=>{
+      el.userId = req.user.id;
+      const spr = sprawdz(el);
+      if (Object.keys(spr).length > 0) return response.errors.push({error:'Błędne dane',message:spr, row:i});
+      const sql = 'INSERT INTO wydatki SET ?';
+      
+      const query = new Promise(resolve=>{
+        db.query(sql,el, (err, result) => {
+          if (err) {
+            console.error(aktualnaData()+err);
+            resolve(response.errors.push({error:'Błędny sql',message:err,row:i}));
+          }
+          console.log('no wrzucam dane ', {id:result.insertId,row:i});
+          resolve(response.res.push({id:result.insertId,row:i}));
+        })
+      })
+      promises.push(query);
+      console.log(promises[0]);
+      
+    });
+
+  Promise.all(promises).then(resolve=>{
+    console.log(resolve);
+    console.log('a moj ressponse wyglada tak:',response);
+    res.send(response);
   })
 })
 

@@ -1,0 +1,10 @@
+[
+{"type":"header","version":"4.9.0.1","comment":"Export to JSON plugin for PHPMyAdmin"},
+{"type":"database","name":"janick67"},
+{"type":"table","name":"wydatki","database":"janick67","data":
+[
+{"ID":"692","bank":"GOT","kwota":"-100.00","data":"2019-06-27","typ":"Pożyczone","typ2":"Pożyczone","gdzie":"Tata","kogo":"tata","Osoba":null,"powiązane":"0","Opis":"200 na 2 za paliwo"},
+{"ID":"693","bank":"GOT","kwota":"-10.00","data":"2019-07-06","typ":"Rozrywka","typ2":"picie","gdzie":"Festyn","kogo":"moje","Osoba":"Kinga","powiązane":"0","Opis":"Piwo dla mnie i Kingi na pól + postawiłem Piotrkowi"}
+]
+}
+]

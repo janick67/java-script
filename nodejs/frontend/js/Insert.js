@@ -68,9 +68,10 @@ Insert.prototype.czytajIWyslij = function(){ // wczytuje dane z imputów, wysył
     if (typeof value !== 'undefined') obj[el] = value; //przypisanie wartości z inputa do obiektu
   }
   if (this.sprawdz(obj) == 1){  // walidacja przed wysłaniem na serwer
-      send_insert(uri+"api/wydatki",obj) //jeśli jest ok to wysyłam
+    send_insert(uri+"api/wydatki",obj) //jeśli jest ok to wysyłam
       .then(res => { //sprawdzam odpowiedz bo to że jest to jeszcze nie znaczy że jest dobra
-        if (typeof res.id !== 'undefined' && res.id > -1){  //jeśli serwer zwrócił nam id nowo dodanego rekordu to jest ok
+        console.log(res);
+        if (typeof res.res[0] !== 'undefined' && typeof res.res[0].id !== 'undefined' && res.res[0].id > -1){  //jeśli serwer zwrócił nam id nowo dodanego rekordu to jest ok
           actualData.table.reload() // może jeszcze nie działać, nie przypisuję nic do zmiennej aktualna tabelka
           //location.reload();
           $('#modal_add').modal('hide');

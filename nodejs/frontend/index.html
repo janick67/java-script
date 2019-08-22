@@ -108,6 +108,7 @@
             </div>
             <textarea type="text" name="opis" id="add_opis" class="form-control" placeholder="Opis"> </textarea><br />
             <button type="submit" class="btn btn-primary" id="add_btn"> Wyślij </button>
+            <button class="btn btn-primary" id="add_lf">Przeciągnij tutaj plik aby go wczytać</button>
           </form>
         </div>
       </div>
@@ -135,6 +136,47 @@
     </div>
   </div>
 
+  <div class="modal fade" id="modal_load_file">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2 class="modal-title">Wczytaj dane z pliku</h2>
+            <button type="button" id="lfClose" class="close" data-dismiss="modal">
+              <span>&times;</span>
+            </button>
+          </div>
+          <div class="modal-body" id='lfBody'> 
+            <div id="lfSelects"></div>
+            <button id="lfNext" class="btn btn-primary">Dalej</button>
+            <br />
+            <h1>Podgląd danych z pliku:</h1>
+               <div id="lfTable">
+
+               </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="modal fade" id="modal_load_file_accept">
+      <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2 class="modal-title">Wczytano dane</h2>
+            <button type="button" id="lfClose" class="close" data-dismiss="modal">
+              <span>&times;</span>
+            </button>
+          </div>
+          <div class="modal-body" > 
+            Wysłano część danych co chcesz zrobić z pozostałymi?
+            <br />
+            <button id='lfCorrect' class='btn btn-primary btn-accept'>Popraw</button>
+            <button id='lfIgnore' class='btn btn-primary btn-accept'>Zignoruj</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
   <div id="tableContainer">
     <div style="width: 90%; height: 80%; padding-left:10%; padding-right:10%; padding-top:2%">
@@ -143,6 +185,7 @@
   </div>
 
   <script src="../js/Data.js"></script>
+  <script src="../js/loadFile.js"></script>
   <script src="../js/Table.js"></script>
   <script src="../js/Graph.js"></script>
   <script src="../js/Group.js"></script>

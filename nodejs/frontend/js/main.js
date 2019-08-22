@@ -69,7 +69,7 @@ function rules(){ // funkcja konfigurująca, ustawiam tu wymagania przy walidacj
   rules.data = {title: 'Data',required:{required:true,message:m.required},date:{format:'ymd',message:m.data},min:{min:3,message:m.min}};
   rules.typ = {title: 'Typ',required:{required:true,message:m.required},min:{min:3,message:m.min}};
   rules.typ2 = {title: 'Typ2',required:{required:true,message:m.required},min:{min:3,message:m.min}};
-  rules.gdzie = {title: 'Gdzie',required:{required:true,message:m.required},min:{min:3,message:m.min}};
+  rules.gdzie = {title: 'Gdzie',required:{required:true,message:m.required},min:{min:2,message:m.min}};
   rules.kogo = {title: 'Kogo',required:{required:true,message:m.required},min:{min:3,message:m.min}};
   rules.osoba = {title: 'Osoba'};
   rules.powiazane = {title: 'Powiązane'};

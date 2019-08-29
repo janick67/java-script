@@ -3,6 +3,16 @@
   box-sizing: border-box;
 }
 
+.hide {
+  opacity: 0  !important;
+  transform: scalex(0);
+}
+
+.btn-accept {
+  margin: 5px;
+  width: 40%;
+}
+
 .inputShow.show::after {
   position: relative;
   float: right;
@@ -288,16 +298,40 @@ select.form-control {
 }
 
 #lfBody table {
-  width: 100%;
+  table-layout: fixed;
+  width: 95%;
+  margin: 20px auto;
+  border-collapse: collapse;
 }
 
 #lfBody select {
-  width: 6vw;
+  width: 100%;
+}
+
+#lfBody input {
+  margin-top: 4px;
+  height: 100%;
+  width: 100%;
+  will-change: opacity, transform;
+  transition-duration: .5s;
+  transition-property: opacity, transform;
+  transition-timing-function: ease-in-out;
 }
 
 #lfBody td, #lfBody th, #lfBody select {
-  padding: 5px;
   text-align: center;
+  border: solid 1px;
+  text-align: center;
+  border-collapse: collapse;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  padding: 5px;
+  width: 100%;
+}
+
+#lfBody td, #lfBody th {
+  margin: 5px;
 }
 
 #lfBody .error {
@@ -305,30 +339,63 @@ select.form-control {
   border-color: red;
 }
 
-#lfTable table {
-  table-layout: fixed;
-  width: 100%;
-  margin: 20px auto;
-  border-collapse: collapse;
+#lfBody .lfCheck tr:not(.error) td {
+  background-color: #a0f7a0;
 }
 
-#lfTable td, #lfTable th {
+#lfBody td.error {
+  background-color: #f88585;
+}
+
+#lfTable tr::before {
+  position: relative;
+  font-family: "Font Awesome 5 Free";
+  content: '';
+  /* trash */
+  left: -25px;
+  font-size: 120%;
+  color: black;
+}
+
+#lfTable tr.trHead::before {
+  content: '';
+}
+
+#lfTable tr {
+  will-change: opacity, transform;
+  transition-duration: .5s;
+  transition-property: opacity, transform;
+  transition-timing-function: ease-in-out;
+}
+
+#lfTable td:hover {
+  overflow: visible;
+  text-overflow: ellipsis;
+  position: relative;
+  padding: 0;
+  z-index: 2000;
+}
+
+#lfTable td:hover span {
+  background-color: white;
   padding: 5px;
-  border: solid 1px;
-  text-align: center;
-  border-collapse: collapse;
-  margin: 5px;
-}
-
-#lfTable input {
+  border: solid black 3px;
   width: 100%;
   height: 100%;
 }
 
-.lfCheck tr:not(.error) td {
-  background-color: #a0f7a0;
+.selectsTable td, .selectsTable th {
+  border: none !important;
 }
 
-.lfCheck td.error {
-  background-color: #f88585;
+.modal-body {
+  max-height: 80vh;
+  overflow-y: auto;
+  margin-top: 3vh;
+  margin-bottom: 3vh;
+}
+
+.modal-max {
+  max-width: 90vw !important;
+  width: 90vw !important;
 }

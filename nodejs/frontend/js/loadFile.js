@@ -16,7 +16,7 @@ function handleFileSelect(evt) {
     reader.onprogress = function(evt) {
     };
     reader.onload = function(evt) {
-      let result = evt.target.result;
+      let result = evt.target.result.replace(/\s+/g, " ");
       let data = {};
       if (f.type == 'application/json' || f.extension  == '.json' ){
         let res = JSON.parse(result);
@@ -96,12 +96,13 @@ function handleFileSelect(evt) {
         if (target.tagName === 'TR'){
           if(e.offsetX < 0){
             let row =  target.getAttribute('row');
-            console.log(target, row);
-            data = data.splice(row,1);  
+            data.splice(row,1);  
 
             target.addEventListener('transitionend', function() {
-              console.log('transitionend fired', typeof target); 
+              if (typeof target.parentNode != 'undefined' && target.parentNode != null){
+              //console.log('transitionend fired', typeof target); 
               target.remove();
+              }
             });
             target.classList.add('hide');
           }
@@ -255,7 +256,7 @@ function handleFileSelect(evt) {
       if (errors > 0)
        console.log("Znaleziono następującą liczbę błędów: "+errors);
       else {
-        console.log(JSON.stringify(readyData));
+        console.log(objectToSqlInsert(readyData));
         send_insert(uri+"api/wydatki",readyData).then(res=>{
           let err = res.errors;
           let errorRows = [];
@@ -343,3 +344,21 @@ function handleFileSelect(evt) {
   dropZone.addEventListener('drop', handleFileSelect, false);
 
 
+let objectToSqlInsert = (data)=>{
+  //INSERT INTO `wydatki`(`ID`, `bank`, `kwota`, `data`, `typ`, `typ2`, `gdzie`, `kogo`, `Osoba`, `powiązane`, `Opis`) VALUES ([value-1],[value-2],[value-3],[value-4],[value-5],[value-6],[value-7],[value-8],[value-9],[value-10],[value-11])
+  let sql = 'INSERT INTO `wydatki` (';
+  let columns = Object.getOwnPropertyNames(data[0]);
+  columns.forEach((el)=>{
+    sql+= `\`${el}\`, `; 
+  })
+  sql = sql.slice(0,sql.length-2) + ') VALUES'; //obcina dwa ostatnie znaki
+  data.forEach((row)=>{
+    sql += '(';
+    columns.forEach(col=>{
+      sql += `'${row[col]}',`;
+    })
+    sql = sql.slice(0,sql.length-1) + '),';
+  })
+  sql = sql.slice(0,sql.length-1); //obcina ostatni znak
+  return sql.replace(/\s+/g, " ");
+}

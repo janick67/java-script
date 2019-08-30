@@ -16,7 +16,7 @@ function handleFileSelect(evt) {
     reader.onprogress = function(evt) {
     };
     reader.onload = function(evt) {
-      let result = evt.target.result.replace(/\s+/g, " ");
+      let result = evt.target.result.replace(/\h+/g, " ");
       let data = {};
       if (f.type == 'application/json' || f.extension  == '.json' ){
         let res = JSON.parse(result);
@@ -28,7 +28,7 @@ function handleFileSelect(evt) {
       }else if(f.extension == '.csv'){
         
         if (result.slice(0,5) == 'mBank') {
-          console.log('mbank');
+          //console.log('mbank');
           data = csvObj(result.slice(result.indexOf('#Data operacji;')),';');
         }else{
         data = csvObj(result);
@@ -45,8 +45,13 @@ function handleFileSelect(evt) {
       // })
 
       //console.log(data);
-      console.log(JSON.stringify(data).replace(/\\r/gm, '').replace(/\\"/gm, ''));
-      
+      //console.log(JSON.s.tringify(data).replace(/\\r/gm, '').replace(/\\"/gm, ''));
+      // let tab = JSON.parse('["nodecux2 usbCtoHDMI","ledy z aliexpres","test thc dla Dawida","samolot Dawida","płyn do mycia auta, zapach i plak + 12zl czteropak","lody i żelki dla mnie Kingi i Piotrka","etui Piotrka","piłka do siatki","2 x bluza dla Kingi, za jedną płaci sama","przelew Piotrkowi","zabawki higiena","jedzenie i picie ","mcflary","jedzenie","prosił o przelew","bluza Kingi Ali już mi oddala","jedzenie przed wyjazdem ","wloskie","muzeum figur woskowych ","gofry x2","zupy dla wszystkich ","bułki piekarnia","Seba za obiad i busa","Darek za obiad i busa","wloskie","wloskie","zoo dla 4 osob, oddały mi gotówkę","woda","jedzenie przed zoo","świderki ","flixbus ja place 12 Kinga kupon 14zl a dziewczyny oddają po 13","placki ziemniaczane","lody piwo ","pierogi x2","łopatka i grabki","jedzenie we wladyslawowie","szejki z kuponu","jedzenie przed wyjazdem","majtki i koszulki ","statyw dla Kingi oddała mi","koszulka w pepco","prosił o przelew","monety + allegro smart mama robiła zakupy","paliwo, tata płacił oddałem"]').reverse();
+      // data.forEach((el,i)=>{
+      //   el['opis'] = tab[i];
+      // })
+
+
       first(data);
 
     };
@@ -84,30 +89,15 @@ function handleFileSelect(evt) {
     return tab;
   }
 
+
   let first = (data)=>{
     $('#modal_load_file').modal('show');
       let tab = makeATable(data);
 
+      tab.onclick = e => deleteTrOnclick(e,data);
+
       document.querySelector('#lfTable').innerHTML='';
       document.querySelector('#lfTable').append(tab);
-
-      tab.onclick = e =>{
-        let {target} = e;
-        if (target.tagName === 'TR'){
-          if(e.offsetX < 0){
-            let row =  target.getAttribute('row');
-            data.splice(row,1);  
-
-            target.addEventListener('transitionend', function() {
-              if (typeof target.parentNode != 'undefined' && target.parentNode != null){
-              //console.log('transitionend fired', typeof target); 
-              target.remove();
-              }
-            });
-            target.classList.add('hide');
-          }
-        }
-      }
 
       let tab2 = document.createElement('table');
       tab2.classList.add('selectsTable');
@@ -123,7 +113,7 @@ function handleFileSelect(evt) {
           if (col == 'id' || col == 'userId' || col == 'createdData') return;
           respTable.push(col);
         });
-
+          
           let matched = matchHead(data[0],respTable);
 
           respTable.forEach(col => {
@@ -187,7 +177,8 @@ function handleFileSelect(evt) {
   }
 
   let second = (data,columns) => {
-    console.log(data, columns);
+    data = data.filter(el => typeof el.delete == 'undefined')
+    //console.log(data, columns);
     
     let lfBody = document.querySelector('#lfBody');
     firstScreanHTML = lfBody.innerHTML;    
@@ -206,6 +197,9 @@ function handleFileSelect(evt) {
           } else{
             obj[el] = (typeof row[se] != 'undefined') ? row[se] : '';
           }
+          if (el=='kwota'){
+            obj[el] = obj[el].replace(',','.');            
+          }
         }
         readyData.push(obj);
       })
@@ -214,11 +208,12 @@ function handleFileSelect(evt) {
     }
 
     let tab = makeATable(readyData);
+    tab.onclick = e => deleteTrOnclick(e,data);
     let tbody = tab.querySelector('tbody');
-    console.log(tbody);
+    //console.log(tbody);
     
       tbody.ondblclick = e =>{
-        console.log(e,getClossestTag(e.target,'TR'));
+        //console.log(e,getClossestTag(e.target,'TR'));
         
         let el = getClossestTag(e.target,'TD');
         if (el.tagName == 'TD'){
@@ -240,6 +235,7 @@ function handleFileSelect(evt) {
       document.querySelector('#lfTable').append(tab);
 
       document.querySelector('#lfSubmit').onclick = e =>{
+        readyData = readyData.filter(el => typeof el.delete == 'undefined')
         let errors = 0;
         readyData.forEach((row,i) => {
           const err = sprawdz(row);
@@ -299,6 +295,7 @@ function handleFileSelect(evt) {
   }
 
   let matchHead = (data,headers) => {
+   // console.log(data);
     let dataHead = Object.getOwnPropertyNames(data);
     // console.log(data,dataHead,headers);
     let matched = {};
@@ -318,7 +315,11 @@ function handleFileSelect(evt) {
   }
   
   function csvObj(csv,char = ','){
-    var lines=csv.split("\n");
+    //console.log(csv);
+    
+    let lines=csv.split("\n");
+    //console.log(lines);
+    
     var result = [];
     for(var i=1;i<lines.length;i++){
         var obj = {};
@@ -336,6 +337,22 @@ function handleFileSelect(evt) {
     evt.preventDefault();
     evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
   }
+
+  let deleteTrOnclick = (e,data) =>{
+    let {target} = e;
+    if (target.tagName === 'TR'){
+      if(e.offsetX < 0){
+        let row =  target.getAttribute('row');
+        data[row].delete = true;  
+        target.addEventListener('transitionend', function() {
+          if (typeof target.parentNode != 'undefined' && target.parentNode != null){
+          target.remove();
+          }
+        });
+        target.classList.add('hide');
+      }
+    }
+  };
   
   // Setup the dnd listeners.
 

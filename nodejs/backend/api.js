@@ -480,4 +480,4 @@ function aktualnaData(){
 
 function leadingZero(i) {
   return (i < 10)? '0'+i : i;
-}
+} 

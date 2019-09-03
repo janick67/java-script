@@ -90,6 +90,7 @@
       text-shadow: 1px 1px 0px #fff;
       background:#aaabac;
       margin:2%;
+      margin-left: calc(2% + 20px);
       border:#babbbc 2px solid;
 
       -moz-border-radius:8px;
@@ -132,6 +133,25 @@
   tr{
       text-align: center;
       padding-left:20px;
+      position: relative;
+  }
+
+  table, thead, tbody,th, tr, td{
+    box-sizing: content-box;
+  } //potrzebne żeby tr::before nie rozwalał tableki
+
+  tr::before{
+    position: absolute;
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    content: '\f0c9';  /* bars */
+    left:-20px;
+    font-size: 120%;
+    color: black;
+  }
+
+  tr.trHeader::before{
+    content:'';
   }
 
 
@@ -394,7 +414,6 @@ select.form-control{
   td:hover span{
     background-color: white;
     padding: 5px;
-    border: solid black 3px;
     width: 100%;
     height: 100%; 
   }
@@ -418,4 +437,3 @@ select.form-control{
   max-width: 90vw !important;
   width: 90vw !important;
 }
-

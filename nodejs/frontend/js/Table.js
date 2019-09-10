@@ -33,15 +33,16 @@ class Table{
   // Related .......: createHTML(),dodajFiltr(),show()
   // ==============================================================================
   init(){
-    this.createHTML();
-    this.filtr = new Filtr(this);
+    this.table = new FlexTable();
+    //this.createHTML();
+    // this.filtr = new Filtr(this);
     this.reload();
     this.show();
-    new Sortable(document.getElementById('editTableList'), {
-      handle: '.handle', // handle's class
-      animation: 150
-  });
-    this.createEditTableHTML();
+  //   new Sortable(document.getElementById('editTableList'), {
+  //     handle: '.handle', // handle's class
+  //     animation: 150
+  // });
+  //   this.createEditTableHTML();
   }
   //----------------------------------------------------------------------------------------Koniec init------------------------------------
 
@@ -338,16 +339,9 @@ class Table{
   //----------------------------------------------------------------------------------------Koniec reload--------------------------------
 
   reloadTable(){
-    if(checkBootstrapSizeMode() != 'xs' || this.type != 1){
-      this.reloadHead();
-      this.reloadBody();
-      this.el.divTableXs.style.display = 'none';
-      this.el.divTableLg.style.display = 'block';
-    }else{
-      this.reloadXs();
-      this.el.divTableXs.style.display = 'block';
-      this.el.divTableLg.style.display = 'none';    
-    }    
+    this.table.reload(this.data.resp).then(() =>{
+      this.el.mainDiv.append(this.table.fragment);
+    });
   }
 
   //-----------------------------------------------------------------------------------------reloadHead-------------------------------

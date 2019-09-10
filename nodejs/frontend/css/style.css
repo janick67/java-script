@@ -265,3 +265,91 @@ select.form-control {
   border: 1px dashed #000000;
   text-align: center;
 }
+
+.flexTable {
+  margin: 10px;
+  width: calc(100% - 20px);
+  display: flex;
+  flex-direction: column;
+  border-radius: 20px;
+  box-shadow: rgba(0, 0, 0, 0.8) 0 0 10px;
+}
+
+.flexTable .tr {
+  display: flex;
+  flex: 1;
+}
+
+.flexTable .td, .flexTable .th {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.flexTable .td span, .flexTable .th span {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.flexTable .head {
+  background-color: black;
+  color: white;
+  font-weight: bold;
+  text-transform: capitalize;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+}
+
+.flexTable .tbody .tr:nth-child(even) {
+  background-color: rgba(1, 1, 1, 0.2);
+}
+
+.flexTable .tbody .tr:nth-child(odd) {
+  background-color: rgba(1, 1, 1, 0.1);
+}
+
+.flexTable .tbody .tr:last-child {
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+}
+
+.flexTable .td:not(:first-child) {
+  border-left: none;
+}
+
+.flexTable .tr:not(:first-child) .td {
+  border-top: none;
+}
+
+@media screen and (max-width: 1200px) {
+  .flexTable {
+    margin-top: 0;
+  }
+  .flexTable .thead {
+    background-color: white;
+    top: 0px;
+    margin-top: 0;
+    position: fixed;
+    width: calc(100% - 20px);
+  }
+  .flexTable .tr {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin: 0.5em 0;
+    border: 1px solid rgba(3, 3, 3, 0.2);
+  }
+  .flexTable .head {
+    margin-top: 0;
+  }
+  .flexTable .td, .flexTable .th {
+    flex: 1 1 150px;
+    border: 0.5px solid rgba(3, 3, 3, 0.2);
+  }
+}

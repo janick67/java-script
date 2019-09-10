@@ -3,6 +3,7 @@
 
 
 window.onresize = e => {
+  setMargin();
   let size = checkBootstrapSizeMode();
   if (actualBootstrapSize != size){
     actualBootstrapSize = checkBootstrapSizeMode();
